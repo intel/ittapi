@@ -524,7 +524,7 @@ static __itt_counter ITTAPI ITT_VERSIONIZE(ITT_JOIN(_N_(counter_createW),_init))
     }
     for (h_tail = NULL, h = _N_(_ittapi_global).counter_list; h != NULL; h_tail = h, h = h->next)
     {
-        if (h->nameW != NULL  && h->type == type && !wcscmp(h->nameW, name) && ((h->domainW == NULL && domain == NULL) ||
+        if (h->nameW != NULL  && h->type == (int)type && !wcscmp(h->nameW, name) && ((h->domainW == NULL && domain == NULL) ||
             (h->domainW != NULL && domain != NULL && !wcscmp(h->domainW, domain)))) break;
 
     }
@@ -568,7 +568,7 @@ static __itt_counter ITTAPI ITT_VERSIONIZE(ITT_JOIN(_N_(counter_create),_init))(
     }
     for (h_tail = NULL, h = _N_(_ittapi_global).counter_list; h != NULL; h_tail = h, h = h->next)
     {
-        if (h->nameA != NULL  && h->type == type && !__itt_fstrcmp(h->nameA, name) && ((h->domainA == NULL && domain == NULL) || 
+        if (h->nameA != NULL  && h->type == (int)type && !__itt_fstrcmp(h->nameA, name) && ((h->domainA == NULL && domain == NULL) ||
             (h->domainA != NULL && domain != NULL && !__itt_fstrcmp(h->domainA, domain)))) break;
     }
     if (h == NULL)
@@ -600,7 +600,7 @@ static __itt_counter ITTAPI ITT_VERSIONIZE(ITT_JOIN(_N_(counter_create_typedW),_
     }
     for (h_tail = NULL, h = _N_(_ittapi_global).counter_list; h != NULL; h_tail = h, h = h->next)
     {
-        if (h->nameW != NULL  && h->type == type && !wcscmp(h->nameW, name) && ((h->domainW == NULL && domain == NULL) ||
+        if (h->nameW != NULL  && h->type == (int)type && !wcscmp(h->nameW, name) && ((h->domainW == NULL && domain == NULL) ||
             (h->domainW != NULL && domain != NULL && !wcscmp(h->domainW, domain)))) break;
 
     }
@@ -643,7 +643,7 @@ static __itt_counter ITTAPI ITT_VERSIONIZE(ITT_JOIN(_N_(counter_create_typed),_i
     }
     for (h_tail = NULL, h = _N_(_ittapi_global).counter_list; h != NULL; h_tail = h, h = h->next)
     {
-        if (h->nameA != NULL  && h->type == type && !__itt_fstrcmp(h->nameA, name) && ((h->domainA == NULL && domain == NULL) || 
+        if (h->nameA != NULL  && h->type == (int)type && !__itt_fstrcmp(h->nameA, name) && ((h->domainA == NULL && domain == NULL) ||
             (h->domainA != NULL && domain != NULL && !__itt_fstrcmp(h->domainA, domain)))) break;
     }
     if (h == NULL)
