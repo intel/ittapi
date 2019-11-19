@@ -29,6 +29,6 @@ To load the library:
  - On Windows and Linux: Set environment variable `INTEL_LIBITTNOTIFY32`/`INTEL_LIBITTNOTIFY64` to the full path pointing to `libittnotify[32/64].[lib/a]`
  - On OSX: Set environment variable `DYLD_INSERT_LIBRARIES` to the full path to `libittnotify.dylib`
 
-## License
+### License
 
 All code in the repo is dual licensed under GPLv2 and 3-Clause BSD licenses
