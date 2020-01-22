@@ -29,8 +29,8 @@ ITT_STUB(ITTAPI, __itt_domain*, domain_createW, (const wchar_t *name), (ITT_FORM
 ITT_STUB(ITTAPI, __itt_domain*, domain_create,  (const char    *name), (ITT_FORMAT name), domain_create,  __itt_group_structure, "\"%s\"")
 #endif /* ITT_PLATFORM==ITT_PLATFORM_WIN */
 
-ITT_STUBV(ITTAPI, void, module_load_with_sections, (__itt_module_object* module_obj), (ITT_FORMAT module_obj), module_load_with_sections, __itt_group_none, "%p")
-ITT_STUBV(ITTAPI, void, module_unload_with_sections, (__itt_module_object* module_obj), (ITT_FORMAT module_obj), module_unload_with_sections, __itt_group_none, "%p")
+ITT_STUBV(ITTAPI, void, module_load_with_sections, (__itt_module_object* module_obj), (ITT_FORMAT module_obj), module_load_with_sections, __itt_group_module, "%p")
+ITT_STUBV(ITTAPI, void, module_unload_with_sections, (__itt_module_object* module_obj), (ITT_FORMAT module_obj), module_unload_with_sections, __itt_group_module, "%p")
 
 #if ITT_PLATFORM==ITT_PLATFORM_WIN
 ITT_STUB(ITTAPI, __itt_string_handle*, string_handle_createA, (const char    *name), (ITT_FORMAT name), string_handle_createA, __itt_group_structure, "\"%s\"")

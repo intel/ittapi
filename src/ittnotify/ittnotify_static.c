@@ -782,7 +782,7 @@ static const char* __itt_fsplit(const char* s, const char* sep, const char** out
 
 /* This function return value of env variable that placed into static buffer.
  * !!! The same static buffer is used for subsequent calls. !!!
- * This was done to aviod dynamic allocation for few calls.
+ * This was done to avoid dynamic allocation for few calls.
  * Actually we need this function only four times.
  */
 static const char* __itt_get_env_var(const char* name)
@@ -957,11 +957,11 @@ static const char* __itt_get_lib_name(void)
 }
 
 /* Avoid clashes with std::min, reported by tbb team */
-#define __itt_min(a,b) (a) < (b) ? (a) : (b)
+#define __itt_min(a,b) ((a) < (b) ? (a) : (b))
 
 static __itt_group_id __itt_get_groups(void)
 {
-    register int i;
+    int i;
     __itt_group_id res = __itt_group_none;
     const char* var_name  = "INTEL_ITTNOTIFY_GROUPS";
     const char* group_str = __itt_get_env_var(var_name);
@@ -1031,7 +1031,7 @@ static void __itt_reinit_all_pointers(void)
 
 static void __itt_nullify_all_pointers(void)
 {
-    register int i;
+    int i;
     /* Nulify all pointers except domain_create, string_handle_create  and counter_create */
     for (i = 0; _N_(_ittapi_global).api_list_ptr[i].name != NULL; i++)
         *_N_(_ittapi_global).api_list_ptr[i].func_ptr = _N_(_ittapi_global).api_list_ptr[i].null_func;
@@ -1082,7 +1082,7 @@ ITT_EXTERN_C void _N_(fini_ittlib)(void)
 
 ITT_EXTERN_C int _N_(init_ittlib)(const char* lib_name, __itt_group_id init_groups)
 {
-    register int i;
+    int i;
     __itt_group_id groups;
 #ifdef ITT_COMPLETE_GROUP
     __itt_group_id zero_group = __itt_group_none;
@@ -1114,9 +1114,11 @@ ITT_EXTERN_C int _N_(init_ittlib)(const char* lib_name, __itt_group_id init_grou
                         __itt_api_init_t* __itt_api_init_ptr;
                         int lib_version = __itt_lib_version(_N_(_ittapi_global).lib);
 
-                        switch (lib_version) {
+                        switch (lib_version)
+                        {
                         case 0:
                             groups = __itt_group_legacy;
+                            /* Falls through */
                         case 1:
                             /* Fill all pointers from dynamic library */
                             for (i = 0; _N_(_ittapi_global).api_list_ptr[i].name != NULL; i++)
