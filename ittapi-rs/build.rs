@@ -1,9 +1,7 @@
-#![allow(unused_imports)]
-use cmake;
+#![allow(unused)]
 use cmake::Config;
 use std::env;
 use std::path::PathBuf;
-extern crate bindgen;
 
 #[cfg(target_os = "windows")]
 fn main() {}
@@ -36,24 +34,4 @@ fn main() {
         println!("cargo:rustc-link-search={}/build/bin/", out_path.display());
         println!("cargo:rustc-link-lib=static=ittnotify32");
     }
-
-    let ittnotify_bindings = bindgen::Builder::default()
-        .rustfmt_bindings(true)
-        .header("./include/ittnotify.h")
-        .generate()
-        .expect("Unable to generate bindings");
-
-    ittnotify_bindings
-        .write_to_file(out_path.join("ittnotify_bindings.rs"))
-        .expect("Couldn't write bindings!");
-
-    let jitprofiling_bindings = bindgen::Builder::default()
-        .rustfmt_bindings(true)
-        .header("./include/jitprofiling.h")
-        .generate()
-        .expect("Unable to generate bindings");
-
-    jitprofiling_bindings
-        .write_to_file(out_path.join("jitprofiling_bindings.rs"))
-        .expect("Couldn't write bindings!");
 }
