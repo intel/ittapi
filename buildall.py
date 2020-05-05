@@ -1,4 +1,5 @@
-﻿#
+﻿#!/usr/bin/env python
+#
 # Copyright (C) 2005-2019 Intel Corporation
 #
 # SPDX-License-Identifier: GPL-2.0-only OR BSD-3-Clause
@@ -101,6 +102,7 @@ def main():
     parser = argparse.ArgumentParser()
     vs_versions = get_vs_versions()
     parser.add_argument("-d", "--debug", action="store_true")
+    parser.add_argument("-c", "--clean", action="store_true")
     parser.add_argument("-v", "--verbose", action="store_true")
     if sys.platform == 'win32' and vs_versions:
         parser.add_argument("--vs", choices=vs_versions, default=vs_versions[0])
@@ -112,6 +114,10 @@ def main():
 
     print("target_bits", target_bits)
     work_dir = os.getcwd()
+    if args.clean:
+        bin_dir = os.path.join(work_dir, 'bin')
+        if os.path.exists(bin_dir):
+            shutil.rmtree(bin_dir)
     for bits in target_bits:
         work_folder = os.path.join(work_dir, "build_" + (sys.platform.replace('32', "")), bits)
         already_there = os.path.exists(work_folder)
@@ -122,6 +128,8 @@ def main():
             os.makedirs(work_folder)
         print("work_folder: ", work_folder)
         os.chdir(work_folder)
+        if args.clean:
+            continue
 
         cmake = detect_cmake()
         if not cmake:
