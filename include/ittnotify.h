@@ -1525,7 +1525,7 @@ ITT_STUBV(ITTAPI, void, heap_allocate_end, (__itt_heap_function h, void** addr, 
 /** @endcond */
 
 /**
- * @brief Record an free begin occurrence.
+ * @brief Record a free begin occurrence.
  */
 void ITTAPI __itt_heap_free_begin(__itt_heap_function h, void* addr);
 
@@ -1545,7 +1545,7 @@ ITT_STUBV(ITTAPI, void, heap_free_begin, (__itt_heap_function h, void* addr))
 /** @endcond */
 
 /**
- * @brief Record an free end occurrence.
+ * @brief Record a free end occurrence.
  */
 void ITTAPI __itt_heap_free_end(__itt_heap_function h, void* addr);
 
@@ -1565,7 +1565,7 @@ ITT_STUBV(ITTAPI, void, heap_free_end, (__itt_heap_function h, void* addr))
 /** @endcond */
 
 /**
- * @brief Record an reallocation begin occurrence.
+ * @brief Record a reallocation begin occurrence.
  */
 void ITTAPI __itt_heap_reallocate_begin(__itt_heap_function h, void* addr, size_t new_size, int initialized);
 
@@ -1585,7 +1585,7 @@ ITT_STUBV(ITTAPI, void, heap_reallocate_begin, (__itt_heap_function h, void* add
 /** @endcond */
 
 /**
- * @brief Record an reallocation end occurrence.
+ * @brief Record a reallocation end occurrence.
  */
 void ITTAPI __itt_heap_reallocate_end(__itt_heap_function h, void* addr, void** new_addr, size_t new_size, int initialized);
 
