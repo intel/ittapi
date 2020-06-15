@@ -104,6 +104,7 @@ def main():
     parser.add_argument("-d", "--debug", action="store_true")
     parser.add_argument("-c", "--clean", action="store_true")
     parser.add_argument("-v", "--verbose", action="store_true")
+    parser.add_argument("-pt", "--ptmark", action="store_true")
     if sys.platform == 'win32' and vs_versions:
         parser.add_argument("--vs", choices=vs_versions, default=vs_versions[0])
     args = parser.parse_args()
@@ -146,7 +147,8 @@ def main():
         run_shell('%s "%s" -G"%s" %s' % (cmake, work_dir, generator, " ".join([
             ("-DFORCE_32=ON" if bits == '32' else ""),
             ("-DCMAKE_BUILD_TYPE=Debug" if args.debug else ""),
-            ('-DCMAKE_VERBOSE_MAKEFILE:BOOL=ON' if args.verbose else '')
+            ('-DCMAKE_VERBOSE_MAKEFILE:BOOL=ON' if args.verbose else ''),
+            ("-DITT_API_IPT_SUPPORT=1" if args.ptmark else "")
         ])))
         if sys.platform == 'win32':
             target_project = 'ALL_BUILD'

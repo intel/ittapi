@@ -9,6 +9,7 @@ cmake_minimum_required(VERSION 2.8)
 project(ittapi)
 
 OPTION(FORCE_32 "Force a 32bit compile on 64bit" OFF)
+OPTION(ITT_API_IPT_SUPPORT "ptmarks support" 0)
 
 IF(FORCE_32 AND UNIX)
     SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -m32")
@@ -46,9 +47,29 @@ set(ITT_PUBLIC_HDRS
     include/libittnotify.h
 )
 
+if (ITT_API_IPT_SUPPORT)
+    if (NOT WIN32)
+        enable_language(ASM)
+        if (ARCH_64)
+            set(ITT_PT src/ittnotify/ittptmark64.S)
+        else()
+            set(ASM_OPTIONS "-m32")
+            set(ITT_PT src/ittnotify/ittptmark32.S)
+        endif()
+        set(CMAKE_ASM_FLAGS "${CFLAGS} ${ASM_OPTIONS}" )
+    else()
+        enable_language(ASM_MASM)
+        if (ARCH_64)
+            set(ITT_PT src/ittnotify/ittptmark64.asm)
+	else()
+            set(ITT_PT src/ittnotify/ittptmark32.asm)
+        endif()
+    endif()
+endif()
+
 file(GLOB ITT_SRCS "src/ittnotify/*.c" "src/ittnotify/*.h")
 
-add_library(ittnotify STATIC ${ITT_SRCS} ${ITT_PUBLIC_HDRS})
+add_library(ittnotify STATIC ${ITT_SRCS} ${ITT_PUBLIC_HDRS} ${ITT_PT})
 
 if(APPLE)
     SET_TARGET_PROPERTIES(ittnotify PROPERTIES OUTPUT_NAME ittnotify)
