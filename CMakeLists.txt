@@ -9,7 +9,7 @@ cmake_minimum_required(VERSION 2.8)
 project(ittapi)
 
 OPTION(FORCE_32 "Force a 32bit compile on 64bit" OFF)
-OPTION(ITT_API_IPT_SUPPORT "ptmarks support" 0)
+OPTION(ITT_API_IPT_SUPPORT "ptmarks support")
 
 IF(FORCE_32 AND UNIX)
     SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -m32")
@@ -48,6 +48,8 @@ set(ITT_PUBLIC_HDRS
 )
 
 if (ITT_API_IPT_SUPPORT)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DITT_API_IPT_SUPPORT")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DITT_API_IPT_SUPPORT")
     if (NOT WIN32)
         enable_language(ASM)
         if (ARCH_64)
