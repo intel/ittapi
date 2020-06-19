@@ -101,12 +101,12 @@ def main():
     import argparse
     parser = argparse.ArgumentParser()
     vs_versions = get_vs_versions()
-    parser.add_argument("-d", "--debug", action="store_true")
-    parser.add_argument("-c", "--clean", action="store_true")
-    parser.add_argument("-v", "--verbose", action="store_true")
-    parser.add_argument("-pt", "--ptmark", action="store_true")
+    parser.add_argument("-d", "--debug", help="specify debug build configuration (release by default)", action="store_true")
+    parser.add_argument("-c", "--clean", help="delete any intermediate and output files", action="store_true")
+    parser.add_argument("-v", "--verbose", help="enable verbose output from build process", action="store_true")
+    parser.add_argument("-pt", "--ptmark", help="enable anomaly detection support", action="store_true")
     if sys.platform == 'win32' and vs_versions:
-        parser.add_argument("--vs", choices=vs_versions, default=vs_versions[0])
+        parser.add_argument("--vs", help="specify visual studio version {default}", choices=vs_versions, default=vs_versions[0])
     args = parser.parse_args()
 
     target_bits = ['64']
