@@ -20,9 +20,18 @@ a BSD/GPLv2 dual license with every tool supporting ITT API.
 
 To build the library:
  - On Windows, Linux and OSX: requires [cmake](https://cmake.org) to be set in `PATH`
- - Run `python buildall.py`
  - Windows: requires Visual Studio installed or requires [Ninja](https://github.com/ninja-build/ninja/releases) to be set in `PATH`
+ - To list available build options execute: `python buildall.py -h`
+```
+usage: buildall.py [-h] [-d] [-c] [-v] [-pt]
 
+optional arguments:
+  -h, --help     show this help message and exit
+  -d, --debug    specify debug build configuration (release by default)
+  -c, --clean    delete any intermediate and output files
+  -v, --verbose  enable verbose output from build process
+  -pt, --ptmark  enable anomaly detection support
+```
 ### License
 
 All code in the repo is dual licensed under GPLv2 and 3-Clause BSD licenses
