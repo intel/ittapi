@@ -105,13 +105,17 @@ def main():
     parser.add_argument("-c", "--clean", help="delete any intermediate and output files", action="store_true")
     parser.add_argument("-v", "--verbose", help="enable verbose output from build process", action="store_true")
     parser.add_argument("-pt", "--ptmark", help="enable anomaly detection support", action="store_true")
+    parser.add_argument("--force_bits", choices=["32", "64"], help="specify bit version for the target")
     if sys.platform == 'win32' and vs_versions:
         parser.add_argument("--vs", help="specify visual studio version {default}", choices=vs_versions, default=vs_versions[0])
     args = parser.parse_args()
 
-    target_bits = ['64']
-    if (sys.platform != 'darwin'):  # on MAC OSX we produce FAT library including both 32 and 64 bits
-        target_bits.append('32')
+    if args.force_bits:
+        target_bits = [args.force_bits]
+    else:
+        target_bits = ['64']
+        if (sys.platform != 'darwin'):  # on MAC OSX we produce FAT library including both 32 and 64 bits
+            target_bits.append('32')
 
     print("target_bits", target_bits)
     work_dir = os.getcwd()

@@ -23,7 +23,7 @@ To build the library:
  - Windows: requires Visual Studio installed or requires [Ninja](https://github.com/ninja-build/ninja/releases) to be set in `PATH`
  - To list available build options execute: `python buildall.py -h`
 ```
-usage: buildall.py [-h] [-d] [-c] [-v] [-pt]
+usage: buildall.py [-h] [-d] [-c] [-v] [-pt] [--force_bits]
 
 optional arguments:
   -h, --help     show this help message and exit
@@ -31,6 +31,7 @@ optional arguments:
   -c, --clean    delete any intermediate and output files
   -v, --verbose  enable verbose output from build process
   -pt, --ptmark  enable anomaly detection support
+  --force_bits   specify bit version for the target
 ```
 ### License
 
