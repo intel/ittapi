@@ -244,6 +244,7 @@ __itt_global _N_(_ittapi_global) = {
 typedef void (__itt_api_init_t)(__itt_global*, __itt_group_id);
 typedef void (__itt_api_fini_t)(__itt_global*);
 
+static __itt_domain dummy_domain = {0};
 /* ========================================================================= */
 
 #ifdef ITT_NOTIFY_EXT_REPORT
@@ -292,6 +293,11 @@ static __itt_domain* ITTAPI ITT_VERSIONIZE(ITT_JOIN(_N_(domain_createW),_init))(
             __itt_mutex_unlock(&_N_(_ittapi_global).mutex);
             return ITTNOTIFY_NAME(domain_createW)(name);
         }
+        else
+        {
+            __itt_mutex_unlock(&_N_(_ittapi_global).mutex);
+            return &dummy_domain;
+        }
     }
     for (h_tail = NULL, h = _N_(_ittapi_global).domain_list; h != NULL; h_tail = h, h = h->next)
     {
@@ -333,6 +339,15 @@ static __itt_domain* ITTAPI ITT_VERSIONIZE(ITT_JOIN(_N_(domain_create),_init))(c
             return ITTNOTIFY_NAME(domain_create)(name);
         }
 #endif
+        else
+        {
+#if ITT_PLATFORM==ITT_PLATFORM_WIN
+            __itt_mutex_unlock(&_N_(_ittapi_global).mutex);
+#else
+            if (PTHREAD_SYMBOLS) __itt_mutex_unlock(&_N_(_ittapi_global).mutex);
+#endif
+            return &dummy_domain;
+        }
     }
     for (h_tail = NULL, h = _N_(_ittapi_global).domain_list; h != NULL; h_tail = h, h = h->next)
     {
@@ -396,6 +411,11 @@ static __itt_string_handle* ITTAPI ITT_VERSIONIZE(ITT_JOIN(_N_(string_handle_cre
             __itt_mutex_unlock(&_N_(_ittapi_global).mutex);
             return ITTNOTIFY_NAME(string_handle_createW)(name);
         }
+        else
+        {
+            __itt_mutex_unlock(&_N_(_ittapi_global).mutex);
+            return NULL;
+        }
     }
     for (h_tail = NULL, h = _N_(_ittapi_global).string_list; h != NULL; h_tail = h, h = h->next)
     {
@@ -437,6 +457,15 @@ static __itt_string_handle* ITTAPI ITT_VERSIONIZE(ITT_JOIN(_N_(string_handle_cre
             return ITTNOTIFY_NAME(string_handle_create)(name);
         }
 #endif
+        else
+        {
+#if ITT_PLATFORM==ITT_PLATFORM_WIN
+            __itt_mutex_unlock(&_N_(_ittapi_global).mutex);
+#else
+            if (PTHREAD_SYMBOLS) __itt_mutex_unlock(&_N_(_ittapi_global).mutex);
+#endif
+            return NULL;
+        }
     }
     for (h_tail = NULL, h = _N_(_ittapi_global).string_list; h != NULL; h_tail = h, h = h->next)
     {
@@ -468,6 +497,11 @@ static __itt_counter ITTAPI ITT_VERSIONIZE(ITT_JOIN(_N_(counter_createW),_init))
         {
             __itt_mutex_unlock(&_N_(_ittapi_global).mutex);
             return ITTNOTIFY_NAME(counter_createW)(name, domain);
+        }
+        else
+        {
+            __itt_mutex_unlock(&_N_(_ittapi_global).mutex);
+            return NULL;
         }
     }
     for (h_tail = NULL, h = _N_(_ittapi_global).counter_list; h != NULL; h_tail = h, h = h->next)
@@ -513,6 +547,15 @@ static __itt_counter ITTAPI ITT_VERSIONIZE(ITT_JOIN(_N_(counter_create),_init))(
             return ITTNOTIFY_NAME(counter_create)(name, domain);
         }
 #endif
+        else
+        {
+#if ITT_PLATFORM==ITT_PLATFORM_WIN
+            __itt_mutex_unlock(&_N_(_ittapi_global).mutex);
+#else
+            if (PTHREAD_SYMBOLS) __itt_mutex_unlock(&_N_(_ittapi_global).mutex);
+#endif
+            return NULL;
+        }
     }
     for (h_tail = NULL, h = _N_(_ittapi_global).counter_list; h != NULL; h_tail = h, h = h->next)
     {
@@ -544,6 +587,11 @@ static __itt_counter ITTAPI ITT_VERSIONIZE(ITT_JOIN(_N_(counter_create_typedW),_
         {
             __itt_mutex_unlock(&_N_(_ittapi_global).mutex);
             return ITTNOTIFY_NAME(counter_create_typedW)(name, domain, type);
+        }
+        else
+        {
+            __itt_mutex_unlock(&_N_(_ittapi_global).mutex);
+            return NULL;
         }
     }
     for (h_tail = NULL, h = _N_(_ittapi_global).counter_list; h != NULL; h_tail = h, h = h->next)
@@ -588,6 +636,15 @@ static __itt_counter ITTAPI ITT_VERSIONIZE(ITT_JOIN(_N_(counter_create_typed),_i
             return ITTNOTIFY_NAME(counter_create_typed)(name, domain, type);
         }
 #endif
+        else
+        {
+#if ITT_PLATFORM==ITT_PLATFORM_WIN
+            __itt_mutex_unlock(&_N_(_ittapi_global).mutex);
+#else
+            if (PTHREAD_SYMBOLS) __itt_mutex_unlock(&_N_(_ittapi_global).mutex);
+#endif
+            return NULL;
+        }
     }
     for (h_tail = NULL, h = _N_(_ittapi_global).counter_list; h != NULL; h_tail = h, h = h->next)
     {
