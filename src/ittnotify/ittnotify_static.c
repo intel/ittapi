@@ -102,8 +102,6 @@ static const char* ittnotify_lib_name = "libittnotify.dylib";
 
 #define ITT_MODULE_OBJECT_VERSION 1
 
-const int _N_(err) = 0;
-
 typedef int (__itt_init_ittlib_t)(const char*, __itt_group_id);
 
 /* this define used to control initialization function name. */
