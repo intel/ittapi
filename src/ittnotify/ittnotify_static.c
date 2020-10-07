@@ -421,7 +421,7 @@ static __itt_string_handle* ITTAPI ITT_VERSIONIZE(ITT_JOIN(_N_(string_handle_cre
     {
         if (h->strW != NULL && !wcscmp(h->strW, name)) break;
     }
-    if (h == NULL) 
+    if (h == NULL)
     {
         NEW_STRING_HANDLE_W(&_N_(_ittapi_global),h,h_tail,name);
     }
