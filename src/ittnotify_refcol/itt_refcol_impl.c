@@ -219,13 +219,13 @@ ITT_EXTERN_C void ITTAPI __itt_task_end(const __itt_domain *domain)
 ITT_EXTERN_C void __itt_metadata_add(const __itt_domain *domain, __itt_id id,
     __itt_string_handle *key, __itt_metadata_type type, size_t count, void *data)
 {
-    if (key != NULL && count != 0)
+    if (domain != NULL && count != 0)
     {
-        if (strstr(key->strA, "spdk_bdev") != NULL)
+        if (strstr(domain->nameA, "spdk_bdev") != NULL && count == 5)
         {
-            LOG_FUNC_CALL_INFO("functions args: domain_name=%s handle_name=%s metadata_type=%i " \
-                                "metadata_size=%lu metadata[]=%lu,%lu,%lu,%lu,%lu",
-                                domain->nameA, key->strA, type, count,
+            LOG_FUNC_CALL_INFO("functions args: domain_name=%s metadata_size=%lu " \
+                                "metadata[]=%lu,%lu,%lu,%lu,%lu",
+                                domain->nameA, count,
                                 ((uint64_t*)data)[0], ((uint64_t*)data)[1], ((uint64_t*)data)[2],
                                 ((uint64_t*)data)[3], ((uint64_t*)data)[4]);
         }
