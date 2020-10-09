@@ -219,9 +219,9 @@ ITT_EXTERN_C void ITTAPI __itt_task_end(const __itt_domain *domain)
 ITT_EXTERN_C void __itt_metadata_add(const __itt_domain *domain, __itt_id id,
     __itt_string_handle *key, __itt_metadata_type type, size_t count, void *data)
 {
-    if (domain != NULL && count == 5)
+    if (domain != NULL && count != 0)
     {
-        if (strstr(domain->nameA, "spdk_bdev") != NULL)
+        if (strstr(domain->nameA, "spdk_bdev") != NULL && count == 5)
         {
             LOG_FUNC_CALL_INFO("functions args: domain_name=%s metadata_size=%lu " \
                                 "metadata[]=%lu,%lu,%lu,%lu,%lu",
