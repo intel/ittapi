@@ -19,7 +19,7 @@ fn main() {
             .build();
 
         println!("cargo:rustc-link-search={}/build/bin/", out_path.display());
-        println!("cargo:rustc-link-lib=static=ittnotify64");
+        println!("cargo:rustc-link-lib=static=ittnotify");
     }
 
     #[cfg(feature = "force_32")]
