@@ -4,7 +4,7 @@
 # SPDX-License-Identifier: GPL-2.0-only OR BSD-3-Clause
 #
 
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 2.8.12)
 
 project(ittapi)
 
