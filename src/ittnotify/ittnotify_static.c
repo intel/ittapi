@@ -29,12 +29,6 @@ static const char api_version[] = API_VERSION "\0\n@(#) $Revision$\n";
 
 #define _N_(n) ITT_JOIN(INTEL_ITTNOTIFY_PREFIX,n)
 
-#if defined(__cplusplus) && __cplusplus > 201402L
-#define ITT_ATTRIBUTE_FALLTHROUGH __attribute__((fallthrough))
-#else
-#define ITT_ATTRIBUTE_FALLTHROUGH /* Falls through */
-#endif
-
 #if ITT_OS==ITT_OS_WIN
 static const char* ittnotify_lib_name = "libittnotify.dll";
 #elif ITT_OS==ITT_OS_LINUX || ITT_OS==ITT_OS_FREEBSD
@@ -1179,7 +1173,7 @@ ITT_EXTERN_C int _N_(init_ittlib)(const char* lib_name, __itt_group_id init_grou
                         {
                         case 0:
                             groups = __itt_group_legacy;
-                            ITT_ATTRIBUTE_FALLTHROUGH;
+			    __attribute__((fallthrough))
                         case 1:
                             /* Fill all pointers from dynamic library */
                             for (i = 0; _N_(_ittapi_global).api_list_ptr[i].name != NULL; i++)
