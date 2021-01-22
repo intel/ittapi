@@ -30,7 +30,7 @@ static const char api_version[] = API_VERSION "\0\n@(#) $Revision$\n";
 #define _N_(n) ITT_JOIN(INTEL_ITTNOTIFY_PREFIX,n)
 
 #if defined(__cplusplus) && __cplusplus > 201402L
-#define ITT_ATTRIBUTE_FALLTHROUGH __attribute__((fallthrough))
+#define ITT_ATTRIBUTE_FALLTHROUGH __attribute__((fallthrough));
 #else
 #define ITT_ATTRIBUTE_FALLTHROUGH /* Falls through */
 #endif
@@ -1179,7 +1179,7 @@ ITT_EXTERN_C int _N_(init_ittlib)(const char* lib_name, __itt_group_id init_grou
                         {
                         case 0:
                             groups = __itt_group_legacy;
-                            ITT_ATTRIBUTE_FALLTHROUGH;
+                            ITT_ATTRIBUTE_FALLTHROUGH
                         case 1:
                             /* Fill all pointers from dynamic library */
                             for (i = 0; _N_(_ittapi_global).api_list_ptr[i].name != NULL; i++)
