@@ -1169,12 +1169,11 @@ ITT_EXTERN_C int _N_(init_ittlib)(const char* lib_name, __itt_group_id init_grou
                         __itt_api_init_t* __itt_api_init_ptr;
                         int lib_version = __itt_lib_version(_N_(_ittapi_global).lib);
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wimplicit-fallthrough"
                         switch (lib_version)
                         {
                         case 0:
                             groups = __itt_group_legacy;
+			    __attribute__((fallthrough));
                         case 1:
                             /* Fill all pointers from dynamic library */
                             for (i = 0; _N_(_ittapi_global).api_list_ptr[i].name != NULL; i++)
@@ -1224,7 +1223,6 @@ ITT_EXTERN_C int _N_(init_ittlib)(const char* lib_name, __itt_group_id init_grou
                                 __itt_api_init_ptr(&_N_(_ittapi_global), init_groups);
                             break;
                         }
-#pragma clang diagnostic pop
                     }
                     else
                     {
