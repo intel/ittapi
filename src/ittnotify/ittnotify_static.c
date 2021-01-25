@@ -29,10 +29,42 @@ static const char api_version[] = API_VERSION "\0\n@(#) $Revision$\n";
 
 #define _N_(n) ITT_JOIN(INTEL_ITTNOTIFY_PREFIX,n)
 
-#if defined(__cplusplus) && __cplusplus > 201402L
-#define ITT_ATTRIBUTE_FALLTHROUGH __attribute__((fallthrough));
+#ifndef HAS_CPP_ATTR
+#if defined(__cplusplus) && defined(__has_cpp_attribute)
+#define HAS_CPP_ATTR(X) __has_cpp_attribute(X)
 #else
-#define ITT_ATTRIBUTE_FALLTHROUGH /* Falls through */
+#define HAS_CPP_ATTR(X) 0
+#endif
+#endif
+
+#ifndef HAS_C_ATTR
+#if defined(__STDC__) && defined(__has_c_attribute)
+#define HAS_C_ATTR(X) __has_c_attribute(X)
+#else
+#define HAS_C_ATTR(X) 0
+#endif
+#endif
+
+#ifndef HAS_GNU_ATTR
+#if defined(__has_attribute)
+#define HAS_GNU_ATTR(X) __has_attribute(X)
+#else
+#define HAS_GNU_ATTR(X) 0
+#endif
+#endif
+
+#ifndef ITT_ATTRIBUTE_FALLTHROUGH
+#if HAS_CPP_ATTR(fallthrough) || HAS_C_ATTR(fallthrough)
+#define ITT_ATTRIBUTE_FALLTHROUGH [[fallthrough]]
+#elif HAS_CPP_ATTR(gnu::fallthrough)
+#define ITT_ATTRIBUTE_FALLTHROUGH [[gnu::fallthrough]]
+#elif HAS_CPP_ATTR(clang::fallthrough)
+#define ITT_ATTRIBUTE_FALLTHROUGH [[clang::fallthrough]]
+#elif HAS_GNU_ATTR(fallthrough)
+#define ITT_ATTRIBUTE_FALLTHROUGH __attribute__((fallthrough))
+#else
+#define ITT_ATTRIBUTE_FALLTHROUGH
+#endif
 #endif
 
 #if ITT_OS==ITT_OS_WIN
@@ -1179,7 +1211,7 @@ ITT_EXTERN_C int _N_(init_ittlib)(const char* lib_name, __itt_group_id init_grou
                         {
                         case 0:
                             groups = __itt_group_legacy;
-                            ITT_ATTRIBUTE_FALLTHROUGH
+                            ITT_ATTRIBUTE_FALLTHROUGH;
                         case 1:
                             /* Fill all pointers from dynamic library */
                             for (i = 0; _N_(_ittapi_global).api_list_ptr[i].name != NULL; i++)
