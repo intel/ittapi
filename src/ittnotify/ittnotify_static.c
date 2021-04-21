@@ -280,7 +280,7 @@ __itt_global _N_(_ittapi_global) = {
 typedef void (__itt_api_init_t)(__itt_global*, __itt_group_id);
 typedef void (__itt_api_fini_t)(__itt_global*);
 
-static __itt_domain dummy_domain = {0};
+static __itt_domain dummy_domain;
 /* ========================================================================= */
 
 #ifdef ITT_NOTIFY_EXT_REPORT
