@@ -177,7 +177,7 @@ The same ID may not be reused for different instances, unless a previous
 #if ITT_PLATFORM==ITT_PLATFORM_WIN
 /* use __forceinline (VC++ specific) */
 #ifdef __MINGW32__
-#define ITT_INLINE           __forceinline
+#define ITT_INLINE           static __inline__ __attribute__((__always_inline__,__gnu_inline__))
 #else
 #define ITT_INLINE           static __forceinline
 #endif /* __MINGW32__ */
