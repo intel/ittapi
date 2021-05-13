@@ -115,7 +115,7 @@
 
 #if ITT_PLATFORM==ITT_PLATFORM_WIN
 /* use __forceinline (VC++ specific) */
-#ifdef __MINGW32__
+#if defined(__MINGW32__) && !defined(__cplusplus)
 #define ITT_INLINE           static __inline__ __attribute__((__always_inline__,__gnu_inline__))
 #else
 #define ITT_INLINE           static __forceinline
