@@ -110,7 +110,12 @@
 
 #if ITT_PLATFORM==ITT_PLATFORM_WIN
 /* use __forceinline (VC++ specific) */
+#ifdef __MINGW32__
+#define ITT_INLINE           __forceinline
+#else
 #define ITT_INLINE           static __forceinline
+#endif /* __MINGW32__ */
+
 #define ITT_INLINE_ATTRIBUTE /* nothing */
 #else  /* ITT_PLATFORM==ITT_PLATFORM_WIN */
 /*
@@ -190,7 +195,7 @@
 #define API_VERSION_BUILD    20180723
 
 #ifndef API_VERSION_NUM
-#define API_VERSION_NUM 3.18.6
+#define API_VERSION_NUM 3.18.11
 #endif /* API_VERSION_NUM */
 
 #define API_VERSION "ITT-API-Version " ITT_TO_STR(API_VERSION_NUM) \
