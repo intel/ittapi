@@ -138,6 +138,52 @@ void log_func_call(uint8_t log_level, const char* function_name, const char* mes
 /* This implementation is designed to log ITTAPI functions calls.*/
 /* ------------------------------------------------------------------------------ */
 
+char* get_metadata_elements(size_t size, __itt_metadata_type type, void* metadata)
+{
+    char* metadata_str = malloc(sizeof(char) * LOG_BUFFER_MAX_SIZE);
+    *metadata_str = '\0';
+
+    switch (type)
+    {
+    case __itt_metadata_u64:
+        for (uint16_t i = 0; i < size; i++)
+            sprintf(metadata_str, "%s%llu;", metadata_str, ((uint64_t*)metadata)[i]);
+        break;
+    case __itt_metadata_s64:
+        for (uint16_t i = 0; i < size; i++)
+            sprintf(metadata_str, "%s%lld;", metadata_str, ((int64_t*)metadata)[i]);
+        break;
+    case __itt_metadata_u32:
+        for (uint16_t i = 0; i < size; i++)
+            sprintf(metadata_str, "%s%lu;", metadata_str, ((uint32_t*)metadata)[i]);
+        break;
+    case __itt_metadata_s32:
+        for (uint16_t i = 0; i < size; i++)
+            sprintf(metadata_str, "%s%ld;", metadata_str, ((int32_t*)metadata)[i]);
+        break;
+    case __itt_metadata_u16:
+        for (uint16_t i = 0; i < size; i++)
+            sprintf(metadata_str, "%s%u;", metadata_str, ((uint16_t*)metadata)[i]);
+        break;
+    case __itt_metadata_s16:
+        for (uint16_t i = 0; i < size; i++)
+            sprintf(metadata_str, "%s%d;", metadata_str, ((int16_t*)metadata)[i]);
+        break;
+    case __itt_metadata_float:
+        for (uint16_t i = 0; i < size; i++)
+            sprintf(metadata_str, "%s%f;", metadata_str, ((float*)metadata)[i]);
+        break;
+    case __itt_metadata_double:
+        for (uint16_t i = 0; i < size; i++)
+            sprintf(metadata_str, "%s%lf;", metadata_str, ((double*)metadata)[i]);
+        break;
+    default:
+            printf("ERROR: Unknow metadata type\n");
+    }
+
+    return metadata_str;
+}
+
 ITT_EXTERN_C void ITTAPI __itt_pause(void)
 {
     LOG_FUNC_CALL_INFO("function call");
@@ -221,14 +267,8 @@ ITT_EXTERN_C void __itt_metadata_add(const __itt_domain *domain, __itt_id id,
 {
     if (domain != NULL && count != 0)
     {
-        if (strstr(domain->nameA, "spdk_bdev") != NULL && count == 5)
-        {
-            LOG_FUNC_CALL_INFO("functions args: domain_name=%s metadata_size=%lu " \
-                                "metadata[]=%lu,%lu,%lu,%lu,%lu",
-                                domain->nameA, count,
-                                ((uint64_t*)data)[0], ((uint64_t*)data)[1], ((uint64_t*)data)[2],
-                                ((uint64_t*)data)[3], ((uint64_t*)data)[4]);
-        }
+        LOG_FUNC_CALL_INFO("functions args: domain_name=%s metadata_size=%lu metadata[]=%s",
+                            domain->nameA, count, get_metadata_elements(count, type, data));
     }
     else
     {
