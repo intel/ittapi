@@ -195,7 +195,7 @@
 #define API_VERSION_BUILD    20180723
 
 #ifndef API_VERSION_NUM
-#define API_VERSION_NUM 3.18.13
+#define API_VERSION_NUM 3.20.1
 #endif /* API_VERSION_NUM */
 
 #define API_VERSION "ITT-API-Version " ITT_TO_STR(API_VERSION_NUM) \
@@ -425,6 +425,7 @@ typedef struct __itt_counter_info
 
 struct ___itt_domain;
 struct ___itt_string_handle;
+struct ___itt_histogram;
 
 typedef struct ___itt_global
 {
@@ -446,8 +447,9 @@ typedef struct ___itt_global
     struct ___itt_domain*  domain_list;
     struct ___itt_string_handle* string_list;
     __itt_collection_state state;
-    __itt_counter_info_t* counter_list;
+    __itt_counter_info_t*  counter_list;
     unsigned int           ipt_collect_events;
+    struct ___itt_histogram* histogram_list;
 } __itt_global;
 
 #pragma pack(pop)
@@ -577,6 +579,40 @@ typedef struct ___itt_global
         h->next   = NULL; \
         if (h_tail == NULL) \
             (gptr)->counter_list = h; \
+        else \
+            h_tail->next = h; \
+    } \
+}
+
+#define NEW_HISTOGRAM_W(gptr,h,h_tail,domain,name,x_type,y_type) { \
+    h = (__itt_histogram*)malloc(sizeof(__itt_histogram)); \
+    if (h != NULL) { \
+        h->domain = domain; \
+        h->nameA  = NULL; \
+        h->nameW  = name ? _wcsdup(name) : NULL; \
+        h->x_type = x_type; \
+        h->y_type = y_type; \
+        h->extra1 = 0; \
+        h->extra2 = NULL; \
+        if (h_tail == NULL) \
+            (gptr)->histogram_list = h; \
+        else \
+            h_tail->next = h; \
+    } \
+}
+
+#define NEW_HISTOGRAM_A(gptr,h,h_tail,domain,name,x_type,y_type) { \
+    h = (__itt_histogram*)malloc(sizeof(__itt_histogram)); \
+    if (h != NULL) { \
+        h->domain = domain; \
+        h->nameA  = name ? __itt_fstrdup(name) : NULL; \
+        h->nameW  = NULL; \
+        h->x_type = x_type; \
+        h->y_type = y_type; \
+        h->extra1 = 0; \
+        h->extra2 = NULL; \
+        if (h_tail == NULL) \
+            (gptr)->histogram_list = h; \
         else \
             h_tail->next = h; \
     } \

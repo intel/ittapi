@@ -276,7 +276,8 @@ __itt_global _N_(_ittapi_global) = {
     NULL,                                          /* string_list */
     __itt_collection_normal,                       /* collection state */
     NULL,                                          /* counter_list */
-    0                                              /* ipt_collect_events */
+    0,                                             /* ipt_collect_events */
+    NULL                                           /* histogram_list */
 };
 
 typedef void (__itt_api_init_t)(__itt_global*, __itt_group_id);
@@ -695,6 +696,94 @@ static __itt_counter ITTAPI ITT_VERSIONIZE(ITT_JOIN(_N_(counter_create_typed),_i
     }
     if (PTHREAD_SYMBOLS) __itt_mutex_unlock(&_N_(_ittapi_global).mutex);
     return (__itt_counter)h;
+}
+
+#if ITT_PLATFORM==ITT_PLATFORM_WIN
+static __itt_histogram* ITTAPI ITT_VERSIONIZE(ITT_JOIN(_N_(histogram_createW),_init))(const __itt_domain* domain, const wchar_t* name, __itt_metadata_type x_type, __itt_metadata_type y_type)
+{
+    __itt_histogram *h_tail = NULL, *h = NULL;
+
+    if (domain == NULL || name == NULL)
+    {
+        return NULL;
+    }
+
+    ITT_MUTEX_INIT_AND_LOCK(_N_(_ittapi_global));
+    if (_N_(_ittapi_global).api_initialized)
+    {
+        if (ITTNOTIFY_NAME(histogram_createW) && ITTNOTIFY_NAME(histogram_createW) != ITT_VERSIONIZE(ITT_JOIN(_N_(histogram_createW),_init)))
+        {
+            __itt_mutex_unlock(&_N_(_ittapi_global).mutex);
+            return ITTNOTIFY_NAME(histogram_createW)(domain, name, x_type, y_type);
+        }
+        else
+        {
+            __itt_mutex_unlock(&_N_(_ittapi_global).mutex);
+            return NULL;
+        }
+    }
+    for (h_tail = NULL, h = _N_(_ittapi_global).histogram_list; h != NULL; h_tail = h, h = h->next)
+    {
+        if (h->domain == NULL) continue;
+        else if (h->domain != domain && h->nameW != NULL && !wcscmp(h->nameW, name)) break;
+    }
+    if (h == NULL)
+    {
+       NEW_HISTOGRAM_W(&_N_(_ittapi_global),h,h_tail,domain,name,x_type,y_type);
+    }
+    __itt_mutex_unlock(&_N_(_ittapi_global).mutex);
+    return (__itt_histogram*)h;
+}
+
+static __itt_histogram* ITTAPI ITT_VERSIONIZE(ITT_JOIN(_N_(histogram_createA),_init))(const __itt_domain* domain, const char* name, __itt_metadata_type x_type, __itt_metadata_type y_type)
+#else  /* ITT_PLATFORM!=ITT_PLATFORM_WIN */
+static __itt_histogram* ITTAPI ITT_VERSIONIZE(ITT_JOIN(_N_(histogram_create),_init))(const __itt_domain* domain, const char* name, __itt_metadata_type x_type, __itt_metadata_type y_type)
+#endif /* ITT_PLATFORM==ITT_PLATFORM_WIN */
+{
+    __itt_histogram *h_tail = NULL, *h = NULL;
+
+    if (domain == NULL || name == NULL)
+    {
+        return NULL;
+    }
+
+    ITT_MUTEX_INIT_AND_LOCK(_N_(_ittapi_global));
+    if (_N_(_ittapi_global).api_initialized)
+    {
+#if ITT_PLATFORM==ITT_PLATFORM_WIN
+        if (ITTNOTIFY_NAME(histogram_createA) && ITTNOTIFY_NAME(histogram_createA) != ITT_VERSIONIZE(ITT_JOIN(_N_(histogram_createA),_init)))
+        {
+            __itt_mutex_unlock(&_N_(_ittapi_global).mutex);
+            return ITTNOTIFY_NAME(histogram_createA)(domain, name, x_type, y_type);
+        }
+#else
+        if (ITTNOTIFY_NAME(histogram_create) && ITTNOTIFY_NAME(histogram_create) != ITT_VERSIONIZE(ITT_JOIN(_N_(histogram_create),_init)))
+        {
+            if (PTHREAD_SYMBOLS) __itt_mutex_unlock(&_N_(_ittapi_global).mutex);
+            return ITTNOTIFY_NAME(histogram_create)(domain, name, x_type, y_type);
+        }
+#endif
+        else
+        {
+#if ITT_PLATFORM==ITT_PLATFORM_WIN
+            __itt_mutex_unlock(&_N_(_ittapi_global).mutex);
+#else
+            if (PTHREAD_SYMBOLS) __itt_mutex_unlock(&_N_(_ittapi_global).mutex);
+#endif
+            return NULL;
+        }
+    }
+    for (h_tail = NULL, h = _N_(_ittapi_global).histogram_list; h != NULL; h_tail = h, h = h->next)
+    {
+        if (h->domain == NULL) continue;
+        else if (h->domain != domain && h->nameA != NULL && !__itt_fstrcmp(h->nameA, name)) break;
+    }
+    if (h == NULL)
+    {
+       NEW_HISTOGRAM_A(&_N_(_ittapi_global),h,h_tail,domain,name,x_type,y_type);
+    }
+    if (PTHREAD_SYMBOLS) __itt_mutex_unlock(&_N_(_ittapi_global).mutex);
+    return (__itt_histogram*)h;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -1175,6 +1264,65 @@ ITT_EXTERN_C void _N_(fini_ittlib)(void)
     }
 }
 
+
+/* !!! this function should be called under mutex lock !!! */
+static void __itt_free_allocated_resources(void)
+{
+    __itt_string_handle* current_string = _N_(_ittapi_global).string_list;
+    while (current_string != NULL)
+    {
+        __itt_string_handle* tmp = current_string->next;
+        free((char*)current_string->strA);
+#if ITT_PLATFORM==ITT_PLATFORM_WIN
+        free(current_string->strW);
+#endif
+        free(current_string);
+        current_string = tmp;
+    }
+    _N_(_ittapi_global).string_list = NULL;
+
+    __itt_domain* current_domain = _N_(_ittapi_global).domain_list;
+    while (current_domain != NULL)
+    {
+        __itt_domain* tmp = current_domain->next;
+        free((char*)current_domain->nameA);
+#if ITT_PLATFORM==ITT_PLATFORM_WIN
+        free(current_domain->nameW);
+#endif
+        free(current_domain);
+        current_domain = tmp;
+    }
+    _N_(_ittapi_global).domain_list = NULL;
+
+    __itt_counter_info_t* current_couter = _N_(_ittapi_global).counter_list;
+    while (current_couter != NULL)
+    {
+        __itt_counter_info_t* tmp = current_couter->next;
+        free((char*)current_couter->nameA);
+        free((char*)current_couter->domainA);
+#if ITT_PLATFORM==ITT_PLATFORM_WIN
+        free(current_couter->nameW);
+        free(current_couter->domainW);
+#endif
+        free(current_couter);
+        current_couter = tmp;
+    }
+    _N_(_ittapi_global).counter_list = NULL;
+
+    __itt_histogram* current_histogram = _N_(_ittapi_global).histogram_list;
+    while (current_histogram != NULL)
+    {
+        __itt_histogram* tmp = current_histogram->next;
+        free((char*)current_histogram->nameA);
+#if ITT_PLATFORM==ITT_PLATFORM_WIN
+        free(current_histogram->nameW);
+#endif
+        free(current_histogram);
+        current_histogram = tmp;
+    }
+    _N_(_ittapi_global).histogram_list = NULL;
+}
+
 ITT_EXTERN_C int _N_(init_ittlib)(const char* lib_name, __itt_group_id init_groups)
 {
     int i;
@@ -1266,6 +1414,7 @@ ITT_EXTERN_C int _N_(init_ittlib)(const char* lib_name, __itt_group_id init_grou
                     }
                     else
                     {
+                        __itt_free_allocated_resources();
                         __itt_nullify_all_pointers();
 
                         __itt_report_error(__itt_error_no_module, lib_name,
@@ -1279,6 +1428,7 @@ ITT_EXTERN_C int _N_(init_ittlib)(const char* lib_name, __itt_group_id init_grou
                 }
                 else
                 {
+                    __itt_free_allocated_resources();
                     __itt_nullify_all_pointers();
                 }
                 _N_(_ittapi_global).api_initialized = 1;

@@ -3862,6 +3862,112 @@ ITT_STUBV(ITTAPI, void, module_unload_with_sections,  (__itt_module_object* modu
 #endif /* INTEL_NO_MACRO_BODY */
 /** @endcond */
 
+/** @cond exclude_from_documentation */
+#pragma pack(push, 8)
+
+typedef struct ___itt_histogram
+{
+    const __itt_domain* domain;      /*!< Domain of the histogram*/
+    const char* nameA;               /*!< Name of the histogram */
+#if defined(UNICODE) || defined(_UNICODE)
+    const wchar_t* nameW;
+#else  /* UNICODE || _UNICODE */
+    void* nameW;
+#endif /* UNICODE || _UNICODE */
+    __itt_metadata_type x_type;     /*!< Type of the histogram X axis */
+    __itt_metadata_type y_type;     /*!< Type of the histogram Y axis */
+    int   extra1;                   /*!< Reserved to the runtime */
+    void* extra2;                   /*!< Reserved to the runtime */
+    struct ___itt_histogram* next;
+}  __itt_histogram;
+
+#pragma pack(pop)
+/** @endcond */
+
+/**
+ * @brief Create a typed histogram instance with given name/domain.
+ * @param[in] domain The domain controlling the call.
+ * @param[in] name   The name of the histogram.
+ * @param[in] x_type The type of the X axis in histogram (may be 0 to calculate batch statistics).
+ * @param[in] y_type The type of the Y axis in histogram.
+*/
+#if ITT_PLATFORM==ITT_PLATFORM_WIN
+__itt_histogram* ITTAPI __itt_histogram_createA(const __itt_domain* domain, const char* name, __itt_metadata_type x_type, __itt_metadata_type y_type);
+__itt_histogram* ITTAPI __itt_histogram_createW(const __itt_domain* domain, const wchar_t* name, __itt_metadata_type x_type, __itt_metadata_type y_type);
+#if defined(UNICODE) || defined(_UNICODE)
+#  define __itt_histogram_create     __itt_histogram_createW
+#  define __itt_histogram_create_ptr __itt_histogram_createW_ptr
+#else /* UNICODE */
+#  define __itt_histogram_create     __itt_histogram_createA
+#  define __itt_histogram_create_ptr __itt_histogram_createA_ptr
+#endif /* UNICODE */
+#else /* ITT_PLATFORM==ITT_PLATFORM_WIN */
+__itt_histogram* ITTAPI __itt_histogram_create(const __itt_domain* domain, const char* name, __itt_metadata_type x_type, __itt_metadata_type y_type);
+#endif /* ITT_PLATFORM==ITT_PLATFORM_WIN */
+
+/** @cond exclude_from_documentation */
+#ifndef INTEL_NO_MACRO_BODY
+#ifndef INTEL_NO_ITTNOTIFY_API
+#if ITT_PLATFORM==ITT_PLATFORM_WIN
+ITT_STUB(ITTAPI, __itt_histogram*, histogram_createA, (const __itt_domain* domain, const char* name, __itt_metadata_type x_type, __itt_metadata_type y_type))
+ITT_STUB(ITTAPI, __itt_histogram*, histogram_createW, (const __itt_domain* domain, const wchar_t* name, __itt_metadata_type x_type, __itt_metadata_type y_type))
+#else  /* ITT_PLATFORM==ITT_PLATFORM_WIN */
+ITT_STUB(ITTAPI, __itt_histogram*, histogram_create, (const __itt_domain* domain, const char* name, __itt_metadata_type x_type, __itt_metadata_type y_type))
+#endif /* ITT_PLATFORM==ITT_PLATFORM_WIN */
+#if ITT_PLATFORM==ITT_PLATFORM_WIN
+#define __itt_histogram_createA     ITTNOTIFY_DATA(histogram_createA)
+#define __itt_histogram_createA_ptr ITTNOTIFY_NAME(histogram_createA)
+#define __itt_histogram_createW     ITTNOTIFY_DATA(histogram_createW)
+#define __itt_histogram_createW_ptr ITTNOTIFY_NAME(histogram_createW)
+#else /* ITT_PLATFORM==ITT_PLATFORM_WIN */
+#define __itt_histogram_create     ITTNOTIFY_DATA(histogram_create)
+#define __itt_histogram_create_ptr ITTNOTIFY_NAME(histogram_create)
+#endif /* ITT_PLATFORM==ITT_PLATFORM_WIN */
+#else  /* INTEL_NO_ITTNOTIFY_API */
+#if ITT_PLATFORM==ITT_PLATFORM_WIN
+#define __itt_histogram_createA(domain, name, x_type, y_type) (__itt_histogram*)0
+#define __itt_histogram_createA_ptr 0
+#define __itt_histogram_createW(domain, name, x_type, y_type) (__itt_histogram*)0
+#define __itt_histogram_createW_ptr 0
+#else /* ITT_PLATFORM==ITT_PLATFORM_WIN */
+#define __itt_histogram_create(domain, name, x_type, y_type) (__itt_histogram*)0
+#define __itt_histogram_create_ptr 0
+#endif /* ITT_PLATFORM==ITT_PLATFORM_WIN */
+#endif /* INTEL_NO_ITTNOTIFY_API */
+#else  /* INTEL_NO_MACRO_BODY */
+#if ITT_PLATFORM==ITT_PLATFORM_WIN
+#define __itt_histogram_createA_ptr 0
+#define __itt_histogram_createW_ptr 0
+#else /* ITT_PLATFORM==ITT_PLATFORM_WIN */
+#define __itt_histogram_create_ptr 0
+#endif /* ITT_PLATFORM==ITT_PLATFORM_WIN */
+#endif /* INTEL_NO_MACRO_BODY */
+/** @endcond */
+
+/**
+ * @brief Submit statistics for a histogram instance.
+ * @param[in] hist    Pointer to the histogram instance to which the histogram statistic is to be dumped.
+ * @param[in] length  The number of elements in dumped axis data array.
+ * @param[in] x_data  The X axis dumped data itself (may be NULL to calculate batch statistics).
+ * @param[in] y_data  The Y axis dumped data itself.
+*/
+void ITTAPI __itt_histogram_submit(__itt_histogram* hist, size_t length, void* x_data, void* y_data);
+
+/** @cond exclude_from_documentation */
+#ifndef INTEL_NO_MACRO_BODY
+#ifndef INTEL_NO_ITTNOTIFY_API
+ITT_STUBV(ITTAPI, void, histogram_submit, (__itt_histogram* hist, size_t length, void* x_data, void* y_data))
+#define __itt_histogram_submit     ITTNOTIFY_VOID(histogram_submit)
+#define __itt_histogram_submit_ptr ITTNOTIFY_NAME(histogram_submit)
+#else  /* INTEL_NO_ITTNOTIFY_API */
+#define __itt_histogram_submit(hist, length, x_data, y_data)
+#define __itt_histogram_submit_ptr 0
+#endif /* INTEL_NO_ITTNOTIFY_API */
+#else  /* INTEL_NO_MACRO_BODY */
+#define __itt_histogram_submit_ptr 0
+#endif /* INTEL_NO_MACRO_BODY */
+/** @endcond */
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

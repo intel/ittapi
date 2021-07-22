@@ -203,7 +203,7 @@ ITT_EXTERN_C void ITTAPI __itt_frame_begin_v3(const __itt_domain *domain, __itt_
 {
     if (domain != NULL)
     {
-        LOG_FUNC_CALL_INFO("functions args: domain_name=%s", domain->nameA);
+        LOG_FUNC_CALL_INFO("functions args: domain=%s", domain->nameA);
     }
     else
     {
@@ -215,7 +215,7 @@ ITT_EXTERN_C void ITTAPI __itt_frame_end_v3(const __itt_domain *domain, __itt_id
 {
     if (domain != NULL)
     {
-        LOG_FUNC_CALL_INFO("functions args: domain_name=%s", domain->nameA);
+        LOG_FUNC_CALL_INFO("functions args: domain=%s", domain->nameA);
     }
     else
     {
@@ -228,7 +228,7 @@ ITT_EXTERN_C void ITTAPI __itt_frame_submit_v3(const __itt_domain *domain, __itt
 {
     if (domain != NULL)
     {
-        LOG_FUNC_CALL_INFO("functions args: domain_name=%s, time_begin=%lu, time_end=%llu",
+        LOG_FUNC_CALL_INFO("functions args: domain=%s, time_begin=%lu, time_end=%llu",
                         domain->nameA, (uint64_t*)id, begin, end);
     }
     else
@@ -242,7 +242,7 @@ ITT_EXTERN_C void ITTAPI __itt_task_begin(
 {
     if (domain != NULL && name != NULL)
     {
-        LOG_FUNC_CALL_INFO("functions args: domain_name=%s handle_name=%s", domain->nameA, name->strA);
+        LOG_FUNC_CALL_INFO("functions args: domain=%s handle=%s", domain->nameA, name->strA);
     }
     else
     {
@@ -254,7 +254,7 @@ ITT_EXTERN_C void ITTAPI __itt_task_end(const __itt_domain *domain)
 {
     if (domain != NULL)
     {
-        LOG_FUNC_CALL_INFO("functions args: domain_name=%s", domain->nameA);
+        LOG_FUNC_CALL_INFO("functions args: domain=%s", domain->nameA);
     }
     else
     {
@@ -267,8 +267,40 @@ ITT_EXTERN_C void __itt_metadata_add(const __itt_domain *domain, __itt_id id,
 {
     if (domain != NULL && count != 0)
     {
-        LOG_FUNC_CALL_INFO("functions args: domain_name=%s metadata_size=%lu metadata[]=%s",
+        LOG_FUNC_CALL_INFO("functions args: domain=%s metadata_size=%lu metadata[]=%s",
                             domain->nameA, count, get_metadata_elements(count, type, data));
+    }
+    else
+    {
+        LOG_FUNC_CALL_WARN("Incorrect function call");
+    }
+}
+
+ITT_EXTERN_C void __itt_histogram_submit(__itt_histogram* hist, size_t length, void* x_data, void* y_data)
+{
+    if (hist == NULL)
+    {
+        LOG_FUNC_CALL_WARN("Histogram is NULL");
+    }
+    else if (hist->domain == NULL)
+    {
+        LOG_FUNC_CALL_WARN("Histogram domain is NULL");
+    }
+    else if (hist->domain->nameA != NULL && hist->nameA != NULL && length != 0 && y_data != NULL)
+    {
+        if (x_data != NULL)
+        {
+            LOG_FUNC_CALL_INFO("functions args: domain=%s name=%s histogram_size=%lu x[]=%s y[]=%s",
+                                hist->domain->nameA, hist->nameA, length,
+                                get_metadata_elements(length, hist->x_type, x_data),
+                                get_metadata_elements(length, hist->y_type, y_data));
+        }
+        else
+        {
+            LOG_FUNC_CALL_INFO("functions args: domain=%s name=%s histogram_size=%lu y[]=%s",
+                                hist->domain->nameA, hist->nameA, length,
+                                get_metadata_elements(length, hist->y_type, y_data));
+        }
     }
     else
     {
