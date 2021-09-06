@@ -56,13 +56,13 @@ static const char api_version[] = API_VERSION "\0\n@(#) $Revision$\n";
 #endif
 
 #ifndef ITT_ATTRIBUTE_FALLTHROUGH
-#if HAS_CPP_ATTR(fallthrough) || HAS_C_ATTR(fallthrough)
+#if (HAS_CPP_ATTR(fallthrough) || HAS_C_ATTR(fallthrough)) && (__cplusplus >= 201703L || _MSVC_LANG >= 201703L)
 #define ITT_ATTRIBUTE_FALLTHROUGH [[fallthrough]]
 #elif HAS_CPP_ATTR(gnu::fallthrough)
 #define ITT_ATTRIBUTE_FALLTHROUGH [[gnu::fallthrough]]
 #elif HAS_CPP_ATTR(clang::fallthrough)
 #define ITT_ATTRIBUTE_FALLTHROUGH [[clang::fallthrough]]
-#elif HAS_GNU_ATTR(fallthrough)
+#elif HAS_GNU_ATTR(fallthrough) && !__INTEL_COMPILER
 #define ITT_ATTRIBUTE_FALLTHROUGH __attribute__((fallthrough))
 #else
 #define ITT_ATTRIBUTE_FALLTHROUGH
@@ -232,8 +232,10 @@ static __itt_group_alias group_alias[] = {
 #pragma pack(pop)
 
 #if ITT_PLATFORM==ITT_PLATFORM_WIN
+#if _MSC_VER
 #pragma warning(push)
 #pragma warning(disable: 4054) /* warning C4054: 'type cast' : from function pointer 'XXX' to data pointer 'void *' */
+#endif
 #endif /* ITT_PLATFORM==ITT_PLATFORM_WIN */
 
 static __itt_api_info api_list[] = {
@@ -255,7 +257,9 @@ static __itt_api_info api_list[] = {
 };
 
 #if ITT_PLATFORM==ITT_PLATFORM_WIN
+#if _MSC_VER
 #pragma warning(pop)
+#endif
 #endif /* ITT_PLATFORM==ITT_PLATFORM_WIN */
 
 /* static part descriptor which handles. all notification api attributes. */
@@ -291,27 +295,31 @@ ITT_EXTERN_C void _N_(error_handler)(__itt_error_code, va_list args);
 #endif /* ITT_NOTIFY_EXT_REPORT */
 
 #if ITT_PLATFORM==ITT_PLATFORM_WIN
+#if _MSC_VER
 #pragma warning(push)
 #pragma warning(disable: 4055) /* warning C4055: 'type cast' : from data pointer 'void *' to function pointer 'XXX' */
+#endif
 #endif /* ITT_PLATFORM==ITT_PLATFORM_WIN */
 
-static void __itt_report_error(__itt_error_code code, ...)
+static void __itt_report_error(int code, ...)
 {
     va_list args;
     va_start(args, code);
     if (_N_(_ittapi_global).error_handler != NULL)
     {
         __itt_error_handler_t* handler = (__itt_error_handler_t*)(size_t)_N_(_ittapi_global).error_handler;
-        handler(code, args);
+        handler((__itt_error_code)code, args);
     }
 #ifdef ITT_NOTIFY_EXT_REPORT
-    _N_(error_handler)(code, args);
+    _N_(error_handler)((__itt_error_code)code, args);
 #endif /* ITT_NOTIFY_EXT_REPORT */
     va_end(args);
 }
 
 #if ITT_PLATFORM==ITT_PLATFORM_WIN
+#if _MSC_VER
 #pragma warning(pop)
+#endif
 #endif /* ITT_PLATFORM==ITT_PLATFORM_WIN */
 
 #if ITT_PLATFORM==ITT_PLATFORM_WIN
@@ -1140,7 +1148,7 @@ static const char* __itt_get_lib_name(void)
     return lib_name;
 }
 
-/* Avoid clashes with std::min, reported by tbb team */
+/* Avoid clashes with std::min */
 #define __itt_min(a,b) ((a) < (b) ? (a) : (b))
 
 static __itt_group_id __itt_get_groups(void)
@@ -1222,9 +1230,11 @@ static void __itt_nullify_all_pointers(void)
 }
 
 #if ITT_PLATFORM==ITT_PLATFORM_WIN
+#if _MSC_VER
 #pragma warning(push)
 #pragma warning(disable: 4054) /* warning C4054: 'type cast' : from function pointer 'XXX' to data pointer 'void *' */
 #pragma warning(disable: 4055) /* warning C4055: 'type cast' : from data pointer 'void *' to function pointer 'XXX' */
+#endif
 #endif /* ITT_PLATFORM==ITT_PLATFORM_WIN */
 
 ITT_EXTERN_C void _N_(fini_ittlib)(void)
@@ -1274,7 +1284,7 @@ static void __itt_free_allocated_resources(void)
         __itt_string_handle* tmp = current_string->next;
         free((char*)current_string->strA);
 #if ITT_PLATFORM==ITT_PLATFORM_WIN
-        free(current_string->strW);
+        free((wchar_t*)current_string->strW);
 #endif
         free(current_string);
         current_string = tmp;
@@ -1287,7 +1297,7 @@ static void __itt_free_allocated_resources(void)
         __itt_domain* tmp = current_domain->next;
         free((char*)current_domain->nameA);
 #if ITT_PLATFORM==ITT_PLATFORM_WIN
-        free(current_domain->nameW);
+        free((wchar_t*)current_domain->nameW);
 #endif
         free(current_domain);
         current_domain = tmp;
@@ -1301,8 +1311,8 @@ static void __itt_free_allocated_resources(void)
         free((char*)current_couter->nameA);
         free((char*)current_couter->domainA);
 #if ITT_PLATFORM==ITT_PLATFORM_WIN
-        free(current_couter->nameW);
-        free(current_couter->domainW);
+        free((wchar_t*)current_couter->nameW);
+        free((wchar_t*)current_couter->domainW);
 #endif
         free(current_couter);
         current_couter = tmp;
@@ -1315,7 +1325,7 @@ static void __itt_free_allocated_resources(void)
         __itt_histogram* tmp = current_histogram->next;
         free((char*)current_histogram->nameA);
 #if ITT_PLATFORM==ITT_PLATFORM_WIN
-        free(current_histogram->nameW);
+        free((wchar_t*)current_histogram->nameW);
 #endif
         free(current_histogram);
         current_histogram = tmp;
@@ -1463,7 +1473,9 @@ ITT_EXTERN_C __itt_error_handler_t* _N_(set_error_handler)(__itt_error_handler_t
 }
 
 #if ITT_PLATFORM==ITT_PLATFORM_WIN
+#if _MSC_VER
 #pragma warning(pop)
+#endif
 #endif /* ITT_PLATFORM==ITT_PLATFORM_WIN */
 
 /** __itt_mark_pt_region functions marks region of interest

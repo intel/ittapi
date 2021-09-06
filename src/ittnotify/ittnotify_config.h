@@ -141,6 +141,10 @@
 #  define ITT_ARCH_IA32E 2
 #endif /* ITT_ARCH_IA32E */
 
+#ifndef ITT_ARCH_IA64
+#  define ITT_ARCH_IA64 3
+#endif /* ITT_ARCH_IA64 */
+
 #ifndef ITT_ARCH_ARM
 #  define ITT_ARCH_ARM  4
 #endif /* ITT_ARCH_ARM */
@@ -207,7 +211,11 @@
 typedef HMODULE           lib_t;
 typedef DWORD             TIDT;
 typedef CRITICAL_SECTION  mutex_t;
+#ifdef __cplusplus
+#define MUTEX_INITIALIZER {}
+#else
 #define MUTEX_INITIALIZER { 0 }
+#endif
 #define strong_alias(name, aliasname) /* empty for Windows */
 #else  /* ITT_PLATFORM==ITT_PLATFORM_WIN */
 #include <dlfcn.h>
