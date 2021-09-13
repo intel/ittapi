@@ -733,7 +733,7 @@ static __itt_histogram* ITTAPI ITT_VERSIONIZE(ITT_JOIN(_N_(histogram_createW),_i
     for (h_tail = NULL, h = _N_(_ittapi_global).histogram_list; h != NULL; h_tail = h, h = h->next)
     {
         if (h->domain == NULL) continue;
-        else if (h->domain != domain && h->nameW != NULL && !wcscmp(h->nameW, name)) break;
+        else if (h->domain == domain && h->nameW != NULL && !wcscmp(h->nameW, name)) break;
     }
     if (h == NULL)
     {
@@ -784,7 +784,7 @@ static __itt_histogram* ITTAPI ITT_VERSIONIZE(ITT_JOIN(_N_(histogram_create),_in
     for (h_tail = NULL, h = _N_(_ittapi_global).histogram_list; h != NULL; h_tail = h, h = h->next)
     {
         if (h->domain == NULL) continue;
-        else if (h->domain != domain && h->nameA != NULL && !__itt_fstrcmp(h->nameA, name)) break;
+        else if (h->domain == domain && h->nameA != NULL && !__itt_fstrcmp(h->nameA, name)) break;
     }
     if (h == NULL)
     {
