@@ -19,7 +19,7 @@ a BSD/GPLv2 dual license with every tool supporting ITT API.
 ### Build
 
 To build the library:
- - On Windows, Linux and OSX: requires [cmake](https://cmake.org) to be set in `PATH`
+ - On Windows, Linux, FreeBSD and OSX: requires [cmake](https://cmake.org) to be set in `PATH`
  - Windows: requires Visual Studio installed or requires [Ninja](https://github.com/ninja-build/ninja/releases) to be set in `PATH`
  - To list available build options execute: `python buildall.py -h`
 ```
