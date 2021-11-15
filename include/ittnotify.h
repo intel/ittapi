@@ -243,20 +243,20 @@ The same ID may not be reused for different instances, unless a previous
 #define ITTNOTIFY_VOID(n) (!ITTNOTIFY_NAME(n)) ? (void)0 : ITTNOTIFY_NAME(n)
 #define ITTNOTIFY_DATA(n) (!ITTNOTIFY_NAME(n)) ?       0 : ITTNOTIFY_NAME(n)
 
-#define ITTNOTIFY_VOID_D0(n,d)       (!(d)->flags) ? (void)0 : (!ITTNOTIFY_NAME(n)) ? (void)0 : ITTNOTIFY_NAME(n)(d)
-#define ITTNOTIFY_VOID_D1(n,d,x)     (!(d)->flags) ? (void)0 : (!ITTNOTIFY_NAME(n)) ? (void)0 : ITTNOTIFY_NAME(n)(d,x)
-#define ITTNOTIFY_VOID_D2(n,d,x,y)   (!(d)->flags) ? (void)0 : (!ITTNOTIFY_NAME(n)) ? (void)0 : ITTNOTIFY_NAME(n)(d,x,y)
-#define ITTNOTIFY_VOID_D3(n,d,x,y,z) (!(d)->flags) ? (void)0 : (!ITTNOTIFY_NAME(n)) ? (void)0 : ITTNOTIFY_NAME(n)(d,x,y,z)
-#define ITTNOTIFY_VOID_D4(n,d,x,y,z,a)     (!(d)->flags) ? (void)0 : (!ITTNOTIFY_NAME(n)) ? (void)0 : ITTNOTIFY_NAME(n)(d,x,y,z,a)
-#define ITTNOTIFY_VOID_D5(n,d,x,y,z,a,b)   (!(d)->flags) ? (void)0 : (!ITTNOTIFY_NAME(n)) ? (void)0 : ITTNOTIFY_NAME(n)(d,x,y,z,a,b)
-#define ITTNOTIFY_VOID_D6(n,d,x,y,z,a,b,c) (!(d)->flags) ? (void)0 : (!ITTNOTIFY_NAME(n)) ? (void)0 : ITTNOTIFY_NAME(n)(d,x,y,z,a,b,c)
-#define ITTNOTIFY_DATA_D0(n,d)       (!(d)->flags) ?       0 : (!ITTNOTIFY_NAME(n)) ?       0 : ITTNOTIFY_NAME(n)(d)
-#define ITTNOTIFY_DATA_D1(n,d,x)     (!(d)->flags) ?       0 : (!ITTNOTIFY_NAME(n)) ?       0 : ITTNOTIFY_NAME(n)(d,x)
-#define ITTNOTIFY_DATA_D2(n,d,x,y)   (!(d)->flags) ?       0 : (!ITTNOTIFY_NAME(n)) ?       0 : ITTNOTIFY_NAME(n)(d,x,y)
-#define ITTNOTIFY_DATA_D3(n,d,x,y,z) (!(d)->flags) ?       0 : (!ITTNOTIFY_NAME(n)) ?       0 : ITTNOTIFY_NAME(n)(d,x,y,z)
-#define ITTNOTIFY_DATA_D4(n,d,x,y,z,a)     (!(d)->flags) ? 0 : (!ITTNOTIFY_NAME(n)) ?       0 : ITTNOTIFY_NAME(n)(d,x,y,z,a)
-#define ITTNOTIFY_DATA_D5(n,d,x,y,z,a,b)   (!(d)->flags) ? 0 : (!ITTNOTIFY_NAME(n)) ?       0 : ITTNOTIFY_NAME(n)(d,x,y,z,a,b)
-#define ITTNOTIFY_DATA_D6(n,d,x,y,z,a,b,c) (!(d)->flags) ? 0 : (!ITTNOTIFY_NAME(n)) ?       0 : ITTNOTIFY_NAME(n)(d,x,y,z,a,b,c)
+#define ITTNOTIFY_VOID_D0(n,d)       (d == NULL) ? (void)0 : (!(d)->flags) ? (void)0 : (!ITTNOTIFY_NAME(n)) ? (void)0 : ITTNOTIFY_NAME(n)(d)
+#define ITTNOTIFY_VOID_D1(n,d,x)     (d == NULL) ? (void)0 : (!(d)->flags) ? (void)0 : (!ITTNOTIFY_NAME(n)) ? (void)0 : ITTNOTIFY_NAME(n)(d,x)
+#define ITTNOTIFY_VOID_D2(n,d,x,y)   (d == NULL) ? (void)0 : (!(d)->flags) ? (void)0 : (!ITTNOTIFY_NAME(n)) ? (void)0 : ITTNOTIFY_NAME(n)(d,x,y)
+#define ITTNOTIFY_VOID_D3(n,d,x,y,z) (d == NULL) ? (void)0 : (!(d)->flags) ? (void)0 : (!ITTNOTIFY_NAME(n)) ? (void)0 : ITTNOTIFY_NAME(n)(d,x,y,z)
+#define ITTNOTIFY_VOID_D4(n,d,x,y,z,a)     (d == NULL) ? (void)0 : (!(d)->flags) ? (void)0 : (!ITTNOTIFY_NAME(n)) ? (void)0 : ITTNOTIFY_NAME(n)(d,x,y,z,a)
+#define ITTNOTIFY_VOID_D5(n,d,x,y,z,a,b)   (d == NULL) ? (void)0 : (!(d)->flags) ? (void)0 : (!ITTNOTIFY_NAME(n)) ? (void)0 : ITTNOTIFY_NAME(n)(d,x,y,z,a,b)
+#define ITTNOTIFY_VOID_D6(n,d,x,y,z,a,b,c) (d == NULL) ? (void)0 : (!(d)->flags) ? (void)0 : (!ITTNOTIFY_NAME(n)) ? (void)0 : ITTNOTIFY_NAME(n)(d,x,y,z,a,b,c)
+#define ITTNOTIFY_DATA_D0(n,d)       (d == NULL) ? 0 : (!(d)->flags) ?       0 : (!ITTNOTIFY_NAME(n)) ?       0 : ITTNOTIFY_NAME(n)(d)
+#define ITTNOTIFY_DATA_D1(n,d,x)     (d == NULL) ? 0 : (!(d)->flags) ?       0 : (!ITTNOTIFY_NAME(n)) ?       0 : ITTNOTIFY_NAME(n)(d,x)
+#define ITTNOTIFY_DATA_D2(n,d,x,y)   (d == NULL) ? 0 : (!(d)->flags) ?       0 : (!ITTNOTIFY_NAME(n)) ?       0 : ITTNOTIFY_NAME(n)(d,x,y)
+#define ITTNOTIFY_DATA_D3(n,d,x,y,z) (d == NULL) ? 0 : (!(d)->flags) ?       0 : (!ITTNOTIFY_NAME(n)) ?       0 : ITTNOTIFY_NAME(n)(d,x,y,z)
+#define ITTNOTIFY_DATA_D4(n,d,x,y,z,a)     (d == NULL) ? 0 : (!(d)->flags) ? 0 : (!ITTNOTIFY_NAME(n)) ?       0 : ITTNOTIFY_NAME(n)(d,x,y,z,a)
+#define ITTNOTIFY_DATA_D5(n,d,x,y,z,a,b)   (d == NULL) ? 0 : (!(d)->flags) ? 0 : (!ITTNOTIFY_NAME(n)) ?       0 : ITTNOTIFY_NAME(n)(d,x,y,z,a,b)
+#define ITTNOTIFY_DATA_D6(n,d,x,y,z,a,b,c) (d == NULL) ? 0 : (!(d)->flags) ? 0 : (!ITTNOTIFY_NAME(n)) ?       0 : ITTNOTIFY_NAME(n)(d,x,y,z,a,b,c)
 
 #ifdef ITT_STUB
 #undef ITT_STUB
@@ -583,6 +583,18 @@ typedef enum __itt_suppress_mode {
     __itt_unsuppress_range,
     __itt_suppress_range
 } __itt_suppress_mode_t;
+
+/**
+ * @enum __itt_collection_state
+ * @brief Enumerator for collection state. All non-work states have negative values.
+ */
+typedef enum {
+    __itt_collection_uninitialized = 0, /* uninitialized */
+    __itt_collection_init_fail = 1, /* failed to init */
+    __itt_collection_collector_absent = 2, /* non work state collector exists */
+    __itt_collection_collector_exists = 3, /* work state collector exists */
+    __itt_collection_init_successful = 4 /* success to init */
+} __itt_collection_state;
 
 /**
  * @brief Mark a range of memory for error suppression or unsuppression for error types included in mask
@@ -3967,6 +3979,12 @@ ITT_STUBV(ITTAPI, void, histogram_submit, (__itt_histogram* hist, size_t length,
 #else  /* INTEL_NO_MACRO_BODY */
 #define __itt_histogram_submit_ptr 0
 #endif /* INTEL_NO_MACRO_BODY */
+
+/**
+* @brief function allows to obtain the current collection state at the moment
+* @return collection state as a enum __itt_collection_state
+*/
+__itt_collection_state __itt_get_collection_state(void);
 /** @endcond */
 
 #ifdef __cplusplus

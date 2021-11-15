@@ -199,7 +199,7 @@
 #define API_VERSION_BUILD    20180723
 
 #ifndef API_VERSION_NUM
-#define API_VERSION_NUM 3.20.1
+#define API_VERSION_NUM 3.22.3
 #endif /* API_VERSION_NUM */
 
 #define API_VERSION "ITT-API-Version " ITT_TO_STR(API_VERSION_NUM) \
@@ -378,11 +378,6 @@ pthread_t pthread_self(void) __attribute__((weak));
 } while(0)
 
 typedef enum {
-    __itt_collection_normal = 0,
-    __itt_collection_paused = 1
-} __itt_collection_state;
-
-typedef enum {
     __itt_thread_normal  = 0,
     __itt_thread_ignored = 1
 } __itt_thread_state;
@@ -447,6 +442,8 @@ typedef struct __itt_counter_info
 struct ___itt_domain;
 struct ___itt_string_handle;
 struct ___itt_histogram;
+
+#include "ittnotify.h"
 
 typedef struct ___itt_global
 {

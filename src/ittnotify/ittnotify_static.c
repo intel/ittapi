@@ -4,6 +4,8 @@
   SPDX-License-Identifier: GPL-2.0-only OR BSD-3-Clause
 */
 
+#define INTEL_NO_MACRO_BODY
+#define INTEL_ITTNOTIFY_API_PRIVATE
 #include "ittnotify_config.h"
 
 #if ITT_PLATFORM==ITT_PLATFORM_WIN
@@ -20,8 +22,6 @@
 #include <stdarg.h>
 #include <string.h>
 
-#define INTEL_NO_MACRO_BODY 
-#define INTEL_ITTNOTIFY_API_PRIVATE
 #include "ittnotify.h"
 #include "legacy/ittnotify.h"
 
@@ -278,7 +278,7 @@ __itt_global _N_(_ittapi_global) = {
     NULL,                                          /* thread_list */
     NULL,                                          /* domain_list */
     NULL,                                          /* string_list */
-    __itt_collection_normal,                       /* collection state */
+    __itt_collection_uninitialized,                /* collection state */
     NULL,                                          /* counter_list */
     0,                                             /* ipt_collect_events */
     NULL                                           /* histogram_list */
@@ -316,6 +316,8 @@ static void __itt_report_error(int code, ...)
     va_end(args);
 }
 
+static int __itt_is_collector_available(void);
+
 #if ITT_PLATFORM==ITT_PLATFORM_WIN
 #if _MSC_VER
 #pragma warning(pop)
@@ -346,13 +348,16 @@ static __itt_domain* ITTAPI ITT_VERSIONIZE(ITT_JOIN(_N_(domain_createW),_init))(
             return &dummy_domain;
         }
     }
-    for (h_tail = NULL, h = _N_(_ittapi_global).domain_list; h != NULL; h_tail = h, h = h->next)
+    if (__itt_is_collector_available())
     {
-        if (h->nameW != NULL && !wcscmp(h->nameW, name)) break;
-    }
-    if (h == NULL)
-    {
-        NEW_DOMAIN_W(&_N_(_ittapi_global),h,h_tail,name);
+        for (h_tail = NULL, h = _N_(_ittapi_global).domain_list; h != NULL; h_tail = h, h = h->next)
+        {
+            if (h->nameW != NULL && !wcscmp(h->nameW, name)) break;
+        }
+        if (h == NULL)
+        {
+            NEW_DOMAIN_W(&_N_(_ittapi_global), h, h_tail, name);
+        }
     }
     if (PTHREAD_SYMBOLS) __itt_mutex_unlock(&_N_(_ittapi_global).mutex);
     return h;
@@ -396,13 +401,16 @@ static __itt_domain* ITTAPI ITT_VERSIONIZE(ITT_JOIN(_N_(domain_create),_init))(c
             return &dummy_domain;
         }
     }
-    for (h_tail = NULL, h = _N_(_ittapi_global).domain_list; h != NULL; h_tail = h, h = h->next)
+    if (__itt_is_collector_available())
     {
-        if (h->nameA != NULL && !__itt_fstrcmp(h->nameA, name)) break;
-    }
-    if (h == NULL)
-    {
-        NEW_DOMAIN_A(&_N_(_ittapi_global),h,h_tail,name);
+        for (h_tail = NULL, h = _N_(_ittapi_global).domain_list; h != NULL; h_tail = h, h = h->next)
+        {
+            if (h->nameA != NULL && !__itt_fstrcmp(h->nameA, name)) break;
+        }
+        if (h == NULL)
+        {
+            NEW_DOMAIN_A(&_N_(_ittapi_global), h, h_tail, name);
+        }
     }
     if (PTHREAD_SYMBOLS) __itt_mutex_unlock(&_N_(_ittapi_global).mutex);
     return h;
@@ -464,13 +472,16 @@ static __itt_string_handle* ITTAPI ITT_VERSIONIZE(ITT_JOIN(_N_(string_handle_cre
             return NULL;
         }
     }
-    for (h_tail = NULL, h = _N_(_ittapi_global).string_list; h != NULL; h_tail = h, h = h->next)
+    if (__itt_is_collector_available())
     {
-        if (h->strW != NULL && !wcscmp(h->strW, name)) break;
-    }
-    if (h == NULL)
-    {
-        NEW_STRING_HANDLE_W(&_N_(_ittapi_global),h,h_tail,name);
+        for (h_tail = NULL, h = _N_(_ittapi_global).string_list; h != NULL; h_tail = h, h = h->next)
+        {
+            if (h->strW != NULL && !wcscmp(h->strW, name)) break;
+        }
+        if (h == NULL)
+        {
+            NEW_STRING_HANDLE_W(&_N_(_ittapi_global), h, h_tail, name);
+        }
     }
     __itt_mutex_unlock(&_N_(_ittapi_global).mutex);
     return h;
@@ -514,13 +525,16 @@ static __itt_string_handle* ITTAPI ITT_VERSIONIZE(ITT_JOIN(_N_(string_handle_cre
             return NULL;
         }
     }
-    for (h_tail = NULL, h = _N_(_ittapi_global).string_list; h != NULL; h_tail = h, h = h->next)
+    if (__itt_is_collector_available())
     {
-        if (h->strA != NULL && !__itt_fstrcmp(h->strA, name)) break;
-    }
-    if (h == NULL)
-    {
-        NEW_STRING_HANDLE_A(&_N_(_ittapi_global),h,h_tail,name);
+        for (h_tail = NULL, h = _N_(_ittapi_global).string_list; h != NULL; h_tail = h, h = h->next)
+        {
+            if (h->strA != NULL && !__itt_fstrcmp(h->strA, name)) break;
+        }
+        if (h == NULL)
+        {
+            NEW_STRING_HANDLE_A(&_N_(_ittapi_global), h, h_tail, name);
+        }
     }
     if (PTHREAD_SYMBOLS) __itt_mutex_unlock(&_N_(_ittapi_global).mutex);
     return h;
@@ -551,15 +565,18 @@ static __itt_counter ITTAPI ITT_VERSIONIZE(ITT_JOIN(_N_(counter_createW),_init))
             return NULL;
         }
     }
-    for (h_tail = NULL, h = _N_(_ittapi_global).counter_list; h != NULL; h_tail = h, h = h->next)
+    if (__itt_is_collector_available())
     {
-        if (h->nameW != NULL  && h->type == (int)type && !wcscmp(h->nameW, name) && ((h->domainW == NULL && domain == NULL) ||
-            (h->domainW != NULL && domain != NULL && !wcscmp(h->domainW, domain)))) break;
+        for (h_tail = NULL, h = _N_(_ittapi_global).counter_list; h != NULL; h_tail = h, h = h->next)
+        {
+            if (h->nameW != NULL && h->type == (int)type && !wcscmp(h->nameW, name) && ((h->domainW == NULL && domain == NULL) ||
+                (h->domainW != NULL && domain != NULL && !wcscmp(h->domainW, domain)))) break;
 
-    }
-    if (h == NULL)
-    {
-        NEW_COUNTER_W(&_N_(_ittapi_global),h,h_tail,name,domain,type);
+        }
+        if (h == NULL)
+        {
+            NEW_COUNTER_W(&_N_(_ittapi_global), h, h_tail, name, domain, type);
+        }
     }
     __itt_mutex_unlock(&_N_(_ittapi_global).mutex);
     return (__itt_counter)h;
@@ -604,14 +621,17 @@ static __itt_counter ITTAPI ITT_VERSIONIZE(ITT_JOIN(_N_(counter_create),_init))(
             return NULL;
         }
     }
-    for (h_tail = NULL, h = _N_(_ittapi_global).counter_list; h != NULL; h_tail = h, h = h->next)
+    if (__itt_is_collector_available())
     {
-        if (h->nameA != NULL  && h->type == (int)type && !__itt_fstrcmp(h->nameA, name) && ((h->domainA == NULL && domain == NULL) ||
-            (h->domainA != NULL && domain != NULL && !__itt_fstrcmp(h->domainA, domain)))) break;
-    }
-    if (h == NULL)
-    {
-       NEW_COUNTER_A(&_N_(_ittapi_global),h,h_tail,name,domain,type);
+        for (h_tail = NULL, h = _N_(_ittapi_global).counter_list; h != NULL; h_tail = h, h = h->next)
+        {
+            if (h->nameA != NULL && h->type == (int)type && !__itt_fstrcmp(h->nameA, name) && ((h->domainA == NULL && domain == NULL) ||
+                (h->domainA != NULL && domain != NULL && !__itt_fstrcmp(h->domainA, domain)))) break;
+        }
+        if (h == NULL)
+        {
+            NEW_COUNTER_A(&_N_(_ittapi_global), h, h_tail, name, domain, type);
+        }
     }
     if (PTHREAD_SYMBOLS) __itt_mutex_unlock(&_N_(_ittapi_global).mutex);
     return (__itt_counter)h;
@@ -641,15 +661,18 @@ static __itt_counter ITTAPI ITT_VERSIONIZE(ITT_JOIN(_N_(counter_create_typedW),_
             return NULL;
         }
     }
-    for (h_tail = NULL, h = _N_(_ittapi_global).counter_list; h != NULL; h_tail = h, h = h->next)
+    if (__itt_is_collector_available())
     {
-        if (h->nameW != NULL  && h->type == (int)type && !wcscmp(h->nameW, name) && ((h->domainW == NULL && domain == NULL) ||
-            (h->domainW != NULL && domain != NULL && !wcscmp(h->domainW, domain)))) break;
+        for (h_tail = NULL, h = _N_(_ittapi_global).counter_list; h != NULL; h_tail = h, h = h->next)
+        {
+            if (h->nameW != NULL && h->type == (int)type && !wcscmp(h->nameW, name) && ((h->domainW == NULL && domain == NULL) ||
+                (h->domainW != NULL && domain != NULL && !wcscmp(h->domainW, domain)))) break;
 
-    }
-    if (h == NULL)
-    {
-        NEW_COUNTER_W(&_N_(_ittapi_global),h,h_tail,name,domain,type);
+        }
+        if (h == NULL)
+        {
+            NEW_COUNTER_W(&_N_(_ittapi_global), h, h_tail, name, domain, type);
+        }
     }
     __itt_mutex_unlock(&_N_(_ittapi_global).mutex);
     return (__itt_counter)h;
@@ -693,14 +716,17 @@ static __itt_counter ITTAPI ITT_VERSIONIZE(ITT_JOIN(_N_(counter_create_typed),_i
             return NULL;
         }
     }
-    for (h_tail = NULL, h = _N_(_ittapi_global).counter_list; h != NULL; h_tail = h, h = h->next)
+    if (__itt_is_collector_available())
     {
-        if (h->nameA != NULL  && h->type == (int)type && !__itt_fstrcmp(h->nameA, name) && ((h->domainA == NULL && domain == NULL) ||
-            (h->domainA != NULL && domain != NULL && !__itt_fstrcmp(h->domainA, domain)))) break;
-    }
-    if (h == NULL)
-    {
-       NEW_COUNTER_A(&_N_(_ittapi_global),h,h_tail,name,domain,type);
+        for (h_tail = NULL, h = _N_(_ittapi_global).counter_list; h != NULL; h_tail = h, h = h->next)
+        {
+            if (h->nameA != NULL && h->type == (int)type && !__itt_fstrcmp(h->nameA, name) && ((h->domainA == NULL && domain == NULL) ||
+                (h->domainA != NULL && domain != NULL && !__itt_fstrcmp(h->domainA, domain)))) break;
+        }
+        if (h == NULL)
+        {
+            NEW_COUNTER_A(&_N_(_ittapi_global), h, h_tail, name, domain, type);
+        }
     }
     if (PTHREAD_SYMBOLS) __itt_mutex_unlock(&_N_(_ittapi_global).mutex);
     return (__itt_counter)h;
@@ -730,14 +756,17 @@ static __itt_histogram* ITTAPI ITT_VERSIONIZE(ITT_JOIN(_N_(histogram_createW),_i
             return NULL;
         }
     }
-    for (h_tail = NULL, h = _N_(_ittapi_global).histogram_list; h != NULL; h_tail = h, h = h->next)
+    if (__itt_is_collector_available())
     {
-        if (h->domain == NULL) continue;
-        else if (h->domain == domain && h->nameW != NULL && !wcscmp(h->nameW, name)) break;
-    }
-    if (h == NULL)
-    {
-       NEW_HISTOGRAM_W(&_N_(_ittapi_global),h,h_tail,domain,name,x_type,y_type);
+        for (h_tail = NULL, h = _N_(_ittapi_global).histogram_list; h != NULL; h_tail = h, h = h->next)
+        {
+            if (h->domain == NULL) continue;
+            else if (h->domain == domain && h->nameW != NULL && !wcscmp(h->nameW, name)) break;
+        }
+        if (h == NULL)
+        {
+            NEW_HISTOGRAM_W(&_N_(_ittapi_global), h, h_tail, domain, name, x_type, y_type);
+        }
     }
     __itt_mutex_unlock(&_N_(_ittapi_global).mutex);
     return (__itt_histogram*)h;
@@ -781,14 +810,17 @@ static __itt_histogram* ITTAPI ITT_VERSIONIZE(ITT_JOIN(_N_(histogram_create),_in
             return NULL;
         }
     }
-    for (h_tail = NULL, h = _N_(_ittapi_global).histogram_list; h != NULL; h_tail = h, h = h->next)
+    if (__itt_is_collector_available())
     {
-        if (h->domain == NULL) continue;
-        else if (h->domain == domain && h->nameA != NULL && !__itt_fstrcmp(h->nameA, name)) break;
-    }
-    if (h == NULL)
-    {
-       NEW_HISTOGRAM_A(&_N_(_ittapi_global),h,h_tail,domain,name,x_type,y_type);
+        for (h_tail = NULL, h = _N_(_ittapi_global).histogram_list; h != NULL; h_tail = h, h = h->next)
+        {
+            if (h->domain == NULL) continue;
+            else if (h->domain == domain && h->nameA != NULL && !__itt_fstrcmp(h->nameA, name)) break;
+        }
+        if (h == NULL)
+        {
+            NEW_HISTOGRAM_A(&_N_(_ittapi_global), h, h_tail, domain, name, x_type, y_type);
+        }
     }
     if (PTHREAD_SYMBOLS) __itt_mutex_unlock(&_N_(_ittapi_global).mutex);
     return (__itt_histogram*)h;
@@ -806,10 +838,6 @@ static void ITTAPI ITT_VERSIONIZE(ITT_JOIN(_N_(pause),_init))(void)
     {
         ITTNOTIFY_NAME(pause)();
     }
-    else
-    {
-        _N_(_ittapi_global).state = __itt_collection_paused;
-    }
 }
 
 static void ITTAPI ITT_VERSIONIZE(ITT_JOIN(_N_(resume),_init))(void)
@@ -821,10 +849,6 @@ static void ITTAPI ITT_VERSIONIZE(ITT_JOIN(_N_(resume),_init))(void)
     if (ITTNOTIFY_NAME(resume) && ITTNOTIFY_NAME(resume) != ITT_VERSIONIZE(ITT_JOIN(_N_(resume),_init)))
     {
         ITTNOTIFY_NAME(resume)();
-    }
-    else
-    {
-        _N_(_ittapi_global).state = __itt_collection_normal;
     }
 }
 
@@ -1229,6 +1253,25 @@ static void __itt_nullify_all_pointers(void)
         *_N_(_ittapi_global).api_list_ptr[i].func_ptr = _N_(_ittapi_global).api_list_ptr[i].null_func;
 }
 
+static int __itt_is_collector_available(void)
+{
+    ITT_MUTEX_INIT_AND_LOCK(_N_(_ittapi_global));
+    if (_N_(_ittapi_global).api_initialized)
+    {
+        __itt_mutex_unlock(&_N_(_ittapi_global).mutex);
+        return _N_(_ittapi_global).state == __itt_collection_init_successful;
+    }
+    if (NULL == __itt_get_lib_name())
+    {
+        _N_(_ittapi_global).state = __itt_collection_collector_absent;
+        __itt_mutex_unlock(&_N_(_ittapi_global).mutex);
+        return 0;
+    }
+    _N_(_ittapi_global).state = __itt_collection_collector_exists;
+    __itt_mutex_unlock(&_N_(_ittapi_global).mutex);
+    return 1;
+}
+
 #if ITT_PLATFORM==ITT_PLATFORM_WIN
 #if _MSC_VER
 #pragma warning(push)
@@ -1273,7 +1316,6 @@ ITT_EXTERN_C void _N_(fini_ittlib)(void)
         if (PTHREAD_SYMBOLS) __itt_mutex_unlock(&_N_(_ittapi_global).mutex);
     }
 }
-
 
 /* !!! this function should be called under mutex lock !!! */
 static void __itt_free_allocated_resources(void)
@@ -1364,6 +1406,7 @@ ITT_EXTERN_C int _N_(init_ittlib)(const char* lib_name, __itt_group_id init_grou
 
                     if (_N_(_ittapi_global).lib != NULL)
                     {
+                        _N_(_ittapi_global).state = __itt_collection_init_successful;
                         __itt_api_init_t* __itt_api_init_ptr;
                         int lib_version = __itt_lib_version(_N_(_ittapi_global).lib);
 
@@ -1424,6 +1467,7 @@ ITT_EXTERN_C int _N_(init_ittlib)(const char* lib_name, __itt_group_id init_grou
                     }
                     else
                     {
+                        _N_(_ittapi_global).state = __itt_collection_init_fail;
                         __itt_free_allocated_resources();
                         __itt_nullify_all_pointers();
 
@@ -1438,7 +1482,7 @@ ITT_EXTERN_C int _N_(init_ittlib)(const char* lib_name, __itt_group_id init_grou
                 }
                 else
                 {
-                    __itt_free_allocated_resources();
+                    _N_(_ittapi_global).state = __itt_collection_collector_absent;
                     __itt_nullify_all_pointers();
                 }
                 _N_(_ittapi_global).api_initialized = 1;
@@ -1517,5 +1561,14 @@ ITT_EXTERN_C void _N_(mark_pt_region_end)(__itt_pt_region region)
 #else
      (void)region;
 #endif
+}
+
+ITT_EXTERN_C __itt_collection_state (_N_(get_collection_state))(void)
+{
+    if (!_N_(_ittapi_global).api_initialized && _N_(_ittapi_global).thread_list == NULL)
+    {
+        __itt_init_ittlib_name(NULL, __itt_group_all);
+    }
+    return _N_(_ittapi_global).state;
 }
 
