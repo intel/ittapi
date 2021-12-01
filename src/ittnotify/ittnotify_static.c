@@ -1261,7 +1261,7 @@ static int __itt_is_collector_available(void)
         __itt_mutex_unlock(&_N_(_ittapi_global).mutex);
         return _N_(_ittapi_global).state == __itt_collection_init_successful;
     }
-    if (NULL == __itt_get_lib_name())
+    if (_N_(_ittapi_global).state != __itt_collection_collector_exists && NULL == __itt_get_lib_name())
     {
         _N_(_ittapi_global).state = __itt_collection_collector_absent;
         __itt_mutex_unlock(&_N_(_ittapi_global).mutex);
