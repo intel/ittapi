@@ -13,6 +13,7 @@ pub const ITT_PLATFORM: u32 = 2;
 pub const _STDINT_H: u32 = 1;
 pub const _FEATURES_H: u32 = 1;
 pub const _DEFAULT_SOURCE: u32 = 1;
+pub const __GLIBC_USE_ISOC2X: u32 = 0;
 pub const __USE_ISOC11: u32 = 1;
 pub const __USE_ISOC99: u32 = 1;
 pub const __USE_ISOC95: u32 = 1;
@@ -26,34 +27,42 @@ pub const __USE_POSIX199506: u32 = 1;
 pub const __USE_XOPEN2K: u32 = 1;
 pub const __USE_XOPEN2K8: u32 = 1;
 pub const _ATFILE_SOURCE: u32 = 1;
+pub const __WORDSIZE: u32 = 64;
+pub const __WORDSIZE_TIME64_COMPAT32: u32 = 1;
+pub const __SYSCALL_WORDSIZE: u32 = 64;
+pub const __TIMESIZE: u32 = 64;
 pub const __USE_MISC: u32 = 1;
 pub const __USE_ATFILE: u32 = 1;
 pub const __USE_FORTIFY_LEVEL: u32 = 0;
 pub const __GLIBC_USE_DEPRECATED_GETS: u32 = 0;
+pub const __GLIBC_USE_DEPRECATED_SCANF: u32 = 0;
 pub const _STDC_PREDEF_H: u32 = 1;
 pub const __STDC_IEC_559__: u32 = 1;
 pub const __STDC_IEC_559_COMPLEX__: u32 = 1;
 pub const __STDC_ISO_10646__: u32 = 201706;
-pub const __STDC_NO_THREADS__: u32 = 1;
 pub const __GNU_LIBRARY__: u32 = 6;
 pub const __GLIBC__: u32 = 2;
-pub const __GLIBC_MINOR__: u32 = 27;
+pub const __GLIBC_MINOR__: u32 = 34;
 pub const _SYS_CDEFS_H: u32 = 1;
 pub const __glibc_c99_flexarr_available: u32 = 1;
-pub const __WORDSIZE: u32 = 64;
-pub const __WORDSIZE_TIME64_COMPAT32: u32 = 1;
-pub const __SYSCALL_WORDSIZE: u32 = 64;
+pub const __LDOUBLE_REDIRECTS_TO_FLOAT128_ABI: u32 = 0;
 pub const __HAVE_GENERIC_SELECTION: u32 = 1;
 pub const __GLIBC_USE_LIB_EXT2: u32 = 0;
 pub const __GLIBC_USE_IEC_60559_BFP_EXT: u32 = 0;
+pub const __GLIBC_USE_IEC_60559_BFP_EXT_C2X: u32 = 0;
+pub const __GLIBC_USE_IEC_60559_EXT: u32 = 0;
 pub const __GLIBC_USE_IEC_60559_FUNCS_EXT: u32 = 0;
+pub const __GLIBC_USE_IEC_60559_FUNCS_EXT_C2X: u32 = 0;
 pub const __GLIBC_USE_IEC_60559_TYPES_EXT: u32 = 0;
 pub const _BITS_TYPES_H: u32 = 1;
 pub const _BITS_TYPESIZES_H: u32 = 1;
 pub const __OFF_T_MATCHES_OFF64_T: u32 = 1;
 pub const __INO_T_MATCHES_INO64_T: u32 = 1;
 pub const __RLIM_T_MATCHES_RLIM64_T: u32 = 1;
+pub const __STATFS_MATCHES_STATFS64: u32 = 1;
+pub const __KERNEL_OLD_TIMEVAL_MATCHES_TIMEVAL64: u32 = 1;
 pub const __FD_SETSIZE: u32 = 1024;
+pub const _BITS_TIME64_H: u32 = 1;
 pub const _BITS_WCHAR_H: u32 = 1;
 pub const _BITS_STDINT_INTN_H: u32 = 1;
 pub const _BITS_STDINT_UINTN_H: u32 = 1;
@@ -164,6 +173,14 @@ pub type __int32_t = ::std::os::raw::c_int;
 pub type __uint32_t = ::std::os::raw::c_uint;
 pub type __int64_t = ::std::os::raw::c_long;
 pub type __uint64_t = ::std::os::raw::c_ulong;
+pub type __int_least8_t = __int8_t;
+pub type __uint_least8_t = __uint8_t;
+pub type __int_least16_t = __int16_t;
+pub type __uint_least16_t = __uint16_t;
+pub type __int_least32_t = __int32_t;
+pub type __uint_least32_t = __uint32_t;
+pub type __int_least64_t = __int64_t;
+pub type __uint_least64_t = __uint64_t;
 pub type __quad_t = ::std::os::raw::c_long;
 pub type __u_quad_t = ::std::os::raw::c_ulong;
 pub type __intmax_t = ::std::os::raw::c_long;
@@ -213,6 +230,7 @@ pub type __id_t = ::std::os::raw::c_uint;
 pub type __time_t = ::std::os::raw::c_long;
 pub type __useconds_t = ::std::os::raw::c_uint;
 pub type __suseconds_t = ::std::os::raw::c_long;
+pub type __suseconds64_t = ::std::os::raw::c_long;
 pub type __daddr_t = ::std::os::raw::c_int;
 pub type __key_t = ::std::os::raw::c_int;
 pub type __clockid_t = ::std::os::raw::c_int;
@@ -233,14 +251,14 @@ pub type __caddr_t = *mut ::std::os::raw::c_char;
 pub type __intptr_t = ::std::os::raw::c_long;
 pub type __socklen_t = ::std::os::raw::c_uint;
 pub type __sig_atomic_t = ::std::os::raw::c_int;
-pub type int_least8_t = ::std::os::raw::c_schar;
-pub type int_least16_t = ::std::os::raw::c_short;
-pub type int_least32_t = ::std::os::raw::c_int;
-pub type int_least64_t = ::std::os::raw::c_long;
-pub type uint_least8_t = ::std::os::raw::c_uchar;
-pub type uint_least16_t = ::std::os::raw::c_ushort;
-pub type uint_least32_t = ::std::os::raw::c_uint;
-pub type uint_least64_t = ::std::os::raw::c_ulong;
+pub type int_least8_t = __int_least8_t;
+pub type int_least16_t = __int_least16_t;
+pub type int_least32_t = __int_least32_t;
+pub type int_least64_t = __int_least64_t;
+pub type uint_least8_t = __uint_least8_t;
+pub type uint_least16_t = __uint_least16_t;
+pub type uint_least32_t = __uint_least32_t;
+pub type uint_least64_t = __uint_least64_t;
 pub type int_fast8_t = ::std::os::raw::c_schar;
 pub type int_fast16_t = ::std::os::raw::c_long;
 pub type int_fast32_t = ::std::os::raw::c_long;
@@ -360,7 +378,17 @@ pub const __itt_suppress_mode___itt_suppress_range: __itt_suppress_mode = 1;
 #[doc = " @enum __itt_model_disable"]
 #[doc = " @brief Enumerator for the disable methods"]
 pub type __itt_suppress_mode = u32;
+#[doc = " @enum __itt_model_disable"]
+#[doc = " @brief Enumerator for the disable methods"]
 pub use self::__itt_suppress_mode as __itt_suppress_mode_t;
+pub const __itt_collection_state___itt_collection_uninitialized: __itt_collection_state = 0;
+pub const __itt_collection_state___itt_collection_init_fail: __itt_collection_state = 1;
+pub const __itt_collection_state___itt_collection_collector_absent: __itt_collection_state = 2;
+pub const __itt_collection_state___itt_collection_collector_exists: __itt_collection_state = 3;
+pub const __itt_collection_state___itt_collection_init_successful: __itt_collection_state = 4;
+#[doc = " @enum __itt_collection_state"]
+#[doc = " @brief Enumerator for collection state. All non-work states have negative values."]
+pub type __itt_collection_state = u32;
 extern "C" {
     #[doc = " @brief Mark a range of memory for error suppression or unsuppression for error types included in mask"]
     pub fn __itt_suppress_mark_range(
@@ -904,7 +932,7 @@ extern "C" {
     pub static mut __itt_heap_allocate_end_ptr__3_0: __itt_heap_allocate_end_ptr__3_0_t;
 }
 extern "C" {
-    #[doc = " @brief Record an free begin occurrence."]
+    #[doc = " @brief Record a free begin occurrence."]
     pub fn __itt_heap_free_begin(h: __itt_heap_function, addr: *mut ::std::os::raw::c_void);
 }
 pub type __itt_heap_free_begin_ptr__3_0_t = ::std::option::Option<
@@ -914,7 +942,7 @@ extern "C" {
     pub static mut __itt_heap_free_begin_ptr__3_0: __itt_heap_free_begin_ptr__3_0_t;
 }
 extern "C" {
-    #[doc = " @brief Record an free end occurrence."]
+    #[doc = " @brief Record a free end occurrence."]
     pub fn __itt_heap_free_end(h: __itt_heap_function, addr: *mut ::std::os::raw::c_void);
 }
 pub type __itt_heap_free_end_ptr__3_0_t = ::std::option::Option<
@@ -924,7 +952,7 @@ extern "C" {
     pub static mut __itt_heap_free_end_ptr__3_0: __itt_heap_free_end_ptr__3_0_t;
 }
 extern "C" {
-    #[doc = " @brief Record an reallocation begin occurrence."]
+    #[doc = " @brief Record a reallocation begin occurrence."]
     pub fn __itt_heap_reallocate_begin(
         h: __itt_heap_function,
         addr: *mut ::std::os::raw::c_void,
@@ -944,7 +972,7 @@ extern "C" {
     pub static mut __itt_heap_reallocate_begin_ptr__3_0: __itt_heap_reallocate_begin_ptr__3_0_t;
 }
 extern "C" {
-    #[doc = " @brief Record an reallocation end occurrence."]
+    #[doc = " @brief Record a reallocation end occurrence."]
     pub fn __itt_heap_reallocate_end(
         h: __itt_heap_function,
         addr: *mut ::std::os::raw::c_void,
@@ -2380,6 +2408,7 @@ extern "C" {
 pub const ___itt_track_group_type___itt_track_group_type_normal: ___itt_track_group_type = 0;
 #[doc = " @cond exclude_from_documentation"]
 pub type ___itt_track_group_type = u32;
+#[doc = " @cond exclude_from_documentation"]
 pub use self::___itt_track_group_type as __itt_track_group_type;
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
@@ -2474,6 +2503,8 @@ pub const ___itt_track_type___itt_track_type_normal: ___itt_track_type = 0;
 #[doc = " @brief Placeholder for custom track types. Currently, \"normal\" custom track"]
 #[doc = " is the only available track type."]
 pub type ___itt_track_type = u32;
+#[doc = " @brief Placeholder for custom track types. Currently, \"normal\" custom track"]
+#[doc = " is the only available track type."]
 pub use self::___itt_track_type as __itt_track_type;
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
@@ -2984,4 +3015,164 @@ pub type __itt_module_unload_with_sections_ptr__3_0_t =
 extern "C" {
     pub static mut __itt_module_unload_with_sections_ptr__3_0:
         __itt_module_unload_with_sections_ptr__3_0_t;
+}
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct ___itt_histogram {
+    #[doc = "< Domain of the histogram"]
+    pub domain: *const __itt_domain,
+    #[doc = "< Name of the histogram"]
+    pub nameA: *const ::std::os::raw::c_char,
+    pub nameW: *mut ::std::os::raw::c_void,
+    #[doc = "< Type of the histogram X axis"]
+    pub x_type: __itt_metadata_type,
+    #[doc = "< Type of the histogram Y axis"]
+    pub y_type: __itt_metadata_type,
+    #[doc = "< Reserved to the runtime"]
+    pub extra1: ::std::os::raw::c_int,
+    #[doc = "< Reserved to the runtime"]
+    pub extra2: *mut ::std::os::raw::c_void,
+    pub next: *mut ___itt_histogram,
+}
+#[test]
+fn bindgen_test_layout____itt_histogram() {
+    assert_eq!(
+        ::std::mem::size_of::<___itt_histogram>(),
+        56usize,
+        concat!("Size of: ", stringify!(___itt_histogram))
+    );
+    assert_eq!(
+        ::std::mem::align_of::<___itt_histogram>(),
+        8usize,
+        concat!("Alignment of ", stringify!(___itt_histogram))
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<___itt_histogram>())).domain as *const _ as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(___itt_histogram),
+            "::",
+            stringify!(domain)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<___itt_histogram>())).nameA as *const _ as usize },
+        8usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(___itt_histogram),
+            "::",
+            stringify!(nameA)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<___itt_histogram>())).nameW as *const _ as usize },
+        16usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(___itt_histogram),
+            "::",
+            stringify!(nameW)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<___itt_histogram>())).x_type as *const _ as usize },
+        24usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(___itt_histogram),
+            "::",
+            stringify!(x_type)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<___itt_histogram>())).y_type as *const _ as usize },
+        28usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(___itt_histogram),
+            "::",
+            stringify!(y_type)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<___itt_histogram>())).extra1 as *const _ as usize },
+        32usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(___itt_histogram),
+            "::",
+            stringify!(extra1)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<___itt_histogram>())).extra2 as *const _ as usize },
+        40usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(___itt_histogram),
+            "::",
+            stringify!(extra2)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<___itt_histogram>())).next as *const _ as usize },
+        48usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(___itt_histogram),
+            "::",
+            stringify!(next)
+        )
+    );
+}
+pub type __itt_histogram = ___itt_histogram;
+extern "C" {
+    pub fn __itt_histogram_create(
+        domain: *const __itt_domain,
+        name: *const ::std::os::raw::c_char,
+        x_type: __itt_metadata_type,
+        y_type: __itt_metadata_type,
+    ) -> *mut __itt_histogram;
+}
+pub type __itt_histogram_create_ptr__3_0_t = ::std::option::Option<
+    unsafe extern "C" fn(
+        domain: *const __itt_domain,
+        name: *const ::std::os::raw::c_char,
+        x_type: __itt_metadata_type,
+        y_type: __itt_metadata_type,
+    ) -> *mut __itt_histogram,
+>;
+extern "C" {
+    pub static mut __itt_histogram_create_ptr__3_0: __itt_histogram_create_ptr__3_0_t;
+}
+extern "C" {
+    #[doc = " @brief Submit statistics for a histogram instance."]
+    #[doc = " @param[in] hist    Pointer to the histogram instance to which the histogram statistic is to be dumped."]
+    #[doc = " @param[in] length  The number of elements in dumped axis data array."]
+    #[doc = " @param[in] x_data  The X axis dumped data itself (may be NULL to calculate batch statistics)."]
+    #[doc = " @param[in] y_data  The Y axis dumped data itself."]
+    pub fn __itt_histogram_submit(
+        hist: *mut __itt_histogram,
+        length: usize,
+        x_data: *mut ::std::os::raw::c_void,
+        y_data: *mut ::std::os::raw::c_void,
+    );
+}
+pub type __itt_histogram_submit_ptr__3_0_t = ::std::option::Option<
+    unsafe extern "C" fn(
+        hist: *mut __itt_histogram,
+        length: usize,
+        x_data: *mut ::std::os::raw::c_void,
+        y_data: *mut ::std::os::raw::c_void,
+    ),
+>;
+extern "C" {
+    pub static mut __itt_histogram_submit_ptr__3_0: __itt_histogram_submit_ptr__3_0_t;
+}
+extern "C" {
+    #[doc = " @brief function allows to obtain the current collection state at the moment"]
+    #[doc = " @return collection state as a enum __itt_collection_state"]
+    pub fn __itt_get_collection_state() -> __itt_collection_state;
 }
