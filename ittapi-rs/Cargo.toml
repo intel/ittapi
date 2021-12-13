@@ -17,7 +17,7 @@ keywords = ["vtune", "profiling", "code-generation"]
 force_32 = []
 
 [build-dependencies]
-cmake = "0.1.42"
+cc = "1.0.72"
 
 [dev-dependencies]
 bindgen = "0.59"
