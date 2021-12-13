@@ -6,8 +6,10 @@ edition = "2018"
 description = "Rust bindings for ittapi"
 license-file = "LICENSES/"
 documentation  = "https://docs.rs/ittapi-rs"
+readme = "README.md"
 homepage  = "https://github.com/intel/ittapi/ittapi-rs"
 repository = "https://github.com/intel/ittapi"
+keywords = ["vtune", "profiling", "code-generation"]
 
 [dependencies]
 
@@ -18,5 +20,5 @@ force_32 = []
 cmake = "0.1.42"
 
 [dev-dependencies]
-bindgen = "0.52.0"
+bindgen = "0.59"
 diff = "0.1"
