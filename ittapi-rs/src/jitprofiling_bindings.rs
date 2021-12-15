@@ -50,6 +50,7 @@ pub const iJIT_jvm_event_iJVM_EVENT_TYPE_METHOD_LOAD_FINISHED_V2: iJIT_jvm_event
 pub const iJIT_jvm_event_iJVM_EVENT_TYPE_METHOD_LOAD_FINISHED_V3: iJIT_jvm_event = 22;
 #[doc = " @brief Enumerator for the types of notifications"]
 pub type iJIT_jvm_event = u32;
+#[doc = " @brief Enumerator for the types of notifications"]
 pub use self::iJIT_jvm_event as iJIT_JVM_EVENT;
 #[doc = "<\\brief The agent is not running;"]
 #[doc = " iJIT_NotifyEvent calls will"]
@@ -60,6 +61,7 @@ pub const _iJIT_IsProfilingActiveFlags_iJIT_NOTHING_RUNNING: _iJIT_IsProfilingAc
 pub const _iJIT_IsProfilingActiveFlags_iJIT_SAMPLING_ON: _iJIT_IsProfilingActiveFlags = 1;
 #[doc = " @brief Enumerator for the agent's mode"]
 pub type _iJIT_IsProfilingActiveFlags = u32;
+#[doc = " @brief Enumerator for the agent's mode"]
 pub use self::_iJIT_IsProfilingActiveFlags as iJIT_IsProfilingActiveFlags;
 #[doc = " @brief Description of a single entry in the line number information of a code region."]
 #[doc = " @details A table of line number entries gives information about how the reported code region"]
@@ -125,7 +127,53 @@ fn bindgen_test_layout__LineNumberInfo() {
         )
     );
 }
+#[doc = " @brief Description of a single entry in the line number information of a code region."]
+#[doc = " @details A table of line number entries gives information about how the reported code region"]
+#[doc = " is mapped to source file."]
+#[doc = " Intel(R) VTune(TM) Amplifier uses line number information to attribute"]
+#[doc = " the samples (virtual address) to a line number. \\n"]
+#[doc = " It is acceptable to report different code addresses for the same source line:"]
+#[doc = " @code"]
+#[doc = "   Offset LineNumber"]
+#[doc = "      1       2"]
+#[doc = "      12      4"]
+#[doc = "      15      2"]
+#[doc = "      18      1"]
+#[doc = "      21      30"]
+#[doc = ""]
+#[doc = "  VTune Amplifier constructs the following table using the client data"]
+#[doc = ""]
+#[doc = "   Code subrange  Line number"]
+#[doc = "      0-1             2"]
+#[doc = "      1-12            4"]
+#[doc = "      12-15           2"]
+#[doc = "      15-18           1"]
+#[doc = "      18-21           30"]
+#[doc = " @endcode"]
 pub type pLineNumberInfo = *mut _LineNumberInfo;
+#[doc = " @brief Description of a single entry in the line number information of a code region."]
+#[doc = " @details A table of line number entries gives information about how the reported code region"]
+#[doc = " is mapped to source file."]
+#[doc = " Intel(R) VTune(TM) Amplifier uses line number information to attribute"]
+#[doc = " the samples (virtual address) to a line number. \\n"]
+#[doc = " It is acceptable to report different code addresses for the same source line:"]
+#[doc = " @code"]
+#[doc = "   Offset LineNumber"]
+#[doc = "      1       2"]
+#[doc = "      12      4"]
+#[doc = "      15      2"]
+#[doc = "      18      1"]
+#[doc = "      21      30"]
+#[doc = ""]
+#[doc = "  VTune Amplifier constructs the following table using the client data"]
+#[doc = ""]
+#[doc = "   Code subrange  Line number"]
+#[doc = "      0-1             2"]
+#[doc = "      1-12            4"]
+#[doc = "      12-15           2"]
+#[doc = "      15-18           1"]
+#[doc = "      18-21           30"]
+#[doc = " @endcode"]
 pub type LineNumberInfo = _LineNumberInfo;
 #[doc = "<\\brief Native to the process architecture that is calling it."]
 pub const _iJIT_CodeArchitecture_iJIT_CA_NATIVE: _iJIT_CodeArchitecture = 0;
@@ -135,6 +183,7 @@ pub const _iJIT_CodeArchitecture_iJIT_CA_32: _iJIT_CodeArchitecture = 1;
 pub const _iJIT_CodeArchitecture_iJIT_CA_64: _iJIT_CodeArchitecture = 2;
 #[doc = " @brief Enumerator for the code architecture."]
 pub type _iJIT_CodeArchitecture = u32;
+#[doc = " @brief Enumerator for the code architecture."]
 pub use self::_iJIT_CodeArchitecture as iJIT_CodeArchitecture;
 #[doc = " @brief Description of a JIT-compiled method"]
 #[doc = " @details When you use the iJIT_Method_Load structure to describe"]
@@ -294,7 +343,15 @@ fn bindgen_test_layout__iJIT_Method_Load() {
         )
     );
 }
+#[doc = " @brief Description of a JIT-compiled method"]
+#[doc = " @details When you use the iJIT_Method_Load structure to describe"]
+#[doc = "  the JIT compiled method, use iJVM_EVENT_TYPE_METHOD_LOAD_FINISHED"]
+#[doc = "  as an event type to report it."]
 pub type piJIT_Method_Load = *mut _iJIT_Method_Load;
+#[doc = " @brief Description of a JIT-compiled method"]
+#[doc = " @details When you use the iJIT_Method_Load structure to describe"]
+#[doc = "  the JIT compiled method, use iJVM_EVENT_TYPE_METHOD_LOAD_FINISHED"]
+#[doc = "  as an event type to report it."]
 pub type iJIT_Method_Load = _iJIT_Method_Load;
 #[doc = " @brief Description of a JIT-compiled method"]
 #[doc = " @details When you use the iJIT_Method_Load_V2 structure to describe"]
@@ -464,7 +521,15 @@ fn bindgen_test_layout__iJIT_Method_Load_V2() {
         )
     );
 }
+#[doc = " @brief Description of a JIT-compiled method"]
+#[doc = " @details When you use the iJIT_Method_Load_V2 structure to describe"]
+#[doc = "  the JIT compiled method, use iJVM_EVENT_TYPE_METHOD_LOAD_FINISHED_V2"]
+#[doc = "  as an event type to report it."]
 pub type piJIT_Method_Load_V2 = *mut _iJIT_Method_Load_V2;
+#[doc = " @brief Description of a JIT-compiled method"]
+#[doc = " @details When you use the iJIT_Method_Load_V2 structure to describe"]
+#[doc = "  the JIT compiled method, use iJVM_EVENT_TYPE_METHOD_LOAD_FINISHED_V2"]
+#[doc = "  as an event type to report it."]
 pub type iJIT_Method_Load_V2 = _iJIT_Method_Load_V2;
 #[doc = " @brief Description of a JIT-compiled method"]
 #[doc = " @details The iJIT_Method_Load_V3 structure is the same as iJIT_Method_Load_V2"]
@@ -661,7 +726,19 @@ fn bindgen_test_layout__iJIT_Method_Load_V3() {
         )
     );
 }
+#[doc = " @brief Description of a JIT-compiled method"]
+#[doc = " @details The iJIT_Method_Load_V3 structure is the same as iJIT_Method_Load_V2"]
+#[doc = "  with a newly introduced 'arch' field that specifies architecture of the code region."]
+#[doc = "  When you use the iJIT_Method_Load_V3 structure to describe"]
+#[doc = "  the JIT compiled method, use iJVM_EVENT_TYPE_METHOD_LOAD_FINISHED_V3"]
+#[doc = "  as an event type to report it."]
 pub type piJIT_Method_Load_V3 = *mut _iJIT_Method_Load_V3;
+#[doc = " @brief Description of a JIT-compiled method"]
+#[doc = " @details The iJIT_Method_Load_V3 structure is the same as iJIT_Method_Load_V2"]
+#[doc = "  with a newly introduced 'arch' field that specifies architecture of the code region."]
+#[doc = "  When you use the iJIT_Method_Load_V3 structure to describe"]
+#[doc = "  the JIT compiled method, use iJVM_EVENT_TYPE_METHOD_LOAD_FINISHED_V3"]
+#[doc = "  as an event type to report it."]
 pub type iJIT_Method_Load_V3 = _iJIT_Method_Load_V3;
 #[doc = " @brief Description of an inline JIT-compiled method"]
 #[doc = " @details When you use the_iJIT_Method_Inline_Load structure to describe"]
@@ -834,7 +911,15 @@ fn bindgen_test_layout__iJIT_Method_Inline_Load() {
         )
     );
 }
+#[doc = " @brief Description of an inline JIT-compiled method"]
+#[doc = " @details When you use the_iJIT_Method_Inline_Load structure to describe"]
+#[doc = "  the JIT compiled method, use iJVM_EVENT_TYPE_METHOD_INLINE_LOAD_FINISHED"]
+#[doc = "  as an event type to report it."]
 pub type piJIT_Method_Inline_Load = *mut _iJIT_Method_Inline_Load;
+#[doc = " @brief Description of an inline JIT-compiled method"]
+#[doc = " @details When you use the_iJIT_Method_Inline_Load structure to describe"]
+#[doc = "  the JIT compiled method, use iJVM_EVENT_TYPE_METHOD_INLINE_LOAD_FINISHED"]
+#[doc = "  as an event type to report it."]
 pub type iJIT_Method_Inline_Load = _iJIT_Method_Inline_Load;
 pub const _iJIT_SegmentType_iJIT_CT_UNKNOWN: _iJIT_SegmentType = 0;
 #[doc = "<\\brief Executable code."]
@@ -857,6 +942,11 @@ pub const _iJIT_SegmentType_iJIT_CT_EOF: _iJIT_SegmentType = 4;
 #[doc = " with the iJVM_EVENT_TYPE_METHOD_UPDATE_V2 event to be applied to"]
 #[doc = " a certain code trace."]
 pub type _iJIT_SegmentType = u32;
+#[doc = " @cond exclude_from_documentation */"]
+#[doc = " @brief Description of a segment type"]
+#[doc = " @details Use the segment type to specify a type of data supplied"]
+#[doc = " with the iJVM_EVENT_TYPE_METHOD_UPDATE_V2 event to be applied to"]
+#[doc = " a certain code trace."]
 pub use self::_iJIT_SegmentType as iJIT_SegmentType;
 #[doc = " @brief Description of a dynamic update of the content within JIT-compiled method"]
 #[doc = " @details The JIT engine may generate the methods that are updated at runtime"]
@@ -963,7 +1053,75 @@ fn bindgen_test_layout__iJIT_Method_Update() {
         )
     );
 }
+#[doc = " @brief Description of a dynamic update of the content within JIT-compiled method"]
+#[doc = " @details The JIT engine may generate the methods that are updated at runtime"]
+#[doc = " partially by mixed (data + executable code) content. When you use the iJIT_Method_Update"]
+#[doc = " structure to describe the update of the content within a JIT-compiled method,"]
+#[doc = " use iJVM_EVENT_TYPE_METHOD_UPDATE_V2 as an event type to report it."]
+#[doc = ""]
+#[doc = " On the first Update event, VTune Amplifier copies the original code range reported by"]
+#[doc = " the iJVM_EVENT_TYPE_METHOD_LOAD event, then modifies it with the supplied bytes and"]
+#[doc = " adds the modified range to the original method. For next update events, VTune Amplifier"]
+#[doc = " does the same but it uses the latest modified version of a code region for update."]
+#[doc = " Eventually, VTune Amplifier GUI displays multiple code ranges for the method reported by"]
+#[doc = " the iJVM_EVENT_TYPE_METHOD_LOAD event."]
+#[doc = " Notes:"]
+#[doc = " - Multiple update events with different types for the same trace are allowed"]
+#[doc = "   but they must be reported for the same code ranges."]
+#[doc = "   Example,"]
+#[doc = " @code"]
+#[doc = "                      [-- data---]        Allowed"]
+#[doc = "          [-- code --]                    Allowed"]
+#[doc = "        [code]                            Ignored"]
+#[doc = "                      [-- data---]        Allowed"]
+#[doc = "          [-- code --]                    Allowed"]
+#[doc = "      [------------ trace ---------]"]
+#[doc = " @endcode"]
+#[doc = " - The types of previously reported events can be changed but they must be reported"]
+#[doc = "   for the same code ranges."]
+#[doc = "   Example,"]
+#[doc = " @code"]
+#[doc = "          [-- data---]                    Allowed"]
+#[doc = "          [-- code --]                    Allowed"]
+#[doc = "          [-- data---]                    Allowed"]
+#[doc = "          [-- code --]                    Allowed"]
+#[doc = "      [------------ trace ---------]"]
+#[doc = " @endcode"]
 pub type piJIT_Method_Update = *mut _iJIT_Method_Update;
+#[doc = " @brief Description of a dynamic update of the content within JIT-compiled method"]
+#[doc = " @details The JIT engine may generate the methods that are updated at runtime"]
+#[doc = " partially by mixed (data + executable code) content. When you use the iJIT_Method_Update"]
+#[doc = " structure to describe the update of the content within a JIT-compiled method,"]
+#[doc = " use iJVM_EVENT_TYPE_METHOD_UPDATE_V2 as an event type to report it."]
+#[doc = ""]
+#[doc = " On the first Update event, VTune Amplifier copies the original code range reported by"]
+#[doc = " the iJVM_EVENT_TYPE_METHOD_LOAD event, then modifies it with the supplied bytes and"]
+#[doc = " adds the modified range to the original method. For next update events, VTune Amplifier"]
+#[doc = " does the same but it uses the latest modified version of a code region for update."]
+#[doc = " Eventually, VTune Amplifier GUI displays multiple code ranges for the method reported by"]
+#[doc = " the iJVM_EVENT_TYPE_METHOD_LOAD event."]
+#[doc = " Notes:"]
+#[doc = " - Multiple update events with different types for the same trace are allowed"]
+#[doc = "   but they must be reported for the same code ranges."]
+#[doc = "   Example,"]
+#[doc = " @code"]
+#[doc = "                      [-- data---]        Allowed"]
+#[doc = "          [-- code --]                    Allowed"]
+#[doc = "        [code]                            Ignored"]
+#[doc = "                      [-- data---]        Allowed"]
+#[doc = "          [-- code --]                    Allowed"]
+#[doc = "      [------------ trace ---------]"]
+#[doc = " @endcode"]
+#[doc = " - The types of previously reported events can be changed but they must be reported"]
+#[doc = "   for the same code ranges."]
+#[doc = "   Example,"]
+#[doc = " @code"]
+#[doc = "          [-- data---]                    Allowed"]
+#[doc = "          [-- code --]                    Allowed"]
+#[doc = "          [-- data---]                    Allowed"]
+#[doc = "          [-- code --]                    Allowed"]
+#[doc = "      [------------ trace ---------]"]
+#[doc = " @endcode"]
 pub type iJIT_Method_Update = _iJIT_Method_Update;
 extern "C" {
     #[doc = " @brief Generates a new unique method ID."]
