@@ -1,3 +1,6 @@
+//! Build the `ittapi` C library in the parent directory. The `cc` configuration here should match
+//! that of the parent directories `CMakeLists.txt` (TODO: keep these in sync,
+//! https://github.com/intel/ittapi/issues/36).
 #![allow(unused)]
 use std::env;
 use std::path::PathBuf;
@@ -12,7 +15,8 @@ fn main() {
 
     #[cfg(not(feature = "force_32"))]
     {
-        cc::Build::new().file("src/ittnotify/ittnotify_static.c")
+        cc::Build::new()
+            .file("src/ittnotify/ittnotify_static.c")
             .file("src/ittnotify/jitprofiling.c")
             .include("src/ittnotify/")
             .include("include/")
@@ -22,7 +26,8 @@ fn main() {
     #[cfg(feature = "force_32")]
     #[cfg(not(any(target_os = "ios", target_os = "macos")))]
     {
-        cc::Build::new().file("src/ittnotify/ittnotify_static.c")
+        cc::Build::new()
+            .file("src/ittnotify/ittnotify_static.c")
             .file("src/ittnotify/jitprofiling.c")
             .define("FORCE_32", "ON")
             .include("src/ittnotify/")
