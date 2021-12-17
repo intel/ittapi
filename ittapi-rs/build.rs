@@ -1,5 +1,4 @@
 #![allow(unused)]
-use cmake::Config;
 use std::env;
 use std::path::PathBuf;
 
@@ -13,25 +12,21 @@ fn main() {
 
     #[cfg(not(feature = "force_32"))]
     {
-        let _ittnotify_64 = Config::new("./")
-            .generator("Unix Makefiles")
-            .no_build_target(true)
-            .build();
-
-        println!("cargo:rustc-link-search={}/build/bin/", out_path.display());
-        println!("cargo:rustc-link-lib=static=ittnotify");
+        cc::Build::new().file("src/ittnotify/ittnotify_static.c")
+            .file("src/ittnotify/jitprofiling.c")
+            .include("src/ittnotify/")
+            .include("include/")
+            .compile("ittnotify64");
     }
 
     #[cfg(feature = "force_32")]
     #[cfg(not(any(target_os = "ios", target_os = "macos")))]
     {
-        let _ittnotify_32 = Config::new("./")
-            .generator("Unix Makefiles")
+        cc::Build::new().file("src/ittnotify/ittnotify_static.c")
+            .file("src/ittnotify/jitprofiling.c")
             .define("FORCE_32", "ON")
-            .no_build_target(true)
-            .build();
-
-        println!("cargo:rustc-link-search={}/build/bin/", out_path.display());
-        println!("cargo:rustc-link-lib=static=ittnotify32");
+            .include("src/ittnotify/")
+            .include("include/")
+            .compile("ittnotify32");
     }
 }
