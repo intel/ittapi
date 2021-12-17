@@ -16,7 +16,7 @@ fn main() {
             .file("src/ittnotify/jitprofiling.c")
             .include("src/ittnotify/")
             .include("include/")
-            .compile("ittnotify64");
+            .compile("ittnotify");
     }
 
     #[cfg(feature = "force_32")]
@@ -27,6 +27,6 @@ fn main() {
             .define("FORCE_32", "ON")
             .include("src/ittnotify/")
             .include("include/")
-            .compile("ittnotify32");
+            .compile("ittnotify");
     }
 }
