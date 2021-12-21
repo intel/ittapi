@@ -24,9 +24,6 @@ Linux](https://docs.wasmtime.dev/examples-profiling-vtune.html)
 ittapi = "0.1"
 ```
 
-This crate currently uses the parent project's CMake configuration so a local CMake installation (as
-well as a C compiler) is necessary.
-
 
 ### Build
 
@@ -34,8 +31,8 @@ well as a C compiler) is necessary.
 cargo build
 ```
 
-Building `ittapi-rs` will use CMake to build the `ittapi` library and link it statically into your
-application; see the [build.rs] file.
+Building `ittapi-rs` will build the `ittapi` C library and link it statically into your application;
+see the [build.rs] file.
 
 [build.rs]: https://github.com/intel/ittapi/blob/master/ittapi-rs/build.rs
 
