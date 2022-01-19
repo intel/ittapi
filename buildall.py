@@ -158,11 +158,7 @@ def main():
             target_project = 'ALL_BUILD'
             run_shell('%s --build . --config %s --target %s' % (cmake, ('Debug' if args.debug else 'Release'), target_project))
         else:
-            import glob
             run_shell('%s --build . --config %s' % (cmake, ('Debug' if args.debug else 'Release')))
-            if (('linux' in sys.platform and bits == '64') or 'freebsd' in sys.platform):
-                continue
-            run_shell('%s --build . --config %s --target' % (cmake, ('Debug' if args.debug else 'Release')))
 
 if __name__== "__main__":
     main()
