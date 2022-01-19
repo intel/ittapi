@@ -7,7 +7,7 @@ This ITT/JIT open source profiling API includes:
   - Just-In-Time (JIT) Profiling API
 
 The Instrumentation and Tracing Technology (ITT) API enables your application
-to generate and control the collection of trace data during its execution 
+to generate and control the collection of trace data during its execution
 across different Intel tools.
 
 ITT API consists of two parts: a _static part_ and a _dynamic part_. The

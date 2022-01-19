@@ -5,10 +5,6 @@
 use std::env;
 use std::path::PathBuf;
 
-#[cfg(target_os = "windows")]
-fn main() {}
-
-#[cfg(not(target_os = "windows"))]
 fn main() {
     let out_dir = env::var("OUT_DIR").unwrap();
     let out_path = PathBuf::from(out_dir);
@@ -16,9 +12,9 @@ fn main() {
     #[cfg(not(feature = "force_32"))]
     {
         cc::Build::new()
-            .file("src/ittnotify/ittnotify_static.c")
-            .file("src/ittnotify/jitprofiling.c")
-            .include("src/ittnotify/")
+            .file("ittnotify/ittnotify_static.c")
+            .file("ittnotify/jitprofiling.c")
+            .include("ittnotify/")
             .include("include/")
             .compile("ittnotify");
     }
@@ -27,10 +23,10 @@ fn main() {
     #[cfg(not(any(target_os = "ios", target_os = "macos")))]
     {
         cc::Build::new()
-            .file("src/ittnotify/ittnotify_static.c")
-            .file("src/ittnotify/jitprofiling.c")
+            .file("ittnotify/ittnotify_static.c")
+            .file("ittnotify/jitprofiling.c")
             .define("FORCE_32", "ON")
-            .include("src/ittnotify/")
+            .include("ittnotify/")
             .include("include/")
             .compile("ittnotify");
     }
