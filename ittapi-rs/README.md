@@ -36,6 +36,13 @@ see the [build.rs] file.
 
 [build.rs]: https://github.com/intel/ittapi/blob/master/ittapi-rs/build.rs
 
+_For Windows developers_: this crate uses a symbolic link to access the C library it depends on. To
+modify this crate on Windows, either [configure Git to understand POSIX symlinks] or use the
+[copy-c-library.ps1] script to temporarily copy the files.
+
+[configure Git to understand POSIX symlinks]: https://github.com/git-for-windows/git/wiki/Symbolic-Links
+[copy-c-library.ps1]: scripts/copy-c-library.ps1
+
 
 ### Test
 
