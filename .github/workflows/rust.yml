@@ -1,0 +1,36 @@
+name: Rust
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  c_build:
+    name: Check upstream C library
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: recursive
+    - name: Build C library
+      run: python buildall.py
+
+  rust_format:
+    name: Check Rust formatting
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ittapi-rs
+    steps:
+    - uses: actions/checkout@v2
+    - run: rustup component add rustfmt
+    - run: cargo fmt --all -- --check
