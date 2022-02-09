@@ -9,8 +9,8 @@ are available on its [README].
 [README]: https://github.com/intel/ittapi#readme
 [convention]: https://doc.rust-lang.org/cargo/reference/build-scripts.html#-sys-packages
 
-> IMPORTANT NOTE: this package is currently only tested on several Linux platforms (recent Ubuntu
-> and Fedora builds) but support for other platforms is intended; contributions are welcome!
+> IMPORTANT NOTE: this package is currently only tested on Linux, macOS, and Windows platforms but
+> support for other platforms is intended; contributions are welcome!
 
 If you are interested in using VTune to profile Rust applications, you may find the following guide
 helpful: [Wasmtime Docs: Using VTune on
