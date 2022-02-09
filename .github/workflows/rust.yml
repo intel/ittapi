@@ -51,13 +51,12 @@ jobs:
         submodules: recursive
     - name: Build Rust crate
       run: cargo build
-    # On Windows, libclang.dll can be found in two places, including a
-    # mingw directory. As we're not using any of mingw tool in our case, we can
-    # just remove it.
-    # See also: https://github.com/actions/virtual-environments/issues/2208
-    - name: Remove spurious mingw directory (on Windows)
+    # On Windows, libclang.dll can be found in two places, including a mingw directory. As we're not
+    # using any of mingw tools in our case, we can hide it by renaming it. See also:
+    # https://github.com/actions/virtual-environments/issues/2208.
+    - name: Hide spurious mingw directory (Windows only)
       shell: powershell
-      run: Remove-Item -LiteralPath "C:\msys64\" -Force -Recurse
+      run: Rename-Item C:\msys64 C:\msys64-unused
       if: matrix.os == 'windows-latest'
     - name: Test Rust crate
       run: cargo test
