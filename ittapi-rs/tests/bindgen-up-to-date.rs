@@ -11,19 +11,35 @@
 #![allow(non_snake_case, non_camel_case_types, non_upper_case_globals)]
 #![allow(unused)]
 
+const INCLUDE_PATH: &'static str = "./c-library/include";
+
+#[cfg(target_os = "linux")]
+const BINDINGS_PATH: &'static str = "src/linux";
+#[cfg(target_os = "macos")]
+const BINDINGS_PATH: &'static str = "src/macos";
+#[cfg(target_os = "windows")]
+const BINDINGS_PATH: &'static str = "src/windows";
+
 #[test]
 fn test_ittnotify_bindings_up_to_date() {
-    let expected = bindgen::Builder::default()
+    // When generating the `ittnotify`, we exclude non-ITT constants (see `allowlist_var`) to avoid
+    // `libc` differences.
+    let mut expected = bindgen::Builder::default()
         .rustfmt_bindings(true)
-        .header("./include/ittnotify.h")
+        .allowlist_var("ITT.*")
+        .allowlist_var("__itt.*")
+        .header(concat(INCLUDE_PATH, "/ittnotify.h"))
         .generate()
         .expect("Unable to generate ittnotify bindings.")
         .to_string();
 
+    let bindings_file = concat(BINDINGS_PATH, "/ittnotify_bindings.rs");
     if std::env::var("BLESS").is_ok() {
-        std::fs::write("src/ittnotify_bindings.rs", expected).unwrap();
+        std::fs::write(bindings_file, expected).unwrap();
     } else {
-        let actual = include_str!("../src/ittnotify_bindings.rs");
+        let expected = normalize(expected);
+        let actual = normalize(std::fs::read_to_string(bindings_file).unwrap());
+
         if expected == actual {
             return;
         }
@@ -41,17 +57,20 @@ fn test_ittnotify_bindings_up_to_date() {
 
 #[test]
 fn test_jitprofiling_bindings_up_to_date() {
-    let expected = bindgen::Builder::default()
+    let mut expected = bindgen::Builder::default()
         .rustfmt_bindings(true)
-        .header("./include/jitprofiling.h")
+        .header(concat(INCLUDE_PATH, "/jitprofiling.h"))
         .generate()
         .expect("Unable to generate jitprofiling bindings")
         .to_string();
 
+    let bindings_file = concat(BINDINGS_PATH, "/jitprofiling_bindings.rs");
     if std::env::var("BLESS").is_ok() {
-        std::fs::write("src/jitprofiling_bindings.rs", expected).unwrap();
+        std::fs::write(bindings_file, expected).unwrap();
     } else {
-        let actual = include_str!("../src/jitprofiling_bindings.rs");
+        let expected = normalize(expected);
+        let actual = normalize(std::fs::read_to_string(bindings_file).unwrap());
+
         if expected == actual {
             return;
         }
@@ -64,5 +83,19 @@ fn test_jitprofiling_bindings_up_to_date() {
             }
         }
         panic!("differences found, need to regenerate jitprofiling bindings");
+    }
+}
+
+/// Concatenate two strings; `concat!` only works with literals.
+fn concat(a: &str, b: &str) -> String {
+    format!("{}{}", a, b)
+}
+
+/// Normalize the line endings of a string; this removes Windows' carriage returns.
+fn normalize(str: String) -> String {
+    if cfg!(target_os = "windows") {
+        str.replace("\r", "")
+    } else {
+        str
     }
 }

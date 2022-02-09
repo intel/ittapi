@@ -13,9 +13,6 @@ keywords = ["vtune", "profiling", "code-generation"]
 
 [dependencies]
 
-[features]
-force_32 = []
-
 [build-dependencies]
 cc = "1.0.72"
 
