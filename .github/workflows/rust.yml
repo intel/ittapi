@@ -35,6 +35,15 @@ jobs:
     - run: rustup component add rustfmt
     - run: cargo fmt --all -- --check
 
+  rust_dependencies:
+    name: Check Rust dependencies
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - uses: EmbarkStudios/cargo-deny-action@v1
+      with:
+        arguments: --manifest-path ittapi-rs/Cargo.toml
+
   rust_build:
     name: Check Rust crate
     runs-on: ${{ matrix.os }}
