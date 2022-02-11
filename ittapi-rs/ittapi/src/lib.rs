@@ -76,8 +76,7 @@ impl InnerVTuneState {
             class_file_name: CString::new(
                 builder
                     .class_file_name
-                    .as_ref()
-                    .map(|s| s.as_str())
+                    .as_deref()
                     .unwrap_or("<unknown class file name>"),
             )
             .context("CString::new failed")?
@@ -85,8 +84,7 @@ impl InnerVTuneState {
             source_file_name: CString::new(
                 builder
                     .source_file_name
-                    .as_ref()
-                    .map(|s| s.as_str())
+                    .as_deref()
                     .unwrap_or("<unknown source file name>"),
             )
             .context("CString::new failed")?
