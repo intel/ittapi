@@ -31,30 +31,35 @@ impl RecordMethodBuilder {
         self.source_file_name = Some(source_file_name);
         self
     }
-    pub fn build(self, state: &InnerVtuneState) -> anyhow::Result<()> {
+    pub fn build(self, state: &InnerVTuneState) -> anyhow::Result<()> {
         state.record_method(self)
     }
 }
 
-pub struct InnerVtuneState;
+#[derive(Default)]
+pub struct InnerVTuneState;
 
-pub struct VtuneState {
-    inner: Mutex<InnerVtuneState>,
+#[derive(Default)]
+pub struct VTuneState {
+    inner: Mutex<InnerVTuneState>,
 }
 
-impl VtuneState {
-    pub fn get(&mut self) -> MutexGuard<InnerVtuneState> {
+impl VTuneState {
+    pub fn new() -> Self {
+        Default::default()
+    }
+    pub fn get(&self) -> MutexGuard<InnerVTuneState> {
         self.inner.lock().unwrap()
     }
 }
 
-impl Drop for VtuneState {
+impl Drop for VTuneState {
     fn drop(&mut self) {
         self.inner.lock().unwrap().shutdown();
     }
 }
 
-impl InnerVtuneState {
+impl InnerVTuneState {
     fn record_method(&self, builder: RecordMethodBuilder) -> anyhow::Result<()> {
         let method_id = get_method_id();
 
@@ -89,19 +94,23 @@ impl InnerVtuneState {
         };
 
         let jmethod_ptr = &mut jmethod as *mut _ as *mut _;
-        unsafe {
-            log::trace!("loaded new method (single method with id {})", method_id);
-            let _ret = ittapi_sys::iJIT_NotifyEvent(
+        log::trace!("loaded new method (single method with id {})", method_id);
+        let res = unsafe {
+            ittapi_sys::iJIT_NotifyEvent(
                 ittapi_sys::iJIT_jvm_event_iJVM_EVENT_TYPE_METHOD_LOAD_FINISHED,
                 jmethod_ptr as *mut ::std::os::raw::c_void,
-            );
-        }
+            )
+        };
 
-        Ok(())
+        if res == 1 {
+            Ok(())
+        } else {
+            anyhow::bail!("error when registering a method")
+        }
     }
 
     fn shutdown(&mut self) {
-        log::trace!("NotifyEvent shutdown (whole module)");
+        log::trace!("notify vtune about shutdown");
         unsafe {
             let _ret = ittapi_sys::iJIT_NotifyEvent(
                 ittapi_sys::iJIT_jvm_event_iJVM_EVENT_TYPE_SHUTDOWN,
