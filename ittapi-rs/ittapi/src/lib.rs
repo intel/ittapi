@@ -1,19 +1,144 @@
 use anyhow::Context;
 use std::{
     ffi::CString,
+    os, ptr,
     sync::{Mutex, MutexGuard},
 };
 
-pub struct RecordMethodBuilder {
+/// The main object, to be stored once in your program directly if it is single-threaded, or
+/// indirectly through `MultithreadedVtuneState` if your program is multi-threaded.
+///
+/// Handles all the interactions with the lower level ittapi.
+#[derive(Default)]
+pub struct VTuneState {
+    did_shutdown: bool,
+}
+
+impl VTuneState {
+    /// Returns a new `MethodId` for use in `MethodLoad` events.
+    pub fn get_method_id(&self) -> MethodId {
+        MethodId(unsafe { ittapi_sys::iJIT_GetNewMethodID() })
+    }
+
+    /// Notifies any `EventType` to Vtune.
+    ///
+    /// May fail if the underlying call to the ittapi's method fails.
+    pub fn notify_event(&self, mut event: EventType) -> anyhow::Result<()> {
+        let tag = event.tag();
+        let data = event.data();
+        log::trace!("notify_event: tag={:?}", tag);
+        let res = unsafe { ittapi_sys::iJIT_NotifyEvent(tag, data) };
+        if res == 1 {
+            Ok(())
+        } else {
+            anyhow::bail!("error when notifying event")
+        }
+    }
+
+    // High-level helpers.
+
+    /// Notifies vtune that a new function described by the `MethodLoadBuilder` has been jitted.
+    pub fn load_method(&self, builder: MethodLoadBuilder) -> anyhow::Result<()> {
+        let method_id = self.get_method_id();
+        let method_load = builder.build(method_id)?;
+        self.notify_event(method_load)
+    }
+
+    /// Notifies vtune that profiling is being shut down.
+    pub fn shutdown(&mut self) -> anyhow::Result<()> {
+        let res = self.notify_event(EventType::Shutdown);
+        if res.is_ok() {
+            self.did_shutdown = true;
+        }
+        res
+    }
+}
+
+impl Drop for VTuneState {
+    fn drop(&mut self) {
+        if !self.did_shutdown {
+            // There's not much we can do when an error happens here.
+            if let Err(err) = self.shutdown() {
+                log::error!("Error when shutting down Vtune: {}", err)
+            }
+        }
+    }
+}
+
+/// Multithreaded friendly wrapper for `VtuneState`, which takes a lock on each operation.
+///
+/// Do use this if your application is multi-threaded. Otherwise using `VtuneState` ought to be
+/// sufficient.
+#[derive(Default)]
+pub struct MultithreadedVtuneState {
+    inner: Mutex<VTuneState>,
+}
+
+impl MultithreadedVtuneState {
+    /// Creates a new empty `MultithreadedVtuneState`.
+    pub fn new() -> Self {
+        Default::default()
+    }
+
+    /// Takes the lock on the inner `VTuneState` and returns it.
+    pub fn get(&self) -> MutexGuard<VTuneState> {
+        self.inner.lock().unwrap()
+    }
+}
+
+/// Type of event to be dispatched through ittapi's JIT event API.
+pub enum EventType {
+    /// Send this event after a JITted method has been loaded into memory, and possibly JIT
+    /// compiled, but before the code is executed.
+    MethodLoadFinished(MethodLoad),
+
+    /// Send this notification to terminate profiling.
+    Shutdown,
+}
+
+impl EventType {
+    /// Returns the C event type to be used when notifying this event to VTune.
+    fn tag(&self) -> ittapi_sys::iJIT_jvm_event {
+        match self {
+            EventType::MethodLoadFinished(_) => {
+                ittapi_sys::iJIT_jvm_event_iJVM_EVENT_TYPE_METHOD_INLINE_LOAD_FINISHED
+            }
+            EventType::Shutdown => ittapi_sys::iJIT_jvm_event_iJVM_EVENT_TYPE_SHUTDOWN,
+        }
+    }
+
+    /// Returns a raw C pointer to the event-specific data that must be used when notifying this
+    /// event to VTune.
+    fn data(&mut self) -> *mut os::raw::c_void {
+        match self {
+            EventType::MethodLoadFinished(method_load) => &mut method_load.0 as *mut _ as *mut _,
+            EventType::Shutdown => ptr::null_mut(),
+        }
+    }
+}
+
+/// Newtype wrapper for a method id returned by ittapi's `iJIT_GetNewMethodID`, as returned by
+/// `InnerVTuneState::get_method_id` in the high-level API.
+#[derive(Clone, Copy)]
+pub struct MethodId(u32);
+
+/// Newtype wrapper for a JIT method load.
+pub struct MethodLoad(ittapi_sys::_iJIT_Method_Load);
+
+/// Multi-step constructor using the builder pattern for a `MethodLoad` event.
+pub struct MethodLoadBuilder {
     method_name: String,
     addr: *const u8,
     len: usize,
-
     class_file_name: Option<String>,
     source_file_name: Option<String>,
 }
 
-impl RecordMethodBuilder {
+impl MethodLoadBuilder {
+    /// Creates a new `MethodLoadBuilder` from scratch.
+    ///
+    /// `addr` is the pointer to the start of the code region, `len` is the size of this code
+    /// region in bytes.
     pub fn new(method_name: String, addr: *const u8, len: usize) -> Self {
         Self {
             method_name,
@@ -31,93 +156,33 @@ impl RecordMethodBuilder {
         self.source_file_name = Some(source_file_name);
         self
     }
-    pub fn build(self, state: &InnerVTuneState) -> anyhow::Result<()> {
-        state.record_method(self)
-    }
-}
-
-#[derive(Default)]
-pub struct InnerVTuneState;
-
-#[derive(Default)]
-pub struct VTuneState {
-    inner: Mutex<InnerVTuneState>,
-}
-
-impl VTuneState {
-    pub fn new() -> Self {
-        Default::default()
-    }
-    pub fn get(&self) -> MutexGuard<InnerVTuneState> {
-        self.inner.lock().unwrap()
-    }
-}
-
-impl Drop for VTuneState {
-    fn drop(&mut self) {
-        self.inner.lock().unwrap().shutdown();
-    }
-}
-
-impl InnerVTuneState {
-    fn record_method(&self, builder: RecordMethodBuilder) -> anyhow::Result<()> {
-        let method_id = get_method_id();
-
-        let mut jmethod = ittapi_sys::_iJIT_Method_Load {
-            method_id,
-            method_name: CString::new(builder.method_name)
+    pub fn build(self, method_id: MethodId) -> anyhow::Result<EventType> {
+        Ok(EventType::MethodLoadFinished(MethodLoad(
+            ittapi_sys::_iJIT_Method_Load {
+                method_id: method_id.0,
+                method_name: CString::new(self.method_name)
+                    .context("CString::new failed")?
+                    .into_raw(),
+                method_load_address: self.addr as *mut os::raw::c_void,
+                method_size: self.len as u32,
+                line_number_size: 0,
+                line_number_table: ptr::null_mut(),
+                class_id: 0, // Field officially obsolete in Intel's doc.
+                class_file_name: CString::new(
+                    self.class_file_name
+                        .as_deref()
+                        .unwrap_or("<unknown class file name>"),
+                )
                 .context("CString::new failed")?
                 .into_raw(),
-            method_load_address: builder.addr as *mut ::std::os::raw::c_void,
-            method_size: builder.len as u32,
-            line_number_size: 0,
-            line_number_table: std::ptr::null_mut(),
-            class_id: 0,
-            class_file_name: CString::new(
-                builder
-                    .class_file_name
-                    .as_deref()
-                    .unwrap_or("<unknown class file name>"),
-            )
-            .context("CString::new failed")?
-            .into_raw(),
-            source_file_name: CString::new(
-                builder
-                    .source_file_name
-                    .as_deref()
-                    .unwrap_or("<unknown source file name>"),
-            )
-            .context("CString::new failed")?
-            .into_raw(),
-        };
-
-        let jmethod_ptr = &mut jmethod as *mut _ as *mut _;
-        log::trace!("loaded new method (single method with id {})", method_id);
-        let res = unsafe {
-            ittapi_sys::iJIT_NotifyEvent(
-                ittapi_sys::iJIT_jvm_event_iJVM_EVENT_TYPE_METHOD_LOAD_FINISHED,
-                jmethod_ptr as *mut ::std::os::raw::c_void,
-            )
-        };
-
-        if res == 1 {
-            Ok(())
-        } else {
-            anyhow::bail!("error when registering a method")
-        }
+                source_file_name: CString::new(
+                    self.source_file_name
+                        .as_deref()
+                        .unwrap_or("<unknown source file name>"),
+                )
+                .context("CString::new failed")?
+                .into_raw(),
+            },
+        )))
     }
-
-    fn shutdown(&mut self) {
-        log::trace!("notify vtune about shutdown");
-        unsafe {
-            let _ret = ittapi_sys::iJIT_NotifyEvent(
-                ittapi_sys::iJIT_jvm_event_iJVM_EVENT_TYPE_SHUTDOWN,
-                std::ptr::null_mut(),
-            );
-        }
-    }
-}
-
-fn get_method_id() -> u32 {
-    unsafe { ittapi_sys::iJIT_GetNewMethodID() }
 }
