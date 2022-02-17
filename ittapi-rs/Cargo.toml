@@ -10,6 +10,7 @@ readme = "README.md"
 homepage  = "https://github.com/intel/ittapi/ittapi-rs"
 repository = "https://github.com/intel/ittapi"
 keywords = ["vtune", "profiling", "code-generation"]
+exclude = ["c-library/.*"]
 
 [dependencies]
 
