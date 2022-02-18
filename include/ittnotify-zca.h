@@ -31,7 +31,7 @@
 #include "ittnotify.h"
 
 #ifndef INTEL_NO_ITTNOTIFY_API
-#if defined(__INTEL_COMPILER) && (ITT_PLATFORM == ITT_PLATFORM_WIN || ITT_PLATFORM == ITT_PLATFORM_POSIX)
+#if (defined(__INTEL_COMPILER) || defined(__INTEL_LLVM_COMPILER)) && (ITT_PLATFORM == ITT_PLATFORM_WIN || ITT_PLATFORM == ITT_PLATFORM_POSIX)
 #define ITT_ENABLE_LOW_OVERHEAD_ANNOTATIONS
 #else
 #error Zero cost (low overhead) annotations are not supported on this platform
