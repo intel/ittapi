@@ -1,26 +1,22 @@
 use anyhow::Context;
-use std::{
-    ffi::CString,
-    os, ptr,
-    sync::{Mutex, MutexGuard},
-};
+use std::{ffi::CString, os, ptr};
 
-/// The main object, to be stored once in your program directly if it is single-threaded, or
-/// indirectly through `MultithreadedVtuneState` if your program is multi-threaded.
+/// Main VTune interface to interact with. Assumes a mono-threaded access; if your program may be
+/// multithreaded, make sure to guard multithreaded access with a mutex.
 ///
 /// Handles all the interactions with the lower level ittapi.
 #[derive(Default)]
-pub struct VTuneState {
+pub struct VtuneState {
     did_shutdown: bool,
 }
 
-impl VTuneState {
+impl VtuneState {
     /// Returns a new `MethodId` for use in `MethodLoad` events.
     pub fn get_method_id(&self) -> MethodId {
         MethodId(unsafe { ittapi_sys::iJIT_GetNewMethodID() })
     }
 
-    /// Notifies any `EventType` to Vtune.
+    /// Notifies any `EventType` to VTune.
     ///
     /// May fail if the underlying call to the ittapi's method fails.
     pub fn notify_event(&self, mut event: EventType) -> anyhow::Result<()> {
@@ -37,14 +33,14 @@ impl VTuneState {
 
     // High-level helpers.
 
-    /// Notifies vtune that a new function described by the `MethodLoadBuilder` has been jitted.
+    /// Notifies VTune that a new function described by the `MethodLoadBuilder` has been jitted.
     pub fn load_method(&self, builder: MethodLoadBuilder) -> anyhow::Result<()> {
         let method_id = self.get_method_id();
         let method_load = builder.build(method_id)?;
         self.notify_event(method_load)
     }
 
-    /// Notifies vtune that profiling is being shut down.
+    /// Notifies VTune that profiling is being shut down.
     pub fn shutdown(&mut self) -> anyhow::Result<()> {
         let res = self.notify_event(EventType::Shutdown);
         if res.is_ok() {
@@ -54,35 +50,14 @@ impl VTuneState {
     }
 }
 
-impl Drop for VTuneState {
+impl Drop for VtuneState {
     fn drop(&mut self) {
         if !self.did_shutdown {
             // There's not much we can do when an error happens here.
             if let Err(err) = self.shutdown() {
-                log::error!("Error when shutting down Vtune: {}", err)
+                log::error!("Error when shutting down VTune: {}", err)
             }
         }
-    }
-}
-
-/// Multithreaded friendly wrapper for `VtuneState`, which takes a lock on each operation.
-///
-/// Do use this if your application is multi-threaded. Otherwise using `VtuneState` ought to be
-/// sufficient.
-#[derive(Default)]
-pub struct MultithreadedVtuneState {
-    inner: Mutex<VTuneState>,
-}
-
-impl MultithreadedVtuneState {
-    /// Creates a new empty `MultithreadedVtuneState`.
-    pub fn new() -> Self {
-        Default::default()
-    }
-
-    /// Takes the lock on the inner `VTuneState` and returns it.
-    pub fn get(&self) -> MutexGuard<VTuneState> {
-        self.inner.lock().unwrap()
     }
 }
 
@@ -118,7 +93,7 @@ impl EventType {
 }
 
 /// Newtype wrapper for a method id returned by ittapi's `iJIT_GetNewMethodID`, as returned by
-/// `InnerVTuneState::get_method_id` in the high-level API.
+/// `VtuneState::get_method_id` in the high-level API.
 #[derive(Clone, Copy)]
 pub struct MethodId(u32);
 
