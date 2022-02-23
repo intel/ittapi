@@ -65,4 +65,4 @@ jobs:
     # For some strange reason, the process of building the upstream library will result in source
     # file changes on Windows; once this is resolved, remove `--allow-dirty`.
     - name: Check crate is publishable
-      run: cargo publish --dry-run --allow-dirty
+      run: cargo publish --manifest-path ./ittapi-sys/Cargo.toml --dry-run --allow-dirty

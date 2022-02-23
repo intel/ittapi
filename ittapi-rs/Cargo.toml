@@ -1,22 +1,5 @@
-[package]
-name = "ittapi-rs"
-version = "0.2.0"
-authors = ["Johnnie Birch <45402135+jlb6740@users.noreply.github.com>"]
-edition = "2018"
-description = "Rust bindings for ittapi"
-license = "GPL-2.0-only OR BSD-3-Clause"
-documentation  = "https://docs.rs/ittapi-rs"
-readme = "README.md"
-homepage  = "https://github.com/intel/ittapi/ittapi-rs"
-repository = "https://github.com/intel/ittapi"
-keywords = ["vtune", "profiling", "code-generation"]
-exclude = ["c-library/.*"]
-
-[dependencies]
-
-[build-dependencies]
-cc = "1.0.72"
-
-[dev-dependencies]
-bindgen = "0.59"
-diff = "0.1"
+[workspace]
+members = [
+    "ittapi-sys",
+    "ittapi",
+]
