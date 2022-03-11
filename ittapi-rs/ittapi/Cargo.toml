@@ -1,5 +1,5 @@
 [package]
-name = "ittapi-rs"
+name = "ittapi"
 version = "0.2.0"
 edition = "2021"
 authors = [
@@ -18,3 +18,6 @@ keywords = ["vtune", "profiling", "code-generation"]
 anyhow = "1.0.40"
 ittapi-sys = { path = "../ittapi-sys", version = "0.2.0" }
 log = "0.4.14"
+
+[dev-dependencies]
+scoped-env = "2.1"

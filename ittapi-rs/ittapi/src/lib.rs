@@ -1,163 +1,18 @@
-use anyhow::Context;
-use std::{ffi::CString, os, ptr};
+//! This library allows Rust programs to use Intel&reg; Instrumentation and Tracing Technology (ITT)
+//! APIs. These APIs are declared by a static library, [`ittnotify`], and dynamically used by
+//! performance collection tools (e.g., VTune).
+//!
+//! [`ittnotify`]: https://github.com/intel/ittapi
 
-/// Main VTune interface to interact with. Assumes a mono-threaded access; if your program may be
-/// multithreaded, make sure to guard multithreaded access with a mutex.
-///
-/// Handles all the interactions with the lower level ittapi.
-#[derive(Default)]
-pub struct VtuneState {
-    did_shutdown: bool,
-}
+#![deny(missing_docs)]
+mod domain;
+mod event;
+pub mod jit;
+mod string;
+mod task;
+mod util;
 
-impl VtuneState {
-    /// Returns a new `MethodId` for use in `MethodLoad` events.
-    pub fn get_method_id(&self) -> MethodId {
-        MethodId(unsafe { ittapi_sys::iJIT_GetNewMethodID() })
-    }
-
-    /// Notifies any `EventType` to VTune.
-    ///
-    /// May fail if the underlying call to the ittapi's method fails.
-    pub fn notify_event(&self, mut event: EventType) -> anyhow::Result<()> {
-        let tag = event.tag();
-        let data = event.data();
-        log::trace!("notify_event: tag={:?}", tag);
-        let res = unsafe { ittapi_sys::iJIT_NotifyEvent(tag, data) };
-        if res == 1 {
-            Ok(())
-        } else {
-            anyhow::bail!("error when notifying event")
-        }
-    }
-
-    // High-level helpers.
-
-    /// Notifies VTune that a new function described by the `MethodLoadBuilder` has been jitted.
-    pub fn load_method(&self, builder: MethodLoadBuilder) -> anyhow::Result<()> {
-        let method_id = self.get_method_id();
-        let method_load = builder.build(method_id)?;
-        self.notify_event(method_load)
-    }
-
-    /// Notifies VTune that profiling is being shut down.
-    pub fn shutdown(&mut self) -> anyhow::Result<()> {
-        let res = self.notify_event(EventType::Shutdown);
-        if res.is_ok() {
-            self.did_shutdown = true;
-        }
-        res
-    }
-}
-
-impl Drop for VtuneState {
-    fn drop(&mut self) {
-        if !self.did_shutdown {
-            // There's not much we can do when an error happens here.
-            if let Err(err) = self.shutdown() {
-                log::error!("Error when shutting down VTune: {}", err)
-            }
-        }
-    }
-}
-
-/// Type of event to be dispatched through ittapi's JIT event API.
-pub enum EventType {
-    /// Send this event after a JITted method has been loaded into memory, and possibly JIT
-    /// compiled, but before the code is executed.
-    MethodLoadFinished(MethodLoad),
-
-    /// Send this notification to terminate profiling.
-    Shutdown,
-}
-
-impl EventType {
-    /// Returns the C event type to be used when notifying this event to VTune.
-    fn tag(&self) -> ittapi_sys::iJIT_jvm_event {
-        match self {
-            EventType::MethodLoadFinished(_) => {
-                ittapi_sys::iJIT_jvm_event_iJVM_EVENT_TYPE_METHOD_INLINE_LOAD_FINISHED
-            }
-            EventType::Shutdown => ittapi_sys::iJIT_jvm_event_iJVM_EVENT_TYPE_SHUTDOWN,
-        }
-    }
-
-    /// Returns a raw C pointer to the event-specific data that must be used when notifying this
-    /// event to VTune.
-    fn data(&mut self) -> *mut os::raw::c_void {
-        match self {
-            EventType::MethodLoadFinished(method_load) => &mut method_load.0 as *mut _ as *mut _,
-            EventType::Shutdown => ptr::null_mut(),
-        }
-    }
-}
-
-/// Newtype wrapper for a method id returned by ittapi's `iJIT_GetNewMethodID`, as returned by
-/// `VtuneState::get_method_id` in the high-level API.
-#[derive(Clone, Copy)]
-pub struct MethodId(u32);
-
-/// Newtype wrapper for a JIT method load.
-pub struct MethodLoad(ittapi_sys::_iJIT_Method_Load);
-
-/// Multi-step constructor using the builder pattern for a `MethodLoad` event.
-pub struct MethodLoadBuilder {
-    method_name: String,
-    addr: *const u8,
-    len: usize,
-    class_file_name: Option<String>,
-    source_file_name: Option<String>,
-}
-
-impl MethodLoadBuilder {
-    /// Creates a new `MethodLoadBuilder` from scratch.
-    ///
-    /// `addr` is the pointer to the start of the code region, `len` is the size of this code
-    /// region in bytes.
-    pub fn new(method_name: String, addr: *const u8, len: usize) -> Self {
-        Self {
-            method_name,
-            addr,
-            len,
-            class_file_name: None,
-            source_file_name: None,
-        }
-    }
-    pub fn class_file_name(mut self, class_file_name: String) -> Self {
-        self.class_file_name = Some(class_file_name);
-        self
-    }
-    pub fn source_file_name(mut self, source_file_name: String) -> Self {
-        self.source_file_name = Some(source_file_name);
-        self
-    }
-    pub fn build(self, method_id: MethodId) -> anyhow::Result<EventType> {
-        Ok(EventType::MethodLoadFinished(MethodLoad(
-            ittapi_sys::_iJIT_Method_Load {
-                method_id: method_id.0,
-                method_name: CString::new(self.method_name)
-                    .context("CString::new failed")?
-                    .into_raw(),
-                method_load_address: self.addr as *mut os::raw::c_void,
-                method_size: self.len as u32,
-                line_number_size: 0,
-                line_number_table: ptr::null_mut(),
-                class_id: 0, // Field officially obsolete in Intel's doc.
-                class_file_name: CString::new(
-                    self.class_file_name
-                        .as_deref()
-                        .unwrap_or("<unknown class file name>"),
-                )
-                .context("CString::new failed")?
-                .into_raw(),
-                source_file_name: CString::new(
-                    self.source_file_name
-                        .as_deref()
-                        .unwrap_or("<unknown source file name>"),
-                )
-                .context("CString::new failed")?
-                .into_raw(),
-            },
-        )))
-    }
-}
+pub use domain::Domain;
+pub use event::Event;
+pub use string::StringHandle;
+pub use task::Task;
