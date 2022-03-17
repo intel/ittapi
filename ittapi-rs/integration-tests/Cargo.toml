@@ -1,0 +1,11 @@
+[package]
+name = "ittapi-integration-test"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[dependencies]
+ittapi = { path = "../ittapi" }
+
+[workspace]
+# Do not include this crate in the workspace.
