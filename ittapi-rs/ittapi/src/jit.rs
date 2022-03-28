@@ -13,7 +13,7 @@ use std::{ffi::CString, os, ptr};
 /// access with a mutex.
 #[derive(Default)]
 pub struct Jit {
-    did_shutdown: bool,
+    shutdown_complete: bool,
 }
 
 impl Jit {
@@ -50,7 +50,7 @@ impl Jit {
     pub fn shutdown(&mut self) -> anyhow::Result<()> {
         let res = self.notify_event(EventType::Shutdown);
         if res.is_ok() {
-            self.did_shutdown = true;
+            self.shutdown_complete = true;
         }
         res
     }
@@ -58,7 +58,7 @@ impl Jit {
 
 impl Drop for Jit {
     fn drop(&mut self) {
-        if !self.did_shutdown {
+        if !self.shutdown_complete {
             // There's not much we can do when an error happens here.
             if let Err(err) = self.shutdown() {
                 log::error!("Error when shutting down VTune: {}", err)

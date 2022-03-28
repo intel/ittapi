@@ -1,6 +1,6 @@
 //! This library allows Rust programs to use Intel&reg; Instrumentation and Tracing Technology (ITT)
 //! APIs. These APIs are declared by a static library, [`ittnotify`], and dynamically used by
-//! performance collection tools (e.g., VTune).
+//! performance collection tools (e.g., 'libittnotify_collector.so', VTune Profiler).
 //!
 //! [`ittnotify`]: https://github.com/intel/ittapi
 
