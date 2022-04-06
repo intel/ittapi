@@ -1,7 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
-## [Unreleased]
+## [0.3.0] - 2022-04-06
 ### Changed
 - Split the functionality into two crates: `ittapi-sys` for the low-level C bindings and `ittapi`
   for new high-level APIs (e.g., Domain, Task, etc.)
