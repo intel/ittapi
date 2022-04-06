@@ -1,7 +1,7 @@
 This is a reference implementation of the ITT API _dynamic part_
 that performs tracing data from ITT API functions calls to log files.
 
-To use this solution it is requered to build it like a shared library and add
+To use this solution it is required to build it like a shared library and add
 full library path to the `INTEL_LIBITTNOTIFY64/INTEL_LIBITTNOTIFY32` environment variable:
 
 **On Linux**
