@@ -15,9 +15,9 @@ repository = "https://github.com/intel/ittapi"
 keywords = ["vtune", "profiling", "code-generation"]
 
 [dependencies]
-anyhow = "1.0.40"
+anyhow = "1.0.56"
 ittapi-sys = { path = "../ittapi-sys", version = "0.3.0" }
-log = "0.4.14"
+log = "0.4.16"
 
 [dev-dependencies]
 scoped-env = "2.1"
