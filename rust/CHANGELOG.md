@@ -1,6 +1,11 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [Unreleased]
+### Changed
+- Split the functionality into two crates: `ittapi-sys` for the low-level C bindings and `ittapi`
+  for new high-level APIs (e.g., Domain, Task, etc.)
+
 ## [0.2.0] - 2022-02-16
 ### Added
 - Windows support; the crate now contains bindings for Windows, Linux, and macOS
