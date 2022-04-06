@@ -13,7 +13,7 @@ Currently, the following APIs are supported (please submit an issue or PR for ad
 
 This uses the [`ittapi-sys`] crate which depends on the C `ittapi` library.
 
-[`ittapi-sys`]: https://github.com/intel/ittapi/tree/master/ittapi-rs/ittapi-sys
+[`ittapi-sys`]: https://github.com/intel/ittapi/tree/master/rust/ittapi-sys
 [C `ittapi` library]: https://github.com/intel/ittapi
 
 > IMPORTANT NOTE: this crate is currently only tested on Linux, macOS, and Windows platforms but

@@ -5,9 +5,9 @@ authors = ["Johnnie Birch <45402135+jlb6740@users.noreply.github.com>"]
 edition = "2018"
 description = "Rust bindings for ittapi"
 license = "GPL-2.0-only OR BSD-3-Clause"
-documentation  = "https://docs.rs/ittapi-rs"
+documentation  = "https://docs.rs/ittapi-sys"
 readme = "README.md"
-homepage  = "https://github.com/intel/ittapi/tree/master/ittapi-rs/ittapi-sys"
+homepage  = "https://github.com/intel/ittapi/tree/master/rust/ittapi-sys"
 repository = "https://github.com/intel/ittapi"
 keywords = ["vtune", "profiling", "code-generation"]
 
