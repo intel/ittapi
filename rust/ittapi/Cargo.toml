@@ -8,9 +8,9 @@ authors = [
 ]
 description = "High-level Rust bindings for ittapi"
 license = "GPL-2.0-only OR BSD-3-Clause"
-documentation  = "https://docs.rs/ittapi-rs"
+documentation  = "https://docs.rs/ittapi"
 readme = "README.md"
-homepage  = "https://github.com/intel/ittapi/tree/master/ittapi-rs/ittapi"
+homepage  = "https://github.com/intel/ittapi/tree/master/rust/ittapi"
 repository = "https://github.com/intel/ittapi"
 keywords = ["vtune", "profiling", "code-generation"]
 

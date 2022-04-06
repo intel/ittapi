@@ -8,7 +8,7 @@ This crate contains low-level Rust bindings for the C `ittapi` library--you like
 it exposes the Instrumentation and Tracing Technology (ITT) API as well as the Just-In-Time (JIT)
 Profiling API. More details about `ittapi` are available on its [README].
 
-[high-level Rust crate]: https://github.com/intel/ittapi/ittapi-rs/ittapi
+[high-level Rust crate]: https://github.com/intel/ittapi/rust/ittapi
 [README]: https://github.com/intel/ittapi#readme
 
 > IMPORTANT NOTE: this crate is currently only tested on Linux, macOS, and Windows platforms but
@@ -36,7 +36,7 @@ cargo build
 Building `ittapi-sys` will build the `ittapi` C library and link it statically into your
 application; see the [build.rs] file.
 
-[build.rs]: https://github.com/intel/ittapi/blob/master/ittapi-rs/build.rs
+[build.rs]: https://github.com/intel/ittapi/blob/master/rust/build.rs
 
 _For Windows developers_: this crate uses a symbolic link to access the C library it depends on. To
 modify this crate on Windows, either [configure Git to understand POSIX symlinks] or use the
