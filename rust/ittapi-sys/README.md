@@ -8,6 +8,8 @@ This crate contains low-level Rust bindings for the C `ittapi` library--you like
 it exposes the Instrumentation and Tracing Technology (ITT) API as well as the Just-In-Time (JIT)
 Profiling API. More details about `ittapi` are available on its [README].
 
+[ci]: https://github.com/intel/ittapi/actions/workflows/main.yml
+[docs]: https://docs.rs/ittapi-sys
 [high-level Rust crate]: https://github.com/intel/ittapi/rust/ittapi
 [README]: https://github.com/intel/ittapi#readme
 
@@ -23,7 +25,7 @@ Linux](https://docs.wasmtime.dev/examples-profiling-vtune.html)
 
 ```toml
 [dependencies]
-ittapi-sys = "0.2"
+ittapi-sys = "0.3"
 ```
 
 

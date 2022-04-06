@@ -13,6 +13,8 @@ Currently, the following APIs are supported (please submit an issue or PR for ad
 
 This uses the [`ittapi-sys`] crate which depends on the C `ittapi` library.
 
+[ci]: https://github.com/intel/ittapi/actions/workflows/main.yml
+[docs]: https://docs.rs/ittapi
 [`ittapi-sys`]: https://github.com/intel/ittapi/tree/master/rust/ittapi-sys
 [C `ittapi` library]: https://github.com/intel/ittapi
 
@@ -28,7 +30,7 @@ Linux](https://docs.wasmtime.dev/examples-profiling-vtune.html)
 
 ```toml
 [dependencies]
-ittapi = "0.2"
+ittapi = "0.3"
 ```
 
 ### Build
