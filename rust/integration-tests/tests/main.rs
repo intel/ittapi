@@ -6,7 +6,7 @@
 //!     binary available on the PATH, like done with `source vtune-vars.sh`).
 use std::fs::remove_dir_all;
 use std::path::Path;
-use std::process::{Command, Output};
+use std::process::Command;
 use std::str::from_utf8;
 
 #[test]
