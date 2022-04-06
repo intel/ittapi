@@ -62,7 +62,5 @@ jobs:
       run: cargo build
     - name: Test Rust crate
       run: cargo test
-    # For some strange reason, the process of building the upstream library will result in source
-    # file changes on Windows; once this is resolved, remove `--allow-dirty`.
-    - name: Check crate is publishable
-      run: cargo publish --manifest-path ./ittapi-sys/Cargo.toml --dry-run --allow-dirty
+    - name: Check crates are publishable
+      run: scripts/verify-publish.sh
