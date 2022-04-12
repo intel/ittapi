@@ -31,3 +31,10 @@ impl Domain {
         self.0 as *const _
     }
 }
+
+/// As discussed in the [ITT documentation], the `__itt_domain` structure is accessible by any
+/// thread in the process.
+///
+/// [ITT documentation]:
+///     https://www.intel.com/content/www/us/en/develop/documentation/vtune-help/top/api-support/instrumentation-and-tracing-technology-apis/instrumentation-tracing-technology-api-reference/domain-api.html
+unsafe impl Sync for Domain {}
