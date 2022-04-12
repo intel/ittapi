@@ -18,13 +18,17 @@ pub struct Jit {
 
 impl Jit {
     /// Returns a new `MethodId` for use in `MethodLoad` events.
+    #[allow(clippy::unused_self)]
     pub fn get_method_id(&self) -> MethodId {
         MethodId(unsafe { ittapi_sys::iJIT_GetNewMethodID() })
     }
 
     /// Notifies any `EventType` to VTune.
     ///
-    /// May fail if the underlying call to the ittapi's method fails.
+    /// # Errors
+    ///
+    /// May fail if the underlying call to the ITT library fails.
+    #[allow(clippy::unused_self)]
     pub fn notify_event(&self, mut event: EventType) -> anyhow::Result<()> {
         let tag = event.tag();
         let data = event.data();
@@ -40,6 +44,11 @@ impl Jit {
     // High-level helpers.
 
     /// Notifies VTune that a new function described by the `MethodLoadBuilder` has been jitted.
+    ///
+    /// # Errors
+    ///
+    /// May fail if the builder has invalid data or if the ITT library fails to notify the method
+    /// load event.
     pub fn load_method(&self, builder: MethodLoadBuilder) -> anyhow::Result<()> {
         let method_id = self.get_method_id();
         let method_load = builder.build(method_id)?;
@@ -47,6 +56,10 @@ impl Jit {
     }
 
     /// Notifies VTune that profiling is being shut down.
+    ///
+    /// # Errors
+    ///
+    /// May fail if the ITT library fails to notify the shutdown event.
     pub fn shutdown(&mut self) -> anyhow::Result<()> {
         let res = self.notify_event(EventType::Shutdown);
         if res.is_ok() {
@@ -61,7 +74,7 @@ impl Drop for Jit {
         if !self.shutdown_complete {
             // There's not much we can do when an error happens here.
             if let Err(err) = self.shutdown() {
-                log::error!("Error when shutting down VTune: {}", err)
+                log::error!("Error when shutting down VTune: {}", err);
             }
         }
     }
@@ -92,7 +105,7 @@ impl EventType {
     /// event to VTune.
     fn data(&mut self) -> *mut os::raw::c_void {
         match self {
-            EventType::MethodLoadFinished(method_load) => &mut method_load.0 as *mut _ as *mut _,
+            EventType::MethodLoadFinished(method_load) => ptr::addr_of_mut!(method_load.0).cast(),
             EventType::Shutdown => ptr::null_mut(),
         }
     }
@@ -143,6 +156,10 @@ impl MethodLoadBuilder {
     }
 
     /// Build a "method load" event for the given `method_id`.
+    ///
+    /// # Errors
+    ///
+    /// May fail if the various names passed to this builder are not valid C strings.
     pub fn build(self, method_id: MethodId) -> anyhow::Result<EventType> {
         Ok(EventType::MethodLoadFinished(MethodLoad(
             ittapi_sys::_iJIT_Method_Load {
@@ -151,7 +168,7 @@ impl MethodLoadBuilder {
                     .context("CString::new failed")?
                     .into_raw(),
                 method_load_address: self.addr as *mut os::raw::c_void,
-                method_size: self.len as u32,
+                method_size: self.len.try_into().expect("cannot fit length into 32 bits"),
                 line_number_size: 0,
                 line_number_table: ptr::null_mut(),
                 class_id: 0, // Field officially obsolete in Intel's doc.

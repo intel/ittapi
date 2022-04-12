@@ -26,11 +26,14 @@ impl Event {
     }
 
     /// Start the event.
-    pub fn start<'a>(&'a self) -> StartedEvent<'a> {
+    ///
+    /// # Panics
+    ///
+    /// This will panic if the ITT library cannot start the event.
+    pub fn start(&self) -> StartedEvent {
         if let Some(start_fn) = unsafe { ittapi_sys::__itt_event_start_ptr__3_0 } {
-            if unsafe { start_fn(self.0) } != 0 {
-                panic!("unable to start event");
-            }
+            let result = unsafe { start_fn(self.0) };
+            assert!(result == 0, "unable to start event");
         }
         StartedEvent {
             event: self.0,
@@ -46,6 +49,7 @@ pub struct StartedEvent<'a> {
 
 impl StartedEvent<'_> {
     /// End the event.
+    #[allow(clippy::unused_self)]
     pub fn end(self) {
         // Do nothing; the `Drop` implementation does the work. See discussion at
         // https://stackoverflow.com/questions/53254645.
@@ -55,9 +59,8 @@ impl StartedEvent<'_> {
 impl<'a> Drop for StartedEvent<'a> {
     fn drop(&mut self) {
         if let Some(end_fn) = unsafe { ittapi_sys::__itt_event_end_ptr__3_0 } {
-            if unsafe { end_fn(self.event) } != 0 {
-                panic!("unable to stop event")
-            }
+            let result = unsafe { end_fn(self.event) };
+            assert!(result == 0, "unable to stop event");
         }
     }
 }

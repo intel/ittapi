@@ -36,7 +36,7 @@ impl StringHandle {
 
 impl From<&str> for StringHandle {
     fn from(name: &str) -> Self {
-        StringHandle::new(name)
+        Self::new(name)
     }
 }
 
