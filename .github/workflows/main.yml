@@ -32,8 +32,9 @@ jobs:
         working-directory: rust
     steps:
     - uses: actions/checkout@v2
-    - run: rustup component add rustfmt
+    - run: rustup component add rustfmt clippy
     - run: cargo fmt --all -- --check
+    - run: cargo clippy
 
   rust_dependencies:
     name: Check Rust dependencies

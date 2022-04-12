@@ -37,6 +37,7 @@ impl<'a> Task<'a> {
     }
 
     /// Finish the task.
+    #[allow(clippy::unused_self)]
     pub fn end(self) {
         // Do nothing; the `Drop` implementation does the work. See discussion at
         // https://stackoverflow.com/questions/53254645.

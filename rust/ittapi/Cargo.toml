@@ -13,6 +13,7 @@ readme = "README.md"
 homepage  = "https://github.com/intel/ittapi/tree/master/rust/ittapi"
 repository = "https://github.com/intel/ittapi"
 keywords = ["vtune", "profiling", "code-generation"]
+categories = ["development-tools"]
 
 [dependencies]
 anyhow = "1.0.56"

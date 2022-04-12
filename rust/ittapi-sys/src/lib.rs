@@ -1,6 +1,10 @@
 //! This library contains OS-specific bindings to the C `ittapi` library.
 #![allow(non_snake_case, non_camel_case_types, non_upper_case_globals)]
 #![allow(unused)]
+#![deny(clippy::all)]
+#![warn(clippy::pedantic)]
+#![warn(clippy::cargo)]
+#![allow(clippy::unreadable_literal)]
 
 // The ITT bindings are OS-specific: they contain OS-specific constants (e.g. `ITT_OS` and
 // `ITT_PLATFORM`) and some of the Windows structure sizes are different. Because of this, we

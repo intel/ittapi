@@ -1,6 +1,6 @@
 /// Provide a convenient way to access ittapi functions that may have not been initialized. The
 /// `ittnotify` library has a static part (e.g., `libittnotify.a`) and a dynamic part (e.g.,
-/// 'libittnotify_collector.so', VTune Profiler). The static part provides the ITT symbols to the
+/// `libittnotify_collector.so`, VTune Profiler). The static part provides the ITT symbols to the
 /// application but these may not be resolved to actual implementations in the dynamic part--the
 /// data collector.
 macro_rules! access_sys_fn {
