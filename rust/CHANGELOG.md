@@ -1,6 +1,10 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [0.3.1] - 2022-04-12
+### Changed
+- Make high-level `Domain` structure `Sync`
+
 ## [0.3.0] - 2022-04-06
 ### Changed
 - Split the functionality into two crates: `ittapi-sys` for the low-level C bindings and `ittapi`
