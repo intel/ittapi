@@ -10,7 +10,7 @@ Profiling API. More details about `ittapi` are available on its [README].
 
 [ci]: https://github.com/intel/ittapi/actions/workflows/main.yml
 [docs]: https://docs.rs/ittapi-sys
-[high-level Rust crate]: https://github.com/intel/ittapi/rust/ittapi
+[high-level Rust crate]: https://crates.io/crates/ittapi
 [README]: https://github.com/intel/ittapi#readme
 
 > IMPORTANT NOTE: this crate is currently only tested on Linux, macOS, and Windows platforms but
