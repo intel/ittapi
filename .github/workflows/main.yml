@@ -9,10 +9,6 @@ on:
 env:
   CARGO_TERM_COLOR: always
 
-defaults:
-  run:
-    shell: bash
-
 jobs:
   c_build:
     name: Check upstream C library
@@ -59,11 +55,12 @@ jobs:
           - os: ubuntu-latest
           - os: macos-latest
           - os: windows-latest
-          - os: windows-2019
+          - os: windows-latest
             target: x86_64-pc-windows-gnu
     defaults:
       run:
         working-directory: rust
+        shell: bash
     steps:
     - uses: actions/checkout@v2
       with:
