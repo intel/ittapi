@@ -14,7 +14,10 @@ fn main() {
     // For `x86_64-pc-windows-gnu` targets (i.e., MinGW builds), the `strnlen_s` function may not
     // always be available.
     if let Ok("x86_64-pc-windows-gnu") = std::env::var("TARGET").as_deref() {
-        build.define("MINGW_HAS_SECURE_API", "1");
+        build
+            .flag("--enable-secure-api")
+            .define("MINGW_HAS_SECURE_API", "1")
+            .define("SDL_STRNLEN_S", None);
     }
 
     build.compile("ittnotify");
