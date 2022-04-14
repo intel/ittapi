@@ -11,8 +11,11 @@ fn main() {
         .include("c-library/src/ittnotify/")
         .include("c-library/include/");
 
-    #[cfg(all(target_vendor = "pc", target_os = "windows", target_env = "gnu"))]
-    build.define("SDL_STRNLEN_S", None);
+    // For `x86_64-pc-windows-gnu` targets (i.e., MinGW builds), the `strnlen_s` function may not
+    // always be available.
+    if let Ok("x86_64-pc-windows-gnu") = std::env::var("TARGET").as_deref() {
+        build.define("SDL_STRNLEN_S", None);
+    }
 
     build.compile("ittnotify");
 }
