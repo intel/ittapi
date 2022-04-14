@@ -15,7 +15,6 @@ fn main() {
     // always be available.
     if let Ok("x86_64-pc-windows-gnu") = std::env::var("TARGET").as_deref() {
         build
-            .flag("--enable-secure-api")
             .define("MINGW_HAS_SECURE_API", "1")
             .define("SDL_STRNLEN_S", None);
     }
