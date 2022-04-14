@@ -12,7 +12,7 @@ fn main() {
         .include("c-library/include/");
 
     #[cfg(all(target_vendor = "pc", target_os = "windows", target_env = "gnu"))]
-    build.define("MINGW_HAS_SECURE_API", "1");
+    build.define("SDL_STRNLEN_S", None);
 
     build.compile("ittnotify");
 }
