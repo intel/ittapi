@@ -12,7 +12,7 @@ fn main() {
         .include("c-library/include/");
 
     #[cfg(all(target_vendor = "pc", target_os = "windows", target_env = "gnu"))]
-    build.flag("--enable-secure-api");
+    build.define("MINGW_HAS_SECURE_API", "1");
 
     build.compile("ittnotify");
 }
