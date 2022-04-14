@@ -2,6 +2,8 @@
 # Check that the Rust crates can all be packaged up for publication. This cannot use use `cargo
 # publish --dry-run` because of the dependency between ittapi and ittapi-sys.
 set -e
+
+SCRIPT_ARGS=${@:1}
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 pushd $SCRIPT_DIR
 
@@ -19,7 +21,7 @@ directory = "vendor"
 EOT
 
 # Package up ittapi-sys and place it in the vendor directory.
-cargo package --manifest-path ../ittapi-sys/Cargo.toml
+cargo package --manifest-path ../ittapi-sys/Cargo.toml $SCRIPT_ARGS
 pushd vendor
 tar xf ../../target/package/ittapi-sys-0.*.crate
 ITTAPI_SYS_DIR=$(echo ittapi-sys-0.*)
@@ -27,5 +29,5 @@ echo '{"files":{}}' > $ITTAPI_SYS_DIR/.cargo-checksum.json
 popd
 
 # Package up ittapi.
-cargo package --manifest-path ../ittapi/Cargo.toml
+cargo package --manifest-path ../ittapi/Cargo.toml $SCRIPT_ARGS
 popd

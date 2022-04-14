@@ -74,4 +74,6 @@ jobs:
     - name: Test Rust crate
       run: cargo test
     - name: Check crates are publishable
-      run: scripts/verify-publish.sh
+      # The Windows CI transforms the `c-library` symlink into a real directory, modifying the Git
+      # state, so we ignore these changes with `--allow-dirty` here.
+      run: scripts/verify-publish.sh --allow-dirty
