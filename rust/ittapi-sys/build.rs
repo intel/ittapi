@@ -5,15 +5,15 @@
 
 fn main() {
     let mut build = cc::Build::new();
-    build
-        .file("c-library/src/ittnotify/ittnotify_static.c")
-        .file("c-library/src/ittnotify/jitprofiling.c")
-        .include("c-library/src/ittnotify/")
-        .include("c-library/include/");
     // For `x86_64-pc-windows-gnu` targets (i.e., MinGW builds), the `strnlen_s` function may not
     // always be available--define it here.
     if let Ok("x86_64-pc-windows-gnu") = std::env::var("TARGET").as_deref() {
         build.file("strnlen_s.c");
     }
+    build
+        .file("c-library/src/ittnotify/ittnotify_static.c")
+        .file("c-library/src/ittnotify/jitprofiling.c")
+        .include("c-library/src/ittnotify/")
+        .include("c-library/include/");
     build.compile("ittnotify");
 }
