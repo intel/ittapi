@@ -5,11 +5,6 @@
 
 fn main() {
     let mut build = cc::Build::new();
-    // For `x86_64-pc-windows-gnu` targets (i.e., MinGW builds), the `strnlen_s` function may not
-    // always be available--define it here.
-    if let Ok("x86_64-pc-windows-gnu") = std::env::var("TARGET").as_deref() {
-        build.file("strnlen_s.c");
-    }
     build
         .file("c-library/src/ittnotify/ittnotify_static.c")
         .file("c-library/src/ittnotify/jitprofiling.c")
