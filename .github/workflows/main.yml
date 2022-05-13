@@ -51,17 +51,40 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        include:
+          - os: ubuntu-latest
+          - os: macos-latest
+          - os: windows-latest
+          - os: windows-latest
+            target: x86_64-pc-windows-gnu
     defaults:
       run:
         working-directory: rust
+        shell: bash
     steps:
     - uses: actions/checkout@v2
       with:
         submodules: recursive
+    - run: rustup target add ${{ matrix.target }}
+      if: matrix.target != ''
+    - run: echo CARGO_BUILD_TARGET=${{ matrix.target }} >> $GITHUB_ENV
+      if: matrix.target != ''
+    - name: Upgrade MinGW package
+      # In https://github.com/bytecodealliance/wasmtime/pull/4003 we discovered that the ittapi C
+      # code uses the uncommon `strnlen_s` function. On older versions of MinGW (GitHub runners
+      # currently come with v8.1.0 pre-installed), this function was not available. Since v8.1.0,
+      # other versions have been published; this re-installs MinGW with a recent version which
+      # includes `strnlen_s`. This block can be removed if/when MinGW is upgraded in all Windows
+      # GitHub runners: https://github.com/actions/virtual-environments/issues/5530.
+      if: matrix.target == 'x86_64-pc-windows-gnu'
+      run: |
+           choco uninstall mingw
+           choco install mingw --version 11.2.0 --force
     - name: Build Rust crate
       run: cargo build
     - name: Test Rust crate
       run: cargo test
     - name: Check crates are publishable
-      run: scripts/verify-publish.sh
+      # The Windows CI transforms the `c-library` symlink into a real directory, modifying the Git
+      # state, so we ignore these changes with `--allow-dirty` here.
+      run: scripts/verify-publish.sh --allow-dirty
