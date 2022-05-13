@@ -4,11 +4,10 @@
 //! [#36]: https://github.com/intel/ittapi/issues/36
 
 fn main() {
-    let mut build = cc::Build::new();
-    build
+    cc::Build::new()
         .file("c-library/src/ittnotify/ittnotify_static.c")
         .file("c-library/src/ittnotify/jitprofiling.c")
         .include("c-library/src/ittnotify/")
-        .include("c-library/include/");
-    build.compile("ittnotify");
+        .include("c-library/include/")
+        .compile("ittnotify");
 }

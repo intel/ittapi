@@ -69,10 +69,17 @@ jobs:
       if: matrix.target != ''
     - run: echo CARGO_BUILD_TARGET=${{ matrix.target }} >> $GITHUB_ENV
       if: matrix.target != ''
-    - run: |
+    - name: Upgrade MinGW package
+      # In https://github.com/bytecodealliance/wasmtime/pull/4003 we discovered that the ittapi C
+      # code uses the uncommon `strnlen_s` function. On older versions of MinGW (GitHub runners
+      # currently come with v8.1.0 pre-installed), this function was not available. Since v8.1.0,
+      # other versions have been published; this re-installs MinGW with a recent version which
+      # includes `strnlen_s`. This block can be removed if/when MinGW is upgraded in all Windows
+      # GitHub runners: https://github.com/actions/virtual-environments/issues/5530.
+      if: matrix.target == 'x86_64-pc-windows-gnu'
+      run: |
            choco uninstall mingw
            choco install mingw --version 11.2.0 --force
-      if: matrix.target == 'x86_64-pc-windows-gnu'
     - name: Build Rust crate
       run: cargo build
     - name: Test Rust crate
