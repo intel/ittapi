@@ -69,6 +69,8 @@ jobs:
       if: matrix.target != ''
     - run: echo CARGO_BUILD_TARGET=${{ matrix.target }} >> $GITHUB_ENV
       if: matrix.target != ''
+    - run: choco install mingw
+      if: matrix.target != 'x86_64-pc-windows-gnu'
     - name: Build Rust crate
       run: cargo build
     - name: Test Rust crate
