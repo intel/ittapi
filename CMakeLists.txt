@@ -6,6 +6,11 @@
 
 cmake_minimum_required(VERSION 2.8.12)
 
+if (POLICY CMP0048)
+    # The `project()` command manages `VERSION` variables
+    cmake_policy(SET CMP0048 NEW)
+endif()
+
 project(ittapi)
 
 OPTION(FORCE_32 "Force a 32bit compile on 64bit" OFF)
