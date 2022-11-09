@@ -6,7 +6,7 @@ use std::ffi::CString;
 ///
 /// [String Handle API]:
 ///     https://www.intel.com/content/www/us/en/develop/documentation/vtune-help/top/api-support/instrumentation-and-tracing-technology-apis/instrumentation-tracing-technology-api-reference/string-handle-api.html
-#[derive(PartialEq, Debug)]
+#[derive(PartialEq, Eq, Debug)]
 pub struct StringHandle(*mut ittapi_sys::__itt_string_handle);
 impl StringHandle {
     /// Create a new string handle; repeated calls with the same `name` will return the same handle.
@@ -45,7 +45,7 @@ mod tests {
     fn with_dynamic_part_specified() {
         // When INTEL_LIBITTNOTIFY64 is set in the environment, the static part of ittnotify will
         // allocate; otherwise, if the dynamic part is not present, the pointer will be null.
-        // let _env_path = scoped_env::ScopedEnv::set("INTEL_LIBITTNOTIFY64", "<some path>");
+        let _env_path = scoped_env::ScopedEnv::remove("INTEL_LIBITTNOTIFY64");
         let sh = super::StringHandle::new("test2");
         assert!(sh.as_ptr().is_null());
     }
