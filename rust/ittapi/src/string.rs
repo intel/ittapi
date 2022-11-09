@@ -45,7 +45,7 @@ mod tests {
     fn with_dynamic_part_specified() {
         // When INTEL_LIBITTNOTIFY64 is set in the environment, the static part of ittnotify will
         // allocate; otherwise, if the dynamic part is not present, the pointer will be null.
-        // let _env_path = scoped_env::ScopedEnv::set("INTEL_LIBITTNOTIFY64", "<some path>");
+        let _env_path = scoped_env::ScopedEnv::remove("INTEL_LIBITTNOTIFY64");
         let sh = super::StringHandle::new("test2");
         assert!(sh.as_ptr().is_null());
     }
