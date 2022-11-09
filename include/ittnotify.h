@@ -3646,7 +3646,7 @@ ITT_STUBV(ITTAPI, void, enable_attach, (void))
 /**
  * @brief Module load notification
  * This API is used to report necessary information in case of bypassing default system loader.
- * Notification should be done immidiatelly after this module is loaded to process memory.
+ * Notification should be done immediately after this module is loaded to process memory.
  * @param[in] start_addr - module start address
  * @param[in] end_addr - module end address
  * @param[in] path - file system full path to the module
