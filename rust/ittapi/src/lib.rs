@@ -13,6 +13,7 @@
     clippy::module_name_repetitions
 )]
 
+mod collection_control;
 mod domain;
 mod event;
 pub mod jit;
@@ -20,6 +21,7 @@ mod string;
 mod task;
 mod util;
 
+pub use collection_control::{detach, pause, resume};
 pub use domain::Domain;
 pub use event::Event;
 pub use string::StringHandle;
