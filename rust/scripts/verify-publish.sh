@@ -1,6 +1,6 @@
 #!/bin/bash
-# Check that the Rust crates can all be packaged up for publication. This cannot use use `cargo
-# publish --dry-run` because of the dependency between ittapi and ittapi-sys.
+# Check that the Rust crates can all be packaged up for publication. This cannot use `cargo publish
+# --dry-run` because of the dependency between `ittapi` and `ittapi-sys``.
 set -e
 
 SCRIPT_ARGS=${@:1}
