@@ -309,30 +309,57 @@ void ITTAPI __itt_resume(void);
 /** @brief Detach collection */
 void ITTAPI __itt_detach(void);
 
+/**
+ * @enum __itt_collection_scope
+ * @brief Enumerator for collection scopes
+ */
+typedef enum {
+    __itt_collection_scope_host    = 1 << 0,
+    __itt_collection_scope_offload = 1 << 1,
+    __itt_collection_scope_all     = 0x7FFFFFFF
+} __itt_collection_scope;
+
+/** @brief Pause scoped collection */
+void ITTAPI __itt_pause_scoped(__itt_collection_scope);
+/** @brief Resume scoped collection */
+void ITTAPI __itt_resume_scoped(__itt_collection_scope);
+
 /** @cond exclude_from_documentation */
 #ifndef INTEL_NO_MACRO_BODY
 #ifndef INTEL_NO_ITTNOTIFY_API
-ITT_STUBV(ITTAPI, void, pause,  (void))
-ITT_STUBV(ITTAPI, void, resume, (void))
-ITT_STUBV(ITTAPI, void, detach, (void))
-#define __itt_pause      ITTNOTIFY_VOID(pause)
-#define __itt_pause_ptr  ITTNOTIFY_NAME(pause)
-#define __itt_resume     ITTNOTIFY_VOID(resume)
-#define __itt_resume_ptr ITTNOTIFY_NAME(resume)
-#define __itt_detach     ITTNOTIFY_VOID(detach)
-#define __itt_detach_ptr ITTNOTIFY_NAME(detach)
+ITT_STUBV(ITTAPI, void, pause,         (void))
+ITT_STUBV(ITTAPI, void, pause_scoped,  (__itt_collection_scope))
+ITT_STUBV(ITTAPI, void, resume,        (void))
+ITT_STUBV(ITTAPI, void, resume_scoped, (__itt_collection_scope))
+ITT_STUBV(ITTAPI, void, detach,        (void))
+#define __itt_pause             ITTNOTIFY_VOID(pause)
+#define __itt_pause_ptr         ITTNOTIFY_NAME(pause)
+#define __itt_pause_scoped      ITTNOTIFY_VOID(pause_scoped)
+#define __itt_pause_scoped_ptr  ITTNOTIFY_NAME(pause_scoped)
+#define __itt_resume            ITTNOTIFY_VOID(resume)
+#define __itt_resume_ptr        ITTNOTIFY_NAME(resume)
+#define __itt_resume_scoped     ITTNOTIFY_VOID(resume_scoped)
+#define __itt_resume_scoped_ptr ITTNOTIFY_NAME(resume_scoped)
+#define __itt_detach            ITTNOTIFY_VOID(detach)
+#define __itt_detach_ptr        ITTNOTIFY_NAME(detach)
 #else  /* INTEL_NO_ITTNOTIFY_API */
 #define __itt_pause()
-#define __itt_pause_ptr  0
+#define __itt_pause_ptr           0
+#define __itt_pause_scoped(scope)
+#define __itt_pause_scoped_ptr    0
 #define __itt_resume()
-#define __itt_resume_ptr 0
+#define __itt_resume_ptr          0
+#define __itt_resume_scoped(scope)
+#define __itt_resume_scoped_ptr   0
 #define __itt_detach()
-#define __itt_detach_ptr 0
+#define __itt_detach_ptr          0
 #endif /* INTEL_NO_ITTNOTIFY_API */
 #else  /* INTEL_NO_MACRO_BODY */
-#define __itt_pause_ptr  0
-#define __itt_resume_ptr 0
-#define __itt_detach_ptr 0
+#define __itt_pause_ptr           0
+#define __itt_pause_scoped_ptr    0
+#define __itt_resume_ptr          0
+#define __itt_resume_scoped_ptr   0
+#define __itt_detach_ptr          0
 #endif /* INTEL_NO_MACRO_BODY */
 /** @endcond */
 /** @} control group */
@@ -576,8 +603,8 @@ ITT_STUBV(ITTAPI, void, suppress_pop, (void))
 /** @endcond */
 
 /**
- * @enum __itt_model_disable
- * @brief Enumerator for the disable methods
+ * @enum __itt_suppress_mode
+ * @brief Enumerator for the suppressing modes
  */
 typedef enum __itt_suppress_mode {
     __itt_unsuppress_range,
@@ -3646,7 +3673,7 @@ ITT_STUBV(ITTAPI, void, enable_attach, (void))
 /**
  * @brief Module load notification
  * This API is used to report necessary information in case of bypassing default system loader.
- * Notification should be done immediately after this module is loaded to process memory.
+ * Notification should be done immidiatelly after this module is loaded to process memory.
  * @param[in] start_addr - module start address
  * @param[in] end_addr - module end address
  * @param[in] path - file system full path to the module

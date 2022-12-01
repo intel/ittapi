@@ -56,6 +56,8 @@ ITT_STUB(ITTAPI, __itt_counter, counter_create_typed,  (const char    *name, con
 
 ITT_STUBV(ITTAPI, void, pause,  (void), (ITT_NO_PARAMS), pause,  __itt_group_control | __itt_group_legacy, "no args")
 ITT_STUBV(ITTAPI, void, resume, (void), (ITT_NO_PARAMS), resume, __itt_group_control | __itt_group_legacy, "no args")
+ITT_STUBV(ITTAPI, void, pause_scoped,  (__itt_collection_scope scope), (ITT_FORMAT scope), pause_scoped,  __itt_group_control, "%d")
+ITT_STUBV(ITTAPI, void, resume_scoped, (__itt_collection_scope scope), (ITT_FORMAT scope), resume_scoped, __itt_group_control, "%d")
 
 #if ITT_PLATFORM==ITT_PLATFORM_WIN
 ITT_STUBV(ITTAPI, void, thread_set_nameA, (const char    *name), (ITT_FORMAT name), thread_set_nameA, __itt_group_thread, "\"%s\"")

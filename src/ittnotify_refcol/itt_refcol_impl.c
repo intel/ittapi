@@ -189,9 +189,19 @@ ITT_EXTERN_C void ITTAPI __itt_pause(void)
     LOG_FUNC_CALL_INFO("function call");
 }
 
+ITT_EXTERN_C void ITTAPI __itt_pause_scoped(__itt_collection_scope scope)
+{
+    LOG_FUNC_CALL_INFO("functions args: scope=%d", scope);
+}
+
 ITT_EXTERN_C void ITTAPI __itt_resume(void)
 {
     LOG_FUNC_CALL_INFO("function call");
+}
+
+ITT_EXTERN_C void ITTAPI __itt_resume_scoped(__itt_collection_scope scope)
+{
+    LOG_FUNC_CALL_INFO("functions args: scope=%d", scope);
 }
 
 ITT_EXTERN_C void ITTAPI __itt_detach(void)

@@ -18,8 +18,6 @@
 
 static const char rcsid[] = "\n@(#) $Revision$\n";
 
-#define DLL_ENVIRONMENT_VAR             "VS_PROFILER"
-
 #ifndef NEW_DLL_ENVIRONMENT_VAR
 #if ITT_ARCH==ITT_ARCH_IA32
 #define NEW_DLL_ENVIRONMENT_VAR	        "INTEL_JIT_PROFILER32"
@@ -165,30 +163,9 @@ static int loadiJIT_Funcs()
             }
             free(dllName);
         }
-    } else {
-        /* Try to use old VS_PROFILER variable */
-        dNameLength = GetEnvironmentVariableA(DLL_ENVIRONMENT_VAR, NULL, 0);
-        if (dNameLength)
-        {
-            DWORD envret = 0;
-            dllName = (char*)malloc(sizeof(char) * (dNameLength + 1));
-            if(dllName != NULL)
-            {
-                envret = GetEnvironmentVariableA(DLL_ENVIRONMENT_VAR, 
-                                                 dllName, dNameLength);
-                if (envret)
-                {
-                    /* Try to load the dll from the PATH... */
-                    m_libHandle = LoadLibraryA(dllName);
-                }
-                free(dllName);
-            }
-        }
     }
 #else  /* ITT_PLATFORM==ITT_PLATFORM_WIN */
     dllName = getenv(NEW_DLL_ENVIRONMENT_VAR);
-    if (!dllName)
-        dllName = getenv(DLL_ENVIRONMENT_VAR);
 #if defined(__ANDROID__) || defined(ANDROID)
     if (!dllName)
         dllName = ANDROID_JIT_AGENT_PATH;

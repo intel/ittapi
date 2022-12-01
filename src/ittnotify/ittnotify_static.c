@@ -866,6 +866,30 @@ static void ITTAPI ITT_VERSIONIZE(ITT_JOIN(_N_(resume),_init))(void)
     }
 }
 
+static void ITTAPI ITT_VERSIONIZE(ITT_JOIN(_N_(pause_scoped),_init))(__itt_collection_scope scope)
+{
+    if (!_N_(_ittapi_global).api_initialized && _N_(_ittapi_global).thread_list == NULL)
+    {
+        __itt_init_ittlib_name(NULL, __itt_group_all);
+    }
+    if (ITTNOTIFY_NAME(pause_scoped) && ITTNOTIFY_NAME(pause_scoped) != ITT_VERSIONIZE(ITT_JOIN(_N_(pause_scoped),_init)))
+    {
+        ITTNOTIFY_NAME(pause_scoped)(scope);
+    }
+}
+
+static void ITTAPI ITT_VERSIONIZE(ITT_JOIN(_N_(resume_scoped),_init))(__itt_collection_scope scope)
+{
+    if (!_N_(_ittapi_global).api_initialized && _N_(_ittapi_global).thread_list == NULL)
+    {
+        __itt_init_ittlib_name(NULL, __itt_group_all);
+    }
+    if (ITTNOTIFY_NAME(resume_scoped) && ITTNOTIFY_NAME(resume_scoped) != ITT_VERSIONIZE(ITT_JOIN(_N_(resume_scoped),_init)))
+    {
+        ITTNOTIFY_NAME(resume_scoped)(scope);
+    }
+}
+
 #if ITT_PLATFORM==ITT_PLATFORM_WIN
 static void ITTAPI ITT_VERSIONIZE(ITT_JOIN(_N_(thread_set_nameW),_init))(const wchar_t* name)
 {
