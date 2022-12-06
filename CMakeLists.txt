@@ -43,7 +43,7 @@ set(LIBRARY_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin)
 
 foreach( OUTPUTCONFIG ${CMAKE_CONFIGURATION_TYPES} )
     string( TOUPPER ${OUTPUTCONFIG} OUTPUTCONFIG )
-    set( CMAKE_LIBRARY_OUTPUT_DIRECTORY_${OUTPUTCONFIG}     ${LIBRARY_OUTPUT_PATH} )
+    set( CMAKE_LIBRARY_OUTPUT_DIRECTORY_${OUTPUTCONFIG} ${LIBRARY_OUTPUT_PATH} )
 endforeach( OUTPUTCONFIG CMAKE_CONFIGURATION_TYPES )
 
 set(ITT_PUBLIC_HDRS
@@ -51,6 +51,8 @@ set(ITT_PUBLIC_HDRS
     include/jitprofiling.h
     include/libittnotify.h
 )
+
+file(GLOB ITT_SRCS "src/ittnotify/*.c" "src/ittnotify/*.h")
 
 if (ITT_API_IPT_SUPPORT)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DITT_API_IPT_SUPPORT")
@@ -68,34 +70,42 @@ if (ITT_API_IPT_SUPPORT)
         enable_language(ASM_MASM)
         if (ARCH_64)
             set(ITT_PT src/ittnotify/ittptmark64.asm)
-	else()
+	    else()
             set(ITT_PT src/ittnotify/ittptmark32.asm)
         endif()
     endif()
 endif()
 
 if (NOT WIN32)
-    if (ARCH_64)
-        set(ITT_FORTRAN include/fortran/posix/x86_64/ittfortran.o)
-    else()
-        set(ITT_FORTRAN include/fortran/posix/x86/ittfortran.o)
-    endif()
+    set(PLATFORM_PATH "posix")
+    set(PLATFORM_EXT "o")
 else()
-    if (ARCH_64)
-        set(ITT_FORTRAN include/fortran/win32/x86_64/ittfortran.obj)
-    else()
-        set(ITT_FORTRAN include/fortran/win32/x86/ittfortran.obj)
-    endif()
+    set(PLATFORM_PATH "win32")
+    set(PLATFORM_EXT "obj")
 endif()
 
-file(GLOB ITT_SRCS "src/ittnotify/*.c" "src/ittnotify/*.h")
+if (ARCH_64)
+    set(ARCH_PATH "x86_64")
+else()
+    set(ARCH_PATH "x86")
+endif()
+
+set(ITT_FORTRAN include/fortran/${PLATFORM_PATH}/${ARCH_PATH}/ittfortran.${PLATFORM_EXT})
+set(ADVISOR_ANNOTATION include/fortran/${PLATFORM_PATH}/${ARCH_PATH}/advisor_annotate.${PLATFORM_EXT})
+set(JITPROFILING_SRC "src/ittnotify/jitprofiling.c")
 
 add_library(ittnotify STATIC ${ITT_SRCS} ${ITT_PUBLIC_HDRS} ${ITT_PT} ${ITT_FORTRAN})
+add_library(advisor STATIC ${ADVISOR_ANNOTATION})
+add_library(jitprofiling STATIC ${JITPROFILING_SRC})
 
 if(WIN32)
     SET_TARGET_PROPERTIES(ittnotify PROPERTIES OUTPUT_NAME libittnotify)
+    SET_TARGET_PROPERTIES(advisor PROPERTIES OUTPUT_NAME libadvisor)
+    SET_TARGET_PROPERTIES(jitprofiling PROPERTIES OUTPUT_NAME libjitprofiling)
 else()
     SET_TARGET_PROPERTIES(ittnotify PROPERTIES OUTPUT_NAME ittnotify)
+    SET_TARGET_PROPERTIES(advisor PROPERTIES OUTPUT_NAME advisor)
+    SET_TARGET_PROPERTIES(jitprofiling PROPERTIES OUTPUT_NAME jitprofiling)
 endif()
 
 if (NOT WIN32)
@@ -104,8 +114,13 @@ if (NOT WIN32)
 endif()
 
 SET_TARGET_PROPERTIES(ittnotify PROPERTIES LINKER_LANGUAGE C)
+SET_TARGET_PROPERTIES(advisor PROPERTIES LINKER_LANGUAGE C)
 
 target_include_directories(ittnotify
+    PUBLIC include src/ittnotify
+)
+
+target_include_directories(jitprofiling
     PUBLIC include src/ittnotify
 )
 
