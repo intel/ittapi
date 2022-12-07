@@ -24,13 +24,29 @@ pub const __itt_section_read: u32 = 1073741824;
 pub const __itt_section_write: u32 = 2147483648;
 pub type size_t = ::std::os::raw::c_ulonglong;
 pub type wchar_t = ::std::os::raw::c_ushort;
+pub const __itt_collection_scope___itt_collection_scope_host: __itt_collection_scope = 1;
+pub const __itt_collection_scope___itt_collection_scope_offload: __itt_collection_scope = 2;
+pub const __itt_collection_scope___itt_collection_scope_all: __itt_collection_scope = 2147483647;
+#[doc = " @enum __itt_collection_scope"]
+#[doc = " @brief Enumerator for collection scopes"]
+pub type __itt_collection_scope = ::std::os::raw::c_int;
 pub type __itt_pause_ptr__3_0_t = ::std::option::Option<unsafe extern "C" fn()>;
 extern "C" {
     pub static mut __itt_pause_ptr__3_0: __itt_pause_ptr__3_0_t;
 }
+pub type __itt_pause_scoped_ptr__3_0_t =
+    ::std::option::Option<unsafe extern "C" fn(arg1: __itt_collection_scope)>;
+extern "C" {
+    pub static mut __itt_pause_scoped_ptr__3_0: __itt_pause_scoped_ptr__3_0_t;
+}
 pub type __itt_resume_ptr__3_0_t = ::std::option::Option<unsafe extern "C" fn()>;
 extern "C" {
     pub static mut __itt_resume_ptr__3_0: __itt_resume_ptr__3_0_t;
+}
+pub type __itt_resume_scoped_ptr__3_0_t =
+    ::std::option::Option<unsafe extern "C" fn(arg1: __itt_collection_scope)>;
+extern "C" {
+    pub static mut __itt_resume_scoped_ptr__3_0: __itt_resume_scoped_ptr__3_0_t;
 }
 pub type __itt_detach_ptr__3_0_t = ::std::option::Option<unsafe extern "C" fn()>;
 extern "C" {
@@ -80,11 +96,11 @@ extern "C" {
 }
 pub const __itt_suppress_mode___itt_unsuppress_range: __itt_suppress_mode = 0;
 pub const __itt_suppress_mode___itt_suppress_range: __itt_suppress_mode = 1;
-#[doc = " @enum __itt_model_disable"]
-#[doc = " @brief Enumerator for the disable methods"]
+#[doc = " @enum __itt_suppress_mode"]
+#[doc = " @brief Enumerator for the suppressing modes"]
 pub type __itt_suppress_mode = ::std::os::raw::c_int;
-#[doc = " @enum __itt_model_disable"]
-#[doc = " @brief Enumerator for the disable methods"]
+#[doc = " @enum __itt_suppress_mode"]
+#[doc = " @brief Enumerator for the suppressing modes"]
 pub use self::__itt_suppress_mode as __itt_suppress_mode_t;
 pub type __itt_suppress_mark_range_ptr__3_0_t = ::std::option::Option<
     unsafe extern "C" fn(
