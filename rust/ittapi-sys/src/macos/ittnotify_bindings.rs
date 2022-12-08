@@ -4,12 +4,12 @@ pub const ITT_OS_WIN: u32 = 1;
 pub const ITT_OS_LINUX: u32 = 2;
 pub const ITT_OS_MAC: u32 = 3;
 pub const ITT_OS_FREEBSD: u32 = 4;
-pub const ITT_OS: u32 = 3;
+pub const ITT_OS: u32 = 2;
 pub const ITT_PLATFORM_WIN: u32 = 1;
 pub const ITT_PLATFORM_POSIX: u32 = 2;
 pub const ITT_PLATFORM_MAC: u32 = 3;
 pub const ITT_PLATFORM_FREEBSD: u32 = 4;
-pub const ITT_PLATFORM: u32 = 3;
+pub const ITT_PLATFORM: u32 = 2;
 pub const ITT_MAJOR: u32 = 3;
 pub const ITT_MINOR: u32 = 0;
 pub const __itt_suppress_all_errors: u32 = 2147483647;
@@ -23,13 +23,29 @@ pub const __itt_section_exec: u32 = 536870912;
 pub const __itt_section_read: u32 = 1073741824;
 pub const __itt_section_write: u32 = 2147483648;
 pub type size_t = ::std::os::raw::c_ulong;
+pub const __itt_collection_scope___itt_collection_scope_host: __itt_collection_scope = 1;
+pub const __itt_collection_scope___itt_collection_scope_offload: __itt_collection_scope = 2;
+pub const __itt_collection_scope___itt_collection_scope_all: __itt_collection_scope = 2147483647;
+#[doc = " @enum __itt_collection_scope"]
+#[doc = " @brief Enumerator for collection scopes"]
+pub type __itt_collection_scope = ::std::os::raw::c_uint;
 pub type __itt_pause_ptr__3_0_t = ::std::option::Option<unsafe extern "C" fn()>;
 extern "C" {
     pub static mut __itt_pause_ptr__3_0: __itt_pause_ptr__3_0_t;
 }
+pub type __itt_pause_scoped_ptr__3_0_t =
+    ::std::option::Option<unsafe extern "C" fn(arg1: __itt_collection_scope)>;
+extern "C" {
+    pub static mut __itt_pause_scoped_ptr__3_0: __itt_pause_scoped_ptr__3_0_t;
+}
 pub type __itt_resume_ptr__3_0_t = ::std::option::Option<unsafe extern "C" fn()>;
 extern "C" {
     pub static mut __itt_resume_ptr__3_0: __itt_resume_ptr__3_0_t;
+}
+pub type __itt_resume_scoped_ptr__3_0_t =
+    ::std::option::Option<unsafe extern "C" fn(arg1: __itt_collection_scope)>;
+extern "C" {
+    pub static mut __itt_resume_scoped_ptr__3_0: __itt_resume_scoped_ptr__3_0_t;
 }
 pub type __itt_detach_ptr__3_0_t = ::std::option::Option<unsafe extern "C" fn()>;
 extern "C" {
@@ -69,11 +85,11 @@ extern "C" {
 }
 pub const __itt_suppress_mode___itt_unsuppress_range: __itt_suppress_mode = 0;
 pub const __itt_suppress_mode___itt_suppress_range: __itt_suppress_mode = 1;
-#[doc = " @enum __itt_model_disable"]
-#[doc = " @brief Enumerator for the disable methods"]
+#[doc = " @enum __itt_suppress_mode"]
+#[doc = " @brief Enumerator for the suppressing modes"]
 pub type __itt_suppress_mode = ::std::os::raw::c_uint;
-#[doc = " @enum __itt_model_disable"]
-#[doc = " @brief Enumerator for the disable methods"]
+#[doc = " @enum __itt_suppress_mode"]
+#[doc = " @brief Enumerator for the suppressing modes"]
 pub use self::__itt_suppress_mode as __itt_suppress_mode_t;
 pub type __itt_suppress_mark_range_ptr__3_0_t = ::std::option::Option<
     unsafe extern "C" fn(
