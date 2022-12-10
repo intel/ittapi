@@ -24,7 +24,7 @@ jobs:
     - uses: actions/upload-artifact@v3
       with:
         name: build-artifacts
-        path: build*
+        path: build*/**/bin
 
   create_release:
     name: Create release
@@ -40,7 +40,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref }}
+          release_name: release ${{ github.ref_name }}
           draft: false
           prerelease: false
       - name: Download Artifacts
@@ -49,7 +49,7 @@ jobs:
         run: ls -R
       - name: Zip files
         run: zip |
-            zip ittapi_build_${{ github.ref }} include/*
+            zip -r ittapi_build_${{ github.ref_name }} include build-artifacts/build*/**/bin
       - name: Upload Release Asset
         id: upload-release-asset 
         uses: actions/upload-release-asset@v1
@@ -57,6 +57,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./ittapi_build_${{ github.ref }}.zip
-          asset_name: ittapi_build_${{ github.ref }}.zip
+          asset_path: ./ittapi_build_${{ github.ref_name }}.zip
+          asset_name: ittapi_build_${{ github.ref_name }}.zip
           asset_content_type: application/zip
