@@ -19,10 +19,12 @@ jobs:
         submodules: recursive
     - name: Build C library
       run: python buildall.py -pt -v
+    - name: Display structure of files
+      run: ls -R
     - uses: actions/upload-artifact@v3
       with:
         name: build-artifacts
-        path: ../build*
+        path: build*
 
   create_release:
     name: Create release
