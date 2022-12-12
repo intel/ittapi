@@ -143,26 +143,28 @@ def main():
 
         if sys.platform == 'win32':
             if vs_versions:
-                generator = ('Visual Studio %s' % args.vs) + (' Win64' if bits == '64' else '')
+                generator = 'Visual Studio {}'.format(args.vs)
+                generator_args = '-A {}'.format('x64' if bits == '64' else 'Win32')
             else:
                 generator = 'Ninja'
+                generator_args = ''
         else:
             generator = 'Unix Makefiles'
-        run_shell('%s "%s" -G"%s" %s' % (cmake, work_dir, generator, " ".join([
+            generator_args = ''
+
+        run_shell('%s "%s" -G"%s" %s %s' % (cmake, work_dir, generator, generator_args, " ".join([
             ("-DFORCE_32=ON" if bits == '32' else ""),
             ("-DCMAKE_BUILD_TYPE=Debug" if args.debug else ""),
             ('-DCMAKE_VERBOSE_MAKEFILE:BOOL=ON' if args.verbose else ''),
             ("-DITT_API_IPT_SUPPORT=1" if args.ptmark else "")
         ])))
+
         if sys.platform == 'win32':
             target_project = 'ALL_BUILD'
             run_shell('%s --build . --config %s --target %s' % (cmake, ('Debug' if args.debug else 'Release'), target_project))
         else:
             import glob
             run_shell('%s --build . --config %s' % (cmake, ('Debug' if args.debug else 'Release')))
-            if (('linux' in sys.platform and bits == '64') or 'freebsd' in sys.platform):
-                continue
-            run_shell('%s --build . --config %s --target' % (cmake, ('Debug' if args.debug else 'Release')))
 
 if __name__== "__main__":
     main()
