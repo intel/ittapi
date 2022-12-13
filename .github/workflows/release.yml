@@ -17,6 +17,9 @@ jobs:
     - uses: actions/checkout@v2
       with:
         submodules: recursive
+    - name: Config environment
+      if: runner.os == 'Linux'
+      run: sudo apt-get install gcc-multilib
     - name: Build C library
       run: python buildall.py -pt -v
     - name: Display structure of files
