@@ -52,9 +52,9 @@ jobs:
         run: ls -R
       - name: Zip files
         run: |
-            zip -r ittapi_build_${{ github.ref_name }}.zip include && |
-            cd build-artifacts && |
-            zip -rg ../ittapi_build_${{ github.ref_name }}.zip build*/**/bin && |
+            zip -r ittapi_build_${{ github.ref_name }}.zip include && 
+            cd build-artifacts && 
+            zip -rg ../ittapi_build_${{ github.ref_name }}.zip build*/**/bin && 
             cd -
       - name: Upload Release Asset
         id: upload-release-asset 
