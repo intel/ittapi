@@ -19,6 +19,8 @@ const BINDINGS_PATH: &'static str = "src/linux";
 const BINDINGS_PATH: &'static str = "src/macos";
 #[cfg(target_os = "windows")]
 const BINDINGS_PATH: &'static str = "src/windows";
+#[cfg(target_os = "freebsd")]
+const BINDINGS_PATH: &'static str = "src/freebsd";
 
 #[test]
 fn test_ittnotify_bindings_up_to_date() {
