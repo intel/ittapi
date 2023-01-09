@@ -15,6 +15,8 @@ include!("linux/ittnotify_bindings.rs");
 include!("macos/ittnotify_bindings.rs");
 #[cfg(target_os = "windows")]
 include!("windows/ittnotify_bindings.rs");
+#[cfg(target_os = "freebsd")]
+include!("freebsd/ittnotify_bindings.rs");
 
 // The JIT profiling bindings are almost OS-agnostic, but slight differences with `c_uint` vs
 // `c_int`, e.g., force us to use separate bindings.
@@ -24,6 +26,8 @@ include!("linux/jitprofiling_bindings.rs");
 include!("macos/jitprofiling_bindings.rs");
 #[cfg(target_os = "windows")]
 include!("windows/jitprofiling_bindings.rs");
+#[cfg(target_os = "freebsd")]
+include!("freebsd/jitprofiling_bindings.rs");
 
 // #[link(name = "ittnotify", kind = "static")]
 // extern "C" {
