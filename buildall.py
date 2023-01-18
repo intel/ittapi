@@ -1,4 +1,4 @@
-﻿#!/usr/bin/env python
+#!/usr/bin/env python
 #
 # Copyright (C) 2005-2019 Intel Corporation
 #
@@ -15,7 +15,9 @@ import subprocess
 
 def run_shell(cmd):
     print("\n>>", cmd)
-    os.system(cmd)
+    code = os.system(cmd)
+    if code != 0:
+        sys.exit(">> failed to run shell command: %s" % cmd)
 
 
 if sys.platform == 'win32':
