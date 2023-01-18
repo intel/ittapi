@@ -1,6 +1,10 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [0.3.2] - 2022-11-14
+### Added
+- Add `pause`, `resume`, and `detach` functions
+
 ## [0.3.1] - 2022-04-12
 ### Changed
 - Make high-level `Domain` structure `Sync`

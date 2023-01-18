@@ -10,6 +10,7 @@ Currently, the following APIs are supported (please submit an issue or PR for ad
  - the Task API
  - the String Handle API
  - the Event API
+ - the Collection Control API
 
 This uses the [`ittapi-sys`] crate which depends on the [C `ittapi` library].
 
