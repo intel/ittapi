@@ -18,5 +18,5 @@ categories = ["development-tools", "external-ffi-bindings"]
 cc = "1.0.73"
 
 [dev-dependencies]
-bindgen = "0.63"
+bindgen = "0.59"
 diff = "0.1"
