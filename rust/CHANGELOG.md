@@ -1,6 +1,10 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [0.3.3] - 2023-01-18
+### Added
+- FreeBSD support; the crate now contains bindings for Windows, Linux, macOS, and FreeBSD
+
 ## [0.3.2] - 2022-11-14
 ### Added
 - Add `pause`, `resume`, and `detach` functions

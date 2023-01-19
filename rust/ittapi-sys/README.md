@@ -14,7 +14,8 @@ Profiling API. More details about `ittapi` are available on its [README].
 [README]: https://github.com/intel/ittapi#readme
 
 > IMPORTANT NOTE: this crate is currently only tested on Linux, macOS, and Windows platforms but
-> support for other platforms is intended; contributions are welcome!
+> support for other platforms is intended; contributions are welcome! FreeBSD is supported but
+> untested.
 
 If you are interested in using VTune to profile Rust applications, you may find the following guide
 helpful: [Wasmtime Docs: Using VTune on
