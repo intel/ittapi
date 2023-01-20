@@ -11,6 +11,7 @@ homepage  = "https://github.com/intel/ittapi/tree/master/rust/ittapi-sys"
 repository = "https://github.com/intel/ittapi"
 keywords = ["vtune", "profiling", "code-generation"]
 categories = ["development-tools", "external-ffi-bindings"]
+exclude = ["c-library/.git", "c-library/.github", "c-library/.vscode", "c-library/build*"]
 
 [dependencies]
 
