@@ -61,6 +61,9 @@ impl Jit {
     ///
     /// May fail if the ITT library fails to notify the shutdown event.
     pub fn shutdown(&mut self) -> anyhow::Result<()> {
+        if self.shutdown_complete {
+            return Ok(());
+        }
         let res = self.notify_event(EventType::Shutdown);
         if res.is_ok() {
             self.shutdown_complete = true;
