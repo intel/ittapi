@@ -34,10 +34,20 @@ impl Jit {
         let data = event.data();
         log::trace!("notify_event: tag={:?}", tag);
         let res = unsafe { ittapi_sys::iJIT_NotifyEvent(tag, data) };
-        if res == 1 {
-            Ok(())
-        } else {
-            anyhow::bail!("error when notifying event")
+        match event {
+            EventType::MethodLoadFinished(_) => {
+                // Documentation of the `iJIT_NotifyEvent` says that the return code is undefined
+                // for this particular event, so we can't distinguish failures from successes.
+                // Hope for the best.
+                Ok(())
+            }
+            EventType::Shutdown => {
+                if res == 1 {
+                    Ok(())
+                } else {
+                    anyhow::bail!("error when notifying event with tag {tag}: return code = {res}");
+                }
+            }
         }
     }
 
