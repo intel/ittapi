@@ -108,6 +108,7 @@ def main():
     parser.add_argument("-v", "--verbose", help="enable verbose output from build process", action="store_true")
     parser.add_argument("-pt", "--ptmark", help="enable anomaly detection support", action="store_true")
     parser.add_argument("--force_bits", choices=["32", "64"], help="specify bit version for the target")
+    parser.add_argument("-ft", "--fortran", help="enable fortran support", action="store_true")
     if sys.platform == 'win32' and vs_versions:
         parser.add_argument("--vs", help="specify visual studio version {default}", choices=vs_versions, default=vs_versions[0])
     args = parser.parse_args()
@@ -158,7 +159,8 @@ def main():
             ("-DFORCE_32=ON" if bits == '32' else ""),
             ("-DCMAKE_BUILD_TYPE=Debug" if args.debug else ""),
             ('-DCMAKE_VERBOSE_MAKEFILE:BOOL=ON' if args.verbose else ''),
-            ("-DITT_API_IPT_SUPPORT=1" if args.ptmark else "")
+            ("-DITT_API_IPT_SUPPORT=1" if args.ptmark else ""),
+            ("-DITT_API_FORTRAN_SUPPORT=1" if args.fortran else "")
         ])))
 
         if sys.platform == 'win32':

@@ -15,6 +15,7 @@ project(ittapi)
 
 OPTION(FORCE_32 "Force a 32bit compile on 64bit" OFF)
 OPTION(ITT_API_IPT_SUPPORT "ptmarks support")
+OPTION(ITT_API_FORTRAN_SUPPORT "fortran support")
 
 IF(FORCE_32 AND UNIX)
     SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -m32")
@@ -90,22 +91,31 @@ else()
     set(ARCH_PATH "x86")
 endif()
 
-set(ITT_FORTRAN include/fortran/${PLATFORM_PATH}/${ARCH_PATH}/ittfortran.${PLATFORM_EXT})
-set(ADVISOR_ANNOTATION include/fortran/${PLATFORM_PATH}/${ARCH_PATH}/advisor_annotate.${PLATFORM_EXT})
-set(JITPROFILING_SRC "src/ittnotify/jitprofiling.c")
+if(ITT_API_FORTRAN_SUPPORT)
+    set(ITT_FORTRAN include/fortran/${PLATFORM_PATH}/${ARCH_PATH}/ittfortran.${PLATFORM_EXT})
+    set(ADVISOR_ANNOTATION include/fortran/${PLATFORM_PATH}/${ARCH_PATH}/advisor_annotate.${PLATFORM_EXT})
 
-add_library(ittnotify STATIC ${ITT_SRCS} ${ITT_PUBLIC_HDRS} ${ITT_PT} ${ITT_FORTRAN})
-add_library(advisor STATIC ${ADVISOR_ANNOTATION})
+    add_library(ittnotify STATIC ${ITT_SRCS} ${ITT_PUBLIC_HDRS} ${ITT_PT} ${ITT_FORTRAN})
+    add_library(advisor STATIC ${ADVISOR_ANNOTATION})
+else()
+    add_library(ittnotify STATIC ${ITT_SRCS} ${ITT_PUBLIC_HDRS} ${ITT_PT})
+endif()
+
+set(JITPROFILING_SRC "src/ittnotify/jitprofiling.c")
 add_library(jitprofiling STATIC ${JITPROFILING_SRC})
 
 if(WIN32)
     SET_TARGET_PROPERTIES(ittnotify PROPERTIES OUTPUT_NAME libittnotify)
-    SET_TARGET_PROPERTIES(advisor PROPERTIES OUTPUT_NAME libadvisor)
     SET_TARGET_PROPERTIES(jitprofiling PROPERTIES OUTPUT_NAME libjitprofiling)
+    if(ITT_API_FORTRAN_SUPPORT)
+        SET_TARGET_PROPERTIES(advisor PROPERTIES OUTPUT_NAME libadvisor)
+    endif()
 else()
     SET_TARGET_PROPERTIES(ittnotify PROPERTIES OUTPUT_NAME ittnotify)
-    SET_TARGET_PROPERTIES(advisor PROPERTIES OUTPUT_NAME advisor)
     SET_TARGET_PROPERTIES(jitprofiling PROPERTIES OUTPUT_NAME jitprofiling)
+    if(ITT_API_FORTRAN_SUPPORT)
+        SET_TARGET_PROPERTIES(advisor PROPERTIES OUTPUT_NAME advisor)
+    endif()
 endif()
 
 if (NOT WIN32)
@@ -114,7 +124,9 @@ if (NOT WIN32)
 endif()
 
 SET_TARGET_PROPERTIES(ittnotify PROPERTIES LINKER_LANGUAGE C)
-SET_TARGET_PROPERTIES(advisor PROPERTIES LINKER_LANGUAGE C)
+if(ITT_API_FORTRAN_SUPPORT)
+    SET_TARGET_PROPERTIES(advisor PROPERTIES LINKER_LANGUAGE C)
+endif()
 
 target_include_directories(ittnotify
     PUBLIC include src/ittnotify
