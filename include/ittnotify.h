@@ -613,12 +613,12 @@ typedef enum __itt_suppress_mode {
 
 /**
  * @enum __itt_collection_state
- * @brief Enumerator for collection state. All non-work states have negative values.
+ * @brief Enumerator for collection state.
  */
 typedef enum {
     __itt_collection_uninitialized = 0, /* uninitialized */
     __itt_collection_init_fail = 1, /* failed to init */
-    __itt_collection_collector_absent = 2, /* non work state collector exists */
+    __itt_collection_collector_absent = 2, /* non work state collector is absent */
     __itt_collection_collector_exists = 3, /* work state collector exists */
     __itt_collection_init_successful = 4 /* success to init */
 } __itt_collection_state;
