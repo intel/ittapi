@@ -30,14 +30,16 @@ if sys.platform == 'win32':
         hub = parts[0]
         path = '\\'.join(parts[1:])
         if not statics:
-            statics['hubs'] = {'HKLM': _winreg.HKEY_LOCAL_MACHINE, 'HKCL': _winreg.HKEY_CLASSES_ROOT}
+            statics['hubs'] = {
+                'HKLM': _winreg.HKEY_LOCAL_MACHINE, 'HKCL': _winreg.HKEY_CLASSES_ROOT}
 
         def enum_nodes(curpath, level):
             if level < 1:
                 return {}
             res = {}
             try:
-                aKey = _winreg.OpenKey(statics['hubs'][hub], curpath, 0, _winreg.KEY_READ | _winreg.KEY_WOW64_64KEY)
+                aKey = _winreg.OpenKey(
+                    statics['hubs'][hub], curpath, 0, _winreg.KEY_READ | _winreg.KEY_WOW64_64KEY)
             except WindowsError:
                 return res
 
@@ -89,9 +91,11 @@ def get_vs_versions():  # https://www.mztools.com/articles/2008/MZ2008003.aspx
 
 def detect_cmake():
     if sys.platform == 'darwin':
-        path, err = subprocess.Popen("which cmake", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
+        path, err = subprocess.Popen(
+            "which cmake", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
         if not path.strip():
-            path, err = subprocess.Popen("which xcrun", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
+            path, err = subprocess.Popen(
+                "which xcrun", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
             if not path.strip():
                 print("No cmake and no XCode found...")
                 return None
@@ -103,14 +107,21 @@ def main():
     import argparse
     parser = argparse.ArgumentParser()
     vs_versions = get_vs_versions()
-    parser.add_argument("-d", "--debug", help="specify debug build configuration (release by default)", action="store_true")
-    parser.add_argument("-c", "--clean", help="delete any intermediate and output files", action="store_true")
-    parser.add_argument("-v", "--verbose", help="enable verbose output from build process", action="store_true")
-    parser.add_argument("-pt", "--ptmark", help="enable anomaly detection support", action="store_true")
-    parser.add_argument("--force_bits", choices=["32", "64"], help="specify bit version for the target")
-    parser.add_argument("-ft", "--fortran", help="enable fortran support", action="store_true")
+    parser.add_argument(
+        "-d", "--debug", help="specify debug build configuration (release by default)", action="store_true")
+    parser.add_argument(
+        "-c", "--clean", help="delete any intermediate and output files", action="store_true")
+    parser.add_argument(
+        "-v", "--verbose", help="enable verbose output from build process", action="store_true")
+    parser.add_argument(
+        "-pt", "--ptmark", help="enable anomaly detection support", action="store_true")
+    parser.add_argument(
+        "--force_bits", choices=["32", "64"], help="specify bit version for the target")
+    parser.add_argument("-ft", "--fortran",
+                        help="enable fortran support", action="store_true")
     if sys.platform == 'win32' and vs_versions:
-        parser.add_argument("--vs", help="specify visual studio version {default}", choices=vs_versions, default=vs_versions[0])
+        parser.add_argument(
+            "--vs", help="specify visual studio version {default}", choices=vs_versions, default=vs_versions[0])
     args = parser.parse_args()
 
     if args.force_bits:
@@ -127,7 +138,8 @@ def main():
         if os.path.exists(bin_dir):
             shutil.rmtree(bin_dir)
     for bits in target_bits:
-        work_folder = os.path.join(work_dir, "build_" + (sys.platform.replace('32', "")), bits)
+        work_folder = os.path.join(
+            work_dir, "build_" + (sys.platform.replace('32', "")), bits)
         already_there = os.path.exists(work_folder)
         if already_there and args.clean:
             shutil.rmtree(work_folder)
@@ -147,7 +159,8 @@ def main():
         if sys.platform == 'win32':
             if vs_versions:
                 generator = 'Visual Studio {}'.format(args.vs)
-                generator_args = '-A {}'.format('x64' if bits == '64' else 'Win32')
+                generator_args = '-A {}'.format('x64' if bits ==
+                                                '64' else 'Win32')
             else:
                 generator = 'Ninja'
                 generator_args = ''
@@ -165,11 +178,13 @@ def main():
 
         if sys.platform == 'win32':
             target_project = 'ALL_BUILD'
-            run_shell('%s --build . --config %s --target %s' % (cmake, ('Debug' if args.debug else 'Release'), target_project))
+            run_shell('%s --build . --config %s --target %s' %
+                      (cmake, ('Debug' if args.debug else 'Release'), target_project))
         else:
             import glob
-            run_shell('%s --build . --config %s' % (cmake, ('Debug' if args.debug else 'Release')))
+            run_shell('%s --build . --config %s' %
+                      (cmake, ('Debug' if args.debug else 'Release')))
 
-if __name__== "__main__":
+
+if __name__ == "__main__":
     main()
-
