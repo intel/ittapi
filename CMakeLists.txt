@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2005-2019 Intel Corporation
+# Copyright (C) 2005-2023 Intel Corporation
 #
 # SPDX-License-Identifier: GPL-2.0-only OR BSD-3-Clause
 #
@@ -11,11 +11,21 @@ if (POLICY CMP0048)
     cmake_policy(SET CMP0048 NEW)
 endif()
 
+get_property(ITT_GENERATOR_MULTI_CONFIG GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
+if(CMAKE_GENERATOR STREQUAL "Ninja Multi-Config")
+    # 'Ninja Multi-Config' specific, see:
+    # https://cmake.org/cmake/help/latest/variable/CMAKE_DEFAULT_BUILD_TYPE.html
+    set(CMAKE_DEFAULT_BUILD_TYPE "Release" CACHE STRING "CMake default build type")
+elseif(NOT ITT_GENERATOR_MULTI_CONFIG)
+    set(CMAKE_BUILD_TYPE "Release" CACHE STRING "CMake build type")
+    set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Release;Debug;RelWithDebInfo;MinSizeRel")
+endif()
+
 project(ittapi)
 
 OPTION(FORCE_32 "Force a 32bit compile on 64bit" OFF)
-OPTION(ITT_API_IPT_SUPPORT "ptmarks support")
-OPTION(ITT_API_FORTRAN_SUPPORT "fortran support")
+OPTION(ITT_API_IPT_SUPPORT "ptmarks support" OFF)
+OPTION(ITT_API_FORTRAN_SUPPORT "fortran support" OFF)
 
 IF(FORCE_32 AND UNIX)
     SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -m32")
@@ -23,21 +33,17 @@ IF(FORCE_32 AND UNIX)
 ENDIF()
 
 if(CMAKE_SIZEOF_VOID_P MATCHES "8" AND NOT(FORCE_32))
-    set(ARCH_64 1)
+    set(ARCH_64 ON)
 endif()
 
-if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-    add_definitions(-D_DEBUG)
-    if (NOT WIN32)
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g")
-        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g")
-    endif()
-else()
-    if (NOT WIN32)
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2")
-        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O2")
-    endif()
-    add_definitions(-DNDEBUG)
+if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "^(Apple)?Clang$")
+    # override default -O3
+    string(REPLACE "-O3" "-O2" CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE}")
+    string(REPLACE "-O3" "-O2" CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE}")
+endif()
+
+if(NOT DEFINED CMAKE_POSITION_INDEPENDENT_CODE)
+    set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 endif()
 
 set(LIBRARY_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin)
@@ -45,7 +51,7 @@ set(LIBRARY_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin)
 foreach( OUTPUTCONFIG ${CMAKE_CONFIGURATION_TYPES} )
     string( TOUPPER ${OUTPUTCONFIG} OUTPUTCONFIG )
     set( CMAKE_LIBRARY_OUTPUT_DIRECTORY_${OUTPUTCONFIG} ${LIBRARY_OUTPUT_PATH} )
-endforeach( OUTPUTCONFIG CMAKE_CONFIGURATION_TYPES )
+endforeach( )
 
 set(ITT_PUBLIC_HDRS
     include/ittnotify.h
@@ -118,10 +124,7 @@ else()
     endif()
 endif()
 
-if (NOT WIN32)
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC")
-    TARGET_LINK_LIBRARIES(ittnotify dl)
-endif()
+TARGET_LINK_LIBRARIES(ittnotify PRIVATE ${CMAKE_DL_LIBS})
 
 SET_TARGET_PROPERTIES(ittnotify PROPERTIES LINKER_LANGUAGE C)
 if(ITT_API_FORTRAN_SUPPORT)
@@ -129,11 +132,38 @@ if(ITT_API_FORTRAN_SUPPORT)
 endif()
 
 target_include_directories(ittnotify
-    PUBLIC include src/ittnotify
+    PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    PRIVATE src/ittnotify
 )
 
 target_include_directories(jitprofiling
-    PUBLIC include src/ittnotify
+    PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    PRIVATE src/ittnotify
 )
 
-set(CMAKE_SUPPRESS_REGENERATION true)
+# install
+
+include(CMakePackageConfigHelpers)
+include(GNUInstallDirs)
+
+install(TARGETS ittnotify EXPORT ittapi-targets INCLUDES DESTINATION include)
+install(EXPORT ittapi-targets NAMESPACE ittapi:: DESTINATION lib/cmake/ittapi)
+install(DIRECTORY include/ DESTINATION include
+    FILES_MATCHING PATTERN "*.h"
+                   PATTERN "fortran" EXCLUDE)
+
+configure_package_config_file(${CMAKE_CURRENT_SOURCE_DIR}/cmake/ittapiConfig.cmake.in
+                              ${CMAKE_CURRENT_BINARY_DIR}/share/ittapiConfig.cmake
+    INSTALL_DESTINATION lib/cmake/ittapi
+    NO_SET_AND_CHECK_MACRO)
+
+file(STRINGS "${CMAKE_CURRENT_SOURCE_DIR}/include/ittnotify.h" ITT_VERSION_PARTS REGEX "#define ITT_[A-Z]+[ ]+" )
+string(REGEX REPLACE ".+ITT_MAJOR[ ]+([0-9]+).*" "\\1" ITT_MAJOR "${ITT_VERSION_PARTS}")
+string(REGEX REPLACE ".+ITT_MINOR[ ]+([0-9]+).*" "\\1" ITT_MINOR "${ITT_VERSION_PARTS}")
+write_basic_package_version_file(${CMAKE_CURRENT_BINARY_DIR}/share/ittapiConfigVersion.cmake
+    VERSION ${ITT_MAJOR}.${ITT_MINOR}.0
+    COMPATIBILITY SameMajorVersion)
+
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/share/ittapiConfig.cmake
+              ${CMAKE_CURRENT_BINARY_DIR}/share/ittapiConfigVersion.cmake
+        DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/ittapi)
