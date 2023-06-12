@@ -146,15 +146,15 @@ target_include_directories(jitprofiling
 include(CMakePackageConfigHelpers)
 include(GNUInstallDirs)
 
-install(TARGETS ittnotify EXPORT ittapi-targets INCLUDES DESTINATION include)
-install(EXPORT ittapi-targets NAMESPACE ittapi:: DESTINATION lib/cmake/ittapi)
-install(DIRECTORY include/ DESTINATION include
+install(TARGETS ittnotify EXPORT ittapi-targets INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+install(EXPORT ittapi-targets NAMESPACE ittapi:: DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/ittapi)
+install(DIRECTORY include/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
     FILES_MATCHING PATTERN "*.h"
                    PATTERN "fortran" EXCLUDE)
 
 configure_package_config_file(${CMAKE_CURRENT_SOURCE_DIR}/cmake/ittapiConfig.cmake.in
                               ${CMAKE_CURRENT_BINARY_DIR}/share/ittapiConfig.cmake
-    INSTALL_DESTINATION lib/cmake/ittapi
+    INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/ittapi
     NO_SET_AND_CHECK_MACRO)
 
 file(STRINGS "${CMAKE_CURRENT_SOURCE_DIR}/include/ittnotify.h" ITT_VERSION_PARTS REGEX "#define ITT_[A-Z]+[ ]+" )
