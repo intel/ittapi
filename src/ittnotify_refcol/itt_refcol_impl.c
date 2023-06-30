@@ -91,6 +91,7 @@ ITT_EXTERN_C void ITTAPI __itt_api_init(__itt_global* p, __itt_group_id init_gro
 {
     if (p != NULL)
     {
+        (void)init_groups;
         fill_func_ptr_per_lib(p);
         ref_col_init();
     }
@@ -138,47 +139,50 @@ void log_func_call(uint8_t log_level, const char* function_name, const char* mes
 /* This implementation is designed to log ITTAPI functions calls.*/
 /* ------------------------------------------------------------------------------ */
 
+/* Please remember to call free() after using get_metadata_elements() */
 char* get_metadata_elements(size_t size, __itt_metadata_type type, void* metadata)
 {
     char* metadata_str = malloc(sizeof(char) * LOG_BUFFER_MAX_SIZE);
     *metadata_str = '\0';
+    uint16_t offset = 0;
 
     switch (type)
     {
     case __itt_metadata_u64:
         for (uint16_t i = 0; i < size; i++)
-            sprintf(metadata_str, "%s%llu;", metadata_str, ((uint64_t*)metadata)[i]);
+            offset += sprintf(metadata_str + offset, "%lu;", ((uint64_t*)metadata)[i]);
         break;
     case __itt_metadata_s64:
         for (uint16_t i = 0; i < size; i++)
-            sprintf(metadata_str, "%s%lld;", metadata_str, ((int64_t*)metadata)[i]);
+            offset += sprintf(metadata_str + offset, "%ld;", ((int64_t*)metadata)[i]);
         break;
     case __itt_metadata_u32:
         for (uint16_t i = 0; i < size; i++)
-            sprintf(metadata_str, "%s%lu;", metadata_str, ((uint32_t*)metadata)[i]);
+            offset += sprintf(metadata_str + offset, "%u;", ((uint32_t*)metadata)[i]);
         break;
     case __itt_metadata_s32:
         for (uint16_t i = 0; i < size; i++)
-            sprintf(metadata_str, "%s%ld;", metadata_str, ((int32_t*)metadata)[i]);
+            offset += sprintf(metadata_str + offset, "%d;", ((int32_t*)metadata)[i]);
         break;
     case __itt_metadata_u16:
         for (uint16_t i = 0; i < size; i++)
-            sprintf(metadata_str, "%s%u;", metadata_str, ((uint16_t*)metadata)[i]);
+            offset += sprintf(metadata_str + offset, "%u;", ((uint16_t*)metadata)[i]);
         break;
     case __itt_metadata_s16:
         for (uint16_t i = 0; i < size; i++)
-            sprintf(metadata_str, "%s%d;", metadata_str, ((int16_t*)metadata)[i]);
+            offset += sprintf(metadata_str + offset, "%d;", ((int16_t*)metadata)[i]);
         break;
     case __itt_metadata_float:
         for (uint16_t i = 0; i < size; i++)
-            sprintf(metadata_str, "%s%f;", metadata_str, ((float*)metadata)[i]);
+            offset += sprintf(metadata_str + offset, "%f;", ((float*)metadata)[i]);
         break;
     case __itt_metadata_double:
         for (uint16_t i = 0; i < size; i++)
-            sprintf(metadata_str, "%s%lf;", metadata_str, ((double*)metadata)[i]);
+            offset += sprintf(metadata_str + offset, "%lf;", ((double*)metadata)[i]);
         break;
     default:
-            printf("ERROR: Unknow metadata type\n");
+        printf("ERROR: Unknow metadata type\n");
+        break;
     }
 
     return metadata_str;
@@ -213,6 +217,7 @@ ITT_EXTERN_C void ITTAPI __itt_frame_begin_v3(const __itt_domain *domain, __itt_
 {
     if (domain != NULL)
     {
+        (void)id;
         LOG_FUNC_CALL_INFO("functions args: domain=%s", domain->nameA);
     }
     else
@@ -225,6 +230,7 @@ ITT_EXTERN_C void ITTAPI __itt_frame_end_v3(const __itt_domain *domain, __itt_id
 {
     if (domain != NULL)
     {
+        (void)id;
         LOG_FUNC_CALL_INFO("functions args: domain=%s", domain->nameA);
     }
     else
@@ -252,6 +258,8 @@ ITT_EXTERN_C void ITTAPI __itt_task_begin(
 {
     if (domain != NULL && name != NULL)
     {
+        (void)taskid;
+        (void)parentid;
         LOG_FUNC_CALL_INFO("functions args: domain=%s handle=%s", domain->nameA, name->strA);
     }
     else
@@ -277,8 +285,12 @@ ITT_EXTERN_C void __itt_metadata_add(const __itt_domain *domain, __itt_id id,
 {
     if (domain != NULL && count != 0)
     {
+        (void)id;
+        (void)key;
+        char* metadata_str = get_metadata_elements(count, type, data);
         LOG_FUNC_CALL_INFO("functions args: domain=%s metadata_size=%lu metadata[]=%s",
-                            domain->nameA, count, get_metadata_elements(count, type, data));
+                            domain->nameA, count, metadata_str);
+        free(metadata_str);
     }
     else
     {
@@ -300,16 +312,19 @@ ITT_EXTERN_C void __itt_histogram_submit(__itt_histogram* hist, size_t length, v
     {
         if (x_data != NULL)
         {
+            char* x_data_str = get_metadata_elements(length, hist->x_type, x_data);
+            char* y_data_str = get_metadata_elements(length, hist->y_type, y_data);
             LOG_FUNC_CALL_INFO("functions args: domain=%s name=%s histogram_size=%lu x[]=%s y[]=%s",
-                                hist->domain->nameA, hist->nameA, length,
-                                get_metadata_elements(length, hist->x_type, x_data),
-                                get_metadata_elements(length, hist->y_type, y_data));
+                                hist->domain->nameA, hist->nameA, length, x_data_str, y_data_str);
+            free(x_data_str);
+            free(y_data_str);
         }
         else
         {
+            char* y_data_str = get_metadata_elements(length, hist->y_type, y_data);
             LOG_FUNC_CALL_INFO("functions args: domain=%s name=%s histogram_size=%lu y[]=%s",
-                                hist->domain->nameA, hist->nameA, length,
-                                get_metadata_elements(length, hist->y_type, y_data));
+                                hist->domain->nameA, hist->nameA, length, y_data_str);
+            free(y_data_str);
         }
     }
     else
