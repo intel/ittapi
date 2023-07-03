@@ -924,7 +924,7 @@ static __itt_counter ITTAPI ITT_VERSIONIZE(ITT_JOIN(_N_(counter_create_v3),_init
     {
         for (h_tail = NULL, h = _N_(_ittapi_global).counter_list; h != NULL; h_tail = h, h = h->next)
         {
-            if (h->nameA != NULL  && h->type == type && !__itt_fstrcmp(h->nameA, name) && ((h->domainA == NULL && domain->nameA == NULL) ||
+            if (h->nameA != NULL  && h->type == (int)type && !__itt_fstrcmp(h->nameA, name) && ((h->domainA == NULL && domain->nameA == NULL) ||
                 (h->domainA != NULL && domain->nameA != NULL && !__itt_fstrcmp(h->domainA, domain->nameA)))) break;
         }
         if (h == NULL)
