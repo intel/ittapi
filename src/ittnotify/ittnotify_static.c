@@ -869,7 +869,7 @@ static __itt_counter ITTAPI ITT_VERSIONIZE(ITT_JOIN(_N_(counter_createW_v3),_ini
     {
         for (h_tail = NULL, h = _N_(_ittapi_global).counter_list; h != NULL; h_tail = h, h = h->next)
         {
-            if (h->nameW != NULL  && h->type == type && !wcscmp(h->nameW, name) && ((h->domainW == NULL && domain->nameW == NULL) ||
+            if (h->nameW != NULL  && h->type == (int)type && !wcscmp(h->nameW, name) && ((h->domainW == NULL && domain->nameW == NULL) ||
                 (h->domainW != NULL && domain->nameW != NULL && !wcscmp(h->domainW, domain->nameW)))) break;
 
         }
