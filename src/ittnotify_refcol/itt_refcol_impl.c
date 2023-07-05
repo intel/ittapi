@@ -188,6 +188,39 @@ char* get_metadata_elements(size_t size, __itt_metadata_type type, void* metadat
     return metadata_str;
 }
 
+/* Please remember to call free() after using get_context_metadata_element() */
+char* get_context_metadata_element(__itt_context_type type, void* metadata)
+{
+    char* metadata_str = malloc(sizeof(char) * LOG_BUFFER_MAX_SIZE/4);
+    *metadata_str = '\0';
+
+    switch(type)
+    {
+        case __itt_context_name:
+        case __itt_context_device:
+        case __itt_context_units:
+        case __itt_context_pci_addr:
+            sprintf(metadata_str, "%s;", ((char*)metadata));
+            break;
+        case __itt_context_max_val:
+        case __itt_context_tid:
+        case __itt_context_on_thread_flag:
+        case __itt_context_bandwidth_flag:
+        case __itt_context_latency_flag:
+        case __itt_context_occupancy_flag:
+        case __itt_context_cpu_instructions_flag:
+        case __itt_context_cpu_cycles_flag:
+        case __itt_context_is_abs_val_flag:
+            sprintf(metadata_str, "%lu;", *(uint64_t*)metadata);
+            break;
+        default:
+            printf("ERROR: Unknown context metadata type");
+            break;
+    }
+
+    return metadata_str;
+}
+
 ITT_EXTERN_C void ITTAPI __itt_pause(void)
 {
     LOG_FUNC_CALL_INFO("function call");
@@ -244,8 +277,9 @@ ITT_EXTERN_C void ITTAPI __itt_frame_submit_v3(const __itt_domain *domain, __itt
 {
     if (domain != NULL)
     {
-        LOG_FUNC_CALL_INFO("functions args: domain=%s, time_begin=%lu, time_end=%llu",
-                        domain->nameA, (uint64_t*)id, begin, end);
+        (void)id;
+        LOG_FUNC_CALL_INFO("functions args: domain=%s, time_begin=%llu, time_end=%llu",
+                        domain->nameA, begin, end);
     }
     else
     {
@@ -326,6 +360,44 @@ ITT_EXTERN_C void __itt_histogram_submit(__itt_histogram* hist, size_t length, v
                                 hist->domain->nameA, hist->nameA, length, y_data_str);
             free(y_data_str);
         }
+    }
+    else
+    {
+        LOG_FUNC_CALL_WARN("Incorrect function call");
+    }
+}
+
+ITT_EXTERN_C void __itt_bind_context_metadata_to_counter(__itt_counter counter, size_t length, __itt_context_metadata* metadata)
+{
+    if (counter != NULL && metadata != NULL && length != 0)
+    {
+        __itt_counter_info_t* counter_info = (__itt_counter_info_t*)counter;
+        char context_metadata[LOG_BUFFER_MAX_SIZE];
+        context_metadata[0] = '\0';
+        uint16_t offset = 0;
+        for(size_t i=0; i<length; i++)
+        {
+            char* context_metadata_element = get_context_metadata_element(metadata[i].type, metadata[i].value);
+            offset += sprintf(context_metadata+ offset, "%s", context_metadata_element);
+            free(context_metadata_element);
+        }
+        LOG_FUNC_CALL_INFO("functions args: counter_name=%s context_metadata_size=%lu context_metadata[]=%s",
+                            counter_info->nameA, length, context_metadata);
+    }
+    else
+    {
+        LOG_FUNC_CALL_WARN("Incorrect function call");
+    }
+}
+
+ITT_EXTERN_C void __itt_counter_set_value_v3(__itt_counter counter, void* value_ptr)
+{
+    if (counter != NULL && value_ptr != NULL)
+    {
+        __itt_counter_info_t* counter_info = (__itt_counter_info_t*)counter;
+        uint64_t value = *(uint64_t*)value_ptr;
+        LOG_FUNC_CALL_INFO("functions args: counter_name=%s counter_value=%lu",
+                            counter_info->nameA, value);
     }
     else
     {

@@ -2027,3 +2027,120 @@ pub type __itt_histogram_submit_ptr__3_0_t = ::std::option::Option<
 extern "C" {
     pub static mut __itt_histogram_submit_ptr__3_0: __itt_histogram_submit_ptr__3_0_t;
 }
+pub type __itt_counter_createA_v3_ptr__3_0_t = ::std::option::Option<
+    unsafe extern "C" fn(
+        domain: *const __itt_domain,
+        name: *const ::std::os::raw::c_char,
+        type_: __itt_metadata_type,
+    ) -> __itt_counter,
+>;
+extern "C" {
+    pub static mut __itt_counter_createA_v3_ptr__3_0: __itt_counter_createA_v3_ptr__3_0_t;
+}
+pub type __itt_counter_createW_v3_ptr__3_0_t = ::std::option::Option<
+    unsafe extern "C" fn(
+        domain: *const __itt_domain,
+        name: *const wchar_t,
+        type_: __itt_metadata_type,
+    ) -> __itt_counter,
+>;
+extern "C" {
+    pub static mut __itt_counter_createW_v3_ptr__3_0: __itt_counter_createW_v3_ptr__3_0_t;
+}
+pub type __itt_counter_set_value_v3_ptr__3_0_t = ::std::option::Option<
+    unsafe extern "C" fn(counter: __itt_counter, value_ptr: *mut ::std::os::raw::c_void),
+>;
+extern "C" {
+    pub static mut __itt_counter_set_value_v3_ptr__3_0: __itt_counter_set_value_v3_ptr__3_0_t;
+}
+#[doc = "< Undefined type"]
+pub const __itt_context_type___itt_context_unknown: __itt_context_type = 0;
+#[doc = "< ASCII string char* type"]
+pub const __itt_context_type___itt_context_nameA: __itt_context_type = 1;
+#[doc = "< Unicode string wchar_t* type"]
+pub const __itt_context_type___itt_context_nameW: __itt_context_type = 2;
+#[doc = "< ASCII string char* type"]
+pub const __itt_context_type___itt_context_deviceA: __itt_context_type = 3;
+#[doc = "< Unicode string wchar_t* type"]
+pub const __itt_context_type___itt_context_deviceW: __itt_context_type = 4;
+#[doc = "< ASCII string char* type"]
+pub const __itt_context_type___itt_context_unitsA: __itt_context_type = 5;
+#[doc = "< Unicode string wchar_t* type"]
+pub const __itt_context_type___itt_context_unitsW: __itt_context_type = 6;
+#[doc = "< ASCII string char* type"]
+pub const __itt_context_type___itt_context_pci_addrA: __itt_context_type = 7;
+#[doc = "< Unicode string wchar_t* type"]
+pub const __itt_context_type___itt_context_pci_addrW: __itt_context_type = 8;
+#[doc = "< Unsigned 64-bit integer type"]
+pub const __itt_context_type___itt_context_tid: __itt_context_type = 9;
+#[doc = "< Unsigned 64-bit integer type"]
+pub const __itt_context_type___itt_context_max_val: __itt_context_type = 10;
+#[doc = "< Unsigned 64-bit integer type"]
+pub const __itt_context_type___itt_context_bandwidth_flag: __itt_context_type = 11;
+#[doc = "< Unsigned 64-bit integer type"]
+pub const __itt_context_type___itt_context_latency_flag: __itt_context_type = 12;
+#[doc = "< Unsigned 64-bit integer type"]
+pub const __itt_context_type___itt_context_occupancy_flag: __itt_context_type = 13;
+#[doc = "< Unsigned 64-bit integer type"]
+pub const __itt_context_type___itt_context_on_thread_flag: __itt_context_type = 14;
+#[doc = "< Unsigned 64-bit integer type"]
+pub const __itt_context_type___itt_context_is_abs_val_flag: __itt_context_type = 15;
+#[doc = "< Unsigned 64-bit integer type"]
+pub const __itt_context_type___itt_context_cpu_instructions_flag: __itt_context_type = 16;
+#[doc = "< Unsigned 64-bit integer type"]
+pub const __itt_context_type___itt_context_cpu_cycles_flag: __itt_context_type = 17;
+#[doc = " @brief describes the type of context metadata"]
+pub type __itt_context_type = ::std::os::raw::c_int;
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct ___itt_context_metadata {
+    #[doc = "< Type of the context metadata value"]
+    pub type_: __itt_context_type,
+    #[doc = "< Pointer to context metadata value itself"]
+    pub value: *mut ::std::os::raw::c_void,
+}
+#[test]
+fn bindgen_test_layout____itt_context_metadata() {
+    assert_eq!(
+        ::std::mem::size_of::<___itt_context_metadata>(),
+        16usize,
+        concat!("Size of: ", stringify!(___itt_context_metadata))
+    );
+    assert_eq!(
+        ::std::mem::align_of::<___itt_context_metadata>(),
+        8usize,
+        concat!("Alignment of ", stringify!(___itt_context_metadata))
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<___itt_context_metadata>())).type_ as *const _ as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(___itt_context_metadata),
+            "::",
+            stringify!(type_)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<___itt_context_metadata>())).value as *const _ as usize },
+        8usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(___itt_context_metadata),
+            "::",
+            stringify!(value)
+        )
+    );
+}
+pub type __itt_context_metadata = ___itt_context_metadata;
+pub type __itt_bind_context_metadata_to_counter_ptr__3_0_t = ::std::option::Option<
+    unsafe extern "C" fn(
+        counter: __itt_counter,
+        length: size_t,
+        metadata: *mut __itt_context_metadata,
+    ),
+>;
+extern "C" {
+    pub static mut __itt_bind_context_metadata_to_counter_ptr__3_0:
+        __itt_bind_context_metadata_to_counter_ptr__3_0_t;
+}
