@@ -3,9 +3,19 @@ use std::{ffi::CString, marker::PhantomData};
 /// See the [Event API] documentation.
 ///
 /// [Event API]: https://www.intel.com/content/www/us/en/develop/documentation/vtune-help/top/api-support/instrumentation-and-tracing-technology-apis/instrumentation-tracing-technology-api-reference/event-api.html
+///
+/// ```
+/// let event = ittapi::Event::new("foo");
+/// {
+///   let span = event.start();
+///   // do some work...
+///   // ...the event is stopped when `span` is dropped
+/// }
+/// ```
 pub struct Event(ittapi_sys::__itt_event);
 impl Event {
     /// Create the event.
+    #[must_use]
     pub fn new(name: &str) -> Self {
         #[cfg(unix)]
         let create_fn = unsafe { ittapi_sys::__itt_event_create_ptr__3_0 };
@@ -30,6 +40,7 @@ impl Event {
     /// # Panics
     ///
     /// This will panic if the ITT library cannot start the event.
+    #[must_use]
     pub fn start(&self) -> StartedEvent {
         if let Some(start_fn) = unsafe { ittapi_sys::__itt_event_start_ptr__3_0 } {
             let result = unsafe { start_fn(self.0) };

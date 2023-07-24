@@ -15,6 +15,7 @@ impl Domain {
     /// # use ittapi::Domain;
     /// let domain = Domain::new("test-domain");
     /// ```
+    #[must_use]
     pub fn new(name: &str) -> Self {
         #[cfg(unix)]
         let create_fn = access_sys_fn!(__itt_domain_create_ptr__3_0);

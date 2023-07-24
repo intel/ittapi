@@ -7,11 +7,7 @@
 #![deny(clippy::all)]
 #![warn(clippy::pedantic)]
 #![warn(clippy::cargo)]
-#![allow(
-    clippy::return_self_not_must_use,
-    clippy::must_use_candidate,
-    clippy::module_name_repetitions
-)]
+#![allow(clippy::return_self_not_must_use, clippy::module_name_repetitions)]
 
 mod collection_control;
 mod domain;
