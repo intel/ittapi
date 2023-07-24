@@ -19,6 +19,7 @@ pub struct Jit {
 impl Jit {
     /// Returns a new `MethodId` for use in `MethodLoad` events.
     #[allow(clippy::unused_self)]
+    #[must_use]
     pub fn get_method_id(&self) -> MethodId {
         MethodId(unsafe { ittapi_sys::iJIT_GetNewMethodID() })
     }
@@ -146,6 +147,7 @@ impl MethodLoadBuilder {
     ///
     /// `addr` is the pointer to the start of the code region, `len` is the size of this code
     /// region in bytes.
+    #[must_use]
     pub fn new(method_name: String, addr: *const u8, len: usize) -> Self {
         Self {
             method_name,
@@ -157,12 +159,14 @@ impl MethodLoadBuilder {
     }
 
     /// Attache a class file.
+    #[must_use]
     pub fn class_file_name(mut self, class_file_name: String) -> Self {
         self.class_file_name = Some(class_file_name);
         self
     }
 
     /// Attach a source file.
+    #[must_use]
     pub fn source_file_name(mut self, source_file_name: String) -> Self {
         self.source_file_name = Some(source_file_name);
         self

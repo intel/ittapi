@@ -17,6 +17,7 @@ impl StringHandle {
     /// let b: StringHandle = "test".into();
     /// assert_eq!(a, b);
     /// ```
+    #[must_use]
     pub fn new(name: &str) -> Self {
         #[cfg(unix)]
         let create_fn = access_sys_fn!(__itt_string_handle_create_ptr__3_0);
