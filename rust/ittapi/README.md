@@ -21,8 +21,8 @@ This uses the [`ittapi-sys`] crate which depends on the [C `ittapi` library].
 [C `ittapi` library]: https://github.com/intel/ittapi
 
 > IMPORTANT NOTE: this crate is currently only tested on Linux, macOS, and Windows platforms but
-> support for other platforms is intended; contributions are welcome! FreeBSD is supported but
-> untested.
+> support for other platforms is intended; contributions are welcome! FreeBSD and OpenBSD are
+> supported but untested.
 
 If you are interested in using VTune to profile Rust applications, you may find the following guide
 helpful: [Wasmtime Docs: Using VTune on
