@@ -1,6 +1,12 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [0.3.4] - 2023-07-28
+### Added
+- OpenBSD support added
+### Changed
+- Fixed double shutdown in JIT API ([#82](https://github.com/intel/ittapi/issues/82))
+
 ## [0.3.3] - 2023-01-18
 ### Added
 - FreeBSD support; the crate now contains bindings for Windows, Linux, macOS, and FreeBSD
