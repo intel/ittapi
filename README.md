@@ -36,3 +36,7 @@ optional arguments:
 ### License
 
 All code in the repo is dual licensed under GPLv2 and 3-Clause BSD licenses
+
+### Security
+
+Please refer to the [security policy](SECURITY.md) for reporting vulnerabilties.
