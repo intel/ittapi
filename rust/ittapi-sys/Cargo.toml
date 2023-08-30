@@ -14,8 +14,11 @@ categories = ["development-tools", "external-ffi-bindings"]
 exclude = [
     "c-library/.git",
     "c-library/.github",
-    "c-library/.vscode",
     "c-library/build*",
+    "c-library/CMakeLists.txt",
+    "c-library/cmake",
+    "c-library/include/fortran",
+    "c-library/include/AdvisorAnnotate.cs",
 ]
 
 [dependencies]
