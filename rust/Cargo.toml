@@ -1,5 +1,3 @@
 [workspace]
-members = [
-    "ittapi-sys",
-    "ittapi",
-]
+resolver = '2'
+members = ["ittapi-sys", "ittapi"]
