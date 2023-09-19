@@ -24,5 +24,5 @@ exclude = [
 cc = "1.0.73"
 
 [dev-dependencies]
-bindgen = "0.59"
+bindgen = "0.68"
 diff = "0.1"
