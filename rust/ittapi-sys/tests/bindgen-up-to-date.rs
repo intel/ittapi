@@ -4,7 +4,7 @@
 // have to get `bindgen` working themselves.
 //
 // If bindgen or ittapi.h or jitprofiling.h change you can run tests with
-// `BLESS=1` (inpired by a similiar pach for binaryen) to regenerate the
+// `BLESS=1` (inspired by a similar patch for binaryen) to regenerate the
 // source files, otherwise this can test on CI that the file doesn't need
 // to be regenerated.
 
@@ -29,7 +29,7 @@ fn test_ittnotify_bindings_up_to_date() {
     // When generating the `ittnotify`, we exclude non-ITT constants (see `allowlist_var`) to avoid
     // `libc` differences.
     let mut expected = bindgen::Builder::default()
-        .rustfmt_bindings(true)
+        .formatter(bindgen::Formatter::Rustfmt)
         .allowlist_var("ITT.*")
         .allowlist_var("__itt.*")
         .header(concat(INCLUDE_PATH, "/ittnotify.h"))
@@ -62,7 +62,7 @@ fn test_ittnotify_bindings_up_to_date() {
 #[test]
 fn test_jitprofiling_bindings_up_to_date() {
     let mut expected = bindgen::Builder::default()
-        .rustfmt_bindings(true)
+        .formatter(bindgen::Formatter::Rustfmt)
         .header(concat(INCLUDE_PATH, "/jitprofiling.h"))
         .generate()
         .expect("Unable to generate jitprofiling bindings")
