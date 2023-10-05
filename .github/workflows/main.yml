@@ -21,11 +21,10 @@ jobs:
     - uses: actions/checkout@v2
       with:
         submodules: recursive
-    - name: Install prerequisites
-      if: runner.os == 'Linux'
-      run: sudo apt-get install gcc-multilib
     - name: Build C library
-      run: python buildall.py
+      # TODO: Ubuntu is phasing out support for 32-bit packages (e.g., `apt install gcc-multilib`
+      # fails on GitHub's runner); only build the 64-bit version for now.
+      run: python buildall.py --force_bits 64
 
   rust_format:
     name: Check Rust formatting
