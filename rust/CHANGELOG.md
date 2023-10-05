@@ -1,6 +1,11 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [0.3.5] - 2023-10-05
+### Changed
+- Removed some Fortran object files ([#100](https://github.com/intel/ittapi/pull/100))
+- Regenerated the bindings, updated dependencies ([#102](https://github.com/intel/ittapi/pull/102))
+
 ## [0.3.4] - 2023-07-28
 ### Added
 - OpenBSD support added
