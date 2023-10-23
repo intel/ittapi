@@ -109,7 +109,7 @@ impl EventType {
     fn tag(&self) -> ittapi_sys::iJIT_jvm_event {
         match self {
             EventType::MethodLoadFinished(_) => {
-                ittapi_sys::iJIT_jvm_event_iJVM_EVENT_TYPE_METHOD_INLINE_LOAD_FINISHED
+                ittapi_sys::iJIT_jvm_event_iJVM_EVENT_TYPE_METHOD_LOAD_FINISHED
             }
             EventType::Shutdown => ittapi_sys::iJIT_jvm_event_iJVM_EVENT_TYPE_SHUTDOWN,
         }
