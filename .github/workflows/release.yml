@@ -5,6 +5,9 @@ on:
     tags:
       - '*'
 
+permissions:
+  contents: read
+
 jobs:
   build:
     name: Build libraries
@@ -14,7 +17,7 @@ jobs:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@ee0669bd1cc54295c223e0bb666b733df41de1c5 # v2.7.0
       with:
         submodules: recursive
     - name: Config environment
@@ -24,21 +27,23 @@ jobs:
       run: python buildall.py -pt -v
     - name: Display structure of files
       run: ls -R
-    - uses: actions/upload-artifact@v3
+    - uses: actions/upload-artifact@a8a3f3ad30e3422c9c7b888a15615d19a852ae32 # v3.1.3
       with:
         name: build-artifacts
         path: build*/**/bin
 
   create_release:
+    permissions:
+      contents: write  # for actions/create-release to create a release
     name: Create release
     runs-on: ubuntu-latest
     needs: build
     steps:
       - name: Chechout sources
-        uses: actions/checkout@v2
+        uses: actions/checkout@ee0669bd1cc54295c223e0bb666b733df41de1c5 # v2.7.0
       - name: Create Release
         id: create_release
-        uses: actions/create-release@v1
+        uses: actions/create-release@0cb9c9b65d5d1901c1f53e5e66eaf4afd303e70e # v1.1.4
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
@@ -47,7 +52,7 @@ jobs:
           draft: false
           prerelease: false
       - name: Download Artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@9bc31d5ccc31df68ecc42ccf4149144866c47d8a # v3.0.2
       - name: Display structure of downloaded files
         run: ls -R
       - name: Zip files
@@ -58,7 +63,7 @@ jobs:
             cd -
       - name: Upload Release Asset
         id: upload-release-asset 
-        uses: actions/upload-release-asset@v1
+        uses: actions/upload-release-asset@e8f9f06c4b078e705bd2ea027f0926603fc9b4d5 # v1.0.2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:

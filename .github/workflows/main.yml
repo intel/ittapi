@@ -9,6 +9,9 @@ on:
 env:
   CARGO_TERM_COLOR: always
 
+permissions:
+  contents: read
+
 jobs:
   c_build:
     name: Check upstream C library
@@ -18,7 +21,7 @@ jobs:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@ee0669bd1cc54295c223e0bb666b733df41de1c5 # v2.7.0
       with:
         submodules: recursive
     - name: Build C library
@@ -33,7 +36,7 @@ jobs:
       run:
         working-directory: rust
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@ee0669bd1cc54295c223e0bb666b733df41de1c5 # v2.7.0
     - run: rustup component add rustfmt clippy
     - run: cargo fmt --all -- --check
     - run: cargo clippy
@@ -42,8 +45,8 @@ jobs:
     name: Check Rust dependencies
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
-    - uses: EmbarkStudios/cargo-deny-action@v1
+    - uses: actions/checkout@ee0669bd1cc54295c223e0bb666b733df41de1c5 # v2.7.0
+    - uses: EmbarkStudios/cargo-deny-action@1e59595bed8fc55c969333d08d7817b36888f0c5 # v1.5.5
       with:
         arguments: --manifest-path rust/Cargo.toml
 
@@ -64,7 +67,7 @@ jobs:
         working-directory: rust
         shell: bash
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@ee0669bd1cc54295c223e0bb666b733df41de1c5 # v2.7.0
       with:
         submodules: recursive
     - run: rustup target add ${{ matrix.target }}
