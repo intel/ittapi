@@ -306,7 +306,7 @@ extern "C" {
  *     only pauses tracing and analyzing memory access.
  *     It does not pause tracing or analyzing threading APIs.
  *   .
- * - Intel(R) Parallel Amplifier and Intel(R) VTune(TM) Amplifier XE:
+ * - Intel(R) VTune(TM) Profiler:
  *   - Does continue to record when new threads are started.
  *   .
  * - Other effects:
