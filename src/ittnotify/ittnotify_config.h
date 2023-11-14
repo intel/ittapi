@@ -610,7 +610,7 @@ typedef struct ___itt_global
         h->nameA   = NULL; \
         h->nameW   = name ? _wcsdup(name) : NULL; \
         h->domainA   = NULL; \
-        h->domainW   = name ? _wcsdup(domain) : NULL; \
+        h->domainW   = domain ? _wcsdup(domain) : NULL; \
         h->type = type; \
         h->index = 0; \
         h->next   = NULL; \
