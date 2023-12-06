@@ -55,7 +55,7 @@ fn test_ittnotify_bindings_up_to_date() {
                 diff::Result::Right(s) => println!("+{}", s),
             }
         }
-        panic!("differences found, need to regenerate ittnotify bindings");
+        panic!("differences found, need to regenerate ittnotify bindings (`BLESS=1 cargo test`)");
     }
 }
 
@@ -86,7 +86,9 @@ fn test_jitprofiling_bindings_up_to_date() {
                 diff::Result::Right(s) => println!("+{}", s),
             }
         }
-        panic!("differences found, need to regenerate jitprofiling bindings");
+        panic!(
+            "differences found, need to regenerate jitprofiling bindings (`BLESS=1 cargo test`)"
+        );
     }
 }
 
