@@ -67,6 +67,7 @@ void ref_col_init()
                 sprintf(file_name_buffer,"/tmp/%s", log_file);
             #endif
         }
+        free(log_file);
 
         g_ref_collector_logger.file_name = file_name_buffer;
         g_ref_collector_logger.init_state = 1;
