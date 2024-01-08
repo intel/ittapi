@@ -3,12 +3,11 @@ use crate::{domain::Domain, string::StringHandle};
 /// A task is a logical unit of work performed by a particular thread. See the [Task API]
 /// documentation for more information.
 ///
-/// [Task API]:
-///     https://www.intel.com/content/www/us/en/develop/documentation/vtune-help/top/api-support/instrumentation-and-tracing-technology-apis/instrumentation-tracing-technology-api-reference/task-api.html
+/// [Task API]: https://www.intel.com/content/www/us/en/develop/documentation/vtune-help/top/api-support/instrumentation-and-tracing-technology-apis/instrumentation-tracing-technology-api-reference/task-api.html
 ///
 /// ```
 /// # use ittapi::{Domain, StringHandle, Task};
-/// let _env_path = scoped_env::ScopedEnv::set("INTEL_LIBITTNOTIFY64", "<some path>");
+/// # let _env_path = scoped_env::ScopedEnv::set("INTEL_LIBITTNOTIFY64", "<some path>");
 /// let domain = Domain::new("domain");
 /// let name = StringHandle::new("task");
 /// // Measure a task using a pre-initialized string handle (most efficient).
