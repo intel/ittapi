@@ -43,11 +43,15 @@ impl From<&str> for StringHandle {
 
 mod tests {
     #[test]
-    fn with_dynamic_part_specified() {
-        // When INTEL_LIBITTNOTIFY64 is set in the environment, the static part of ittnotify will
-        // allocate; otherwise, if the dynamic part is not present, the pointer will be null.
-        let _env_path = scoped_env::ScopedEnv::remove("INTEL_LIBITTNOTIFY64");
+    fn construct_string_handle() {
         let sh = super::StringHandle::new("test2");
-        assert!(sh.as_ptr().is_null());
+        if std::env::var("INTEL_LIBITTNOTIFY64").is_ok() {
+            assert!(!sh.as_ptr().is_null());
+        } else {
+            // What this test shows (and reminds us) is that `StringHandle` has issues when the
+            // collector is not set dynamically (i.e., when INTEL_LIBITTNOTIFY64 is set in the
+            // environment).
+            assert!(sh.as_ptr().is_null());
+        }
     }
 }
