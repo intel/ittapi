@@ -309,196 +309,196 @@ contains
     
     subroutine annotate_induction_uses_i2(x)
         !DEC$ ATTRIBUTES DEFAULT :: annotate_induction_uses_i2
-        integer(kind=2), intent(in) :: x
+        integer(kind=2), intent(in), target :: x
         if (.not. initialized) call load_itt_library
         call induction_uses(C_LOC(x), 2)
     end subroutine annotate_induction_uses_i2
 
     subroutine annotate_induction_uses_i4(x)
         !DEC$ ATTRIBUTES DEFAULT :: annotate_induction_uses_i4
-        integer(kind=4), intent(in) :: x
+        integer(kind=4), intent(in), target :: x
         if (.not. initialized) call load_itt_library
         call induction_uses(C_LOC(x), 4)
     end subroutine annotate_induction_uses_i4
 
     subroutine annotate_induction_uses_i8(x)
         !DEC$ ATTRIBUTES DEFAULT :: annotate_induction_uses_i8
-        integer(kind=8), intent(in) :: x
+        integer(kind=8), intent(in), target :: x
         if (.not. initialized) call load_itt_library
         call induction_uses(C_LOC(x), 8)
     end subroutine annotate_induction_uses_i8
 
     subroutine annotate_induction_uses_r4(x)
         !DEC$ ATTRIBUTES DEFAULT :: annotate_induction_uses_r4
-        real(kind=4), intent(in) :: x
+        real(kind=4), intent(in), target :: x
         if (.not. initialized) call load_itt_library
         call induction_uses(C_LOC(x), 4)
     end subroutine annotate_induction_uses_r4
 
     subroutine annotate_induction_uses_r8(x)
         !DEC$ ATTRIBUTES DEFAULT :: annotate_induction_uses_r8
-        real(kind=8), intent(in) :: x
+        real(kind=8), intent(in), target :: x
         if (.not. initialized) call load_itt_library
         call induction_uses(C_LOC(x), 8)
     end subroutine annotate_induction_uses_r8
 
     subroutine annotate_induction_uses_c4(x)
         !DEC$ ATTRIBUTES DEFAULT :: annotate_induction_uses_c4
-        complex(kind=4), intent(in) :: x
+        complex(kind=4), intent(in), target :: x
         if (.not. initialized) call load_itt_library
         call induction_uses(C_LOC(x), 8)
     end subroutine annotate_induction_uses_c4
 
     subroutine annotate_induction_uses_c8(x)
         !DEC$ ATTRIBUTES DEFAULT :: annotate_induction_uses_c8
-        complex(kind=16), intent(in) :: x
+        complex(kind=16), intent(in), target :: x
         if (.not. initialized) call load_itt_library
         call reduction_uses(C_LOC(x), 16)
     end subroutine annotate_induction_uses_c8
 
     subroutine annotate_reduction_uses_i2(x)
         !DEC$ ATTRIBUTES DEFAULT :: annotate_reduction_uses_i2
-        integer(kind=2), intent(in) :: x
+        integer(kind=2), intent(in), target :: x
         if (.not. initialized) call load_itt_library
         call reduction_uses(C_LOC(x), 2)
     end subroutine annotate_reduction_uses_i2
 
     subroutine annotate_reduction_uses_i4(x)
         !DEC$ ATTRIBUTES DEFAULT :: annotate_reduction_uses_i4
-        integer(kind=4), intent(in) :: x
+        integer(kind=4), intent(in), target :: x
         if (.not. initialized) call load_itt_library
         call reduction_uses(C_LOC(x), 4)
     end subroutine annotate_reduction_uses_i4
 
     subroutine annotate_reduction_uses_i8(x)
         !DEC$ ATTRIBUTES DEFAULT :: annotate_reduction_uses_i8
-        integer(kind=8), intent(in) :: x
+        integer(kind=8), intent(in), target :: x
         if (.not. initialized) call load_itt_library
         call reduction_uses(C_LOC(x), 8)
     end subroutine annotate_reduction_uses_i8
 
     subroutine annotate_reduction_uses_r4(x)
         !DEC$ ATTRIBUTES DEFAULT :: annotate_reduction_uses_r4
-        real(kind=4), intent(in) :: x
+        real(kind=4), intent(in), target :: x
         if (.not. initialized) call load_itt_library
         call reduction_uses(C_LOC(x), 4)
     end subroutine annotate_reduction_uses_r4
 
     subroutine annotate_reduction_uses_r8(x)
         !DEC$ ATTRIBUTES DEFAULT :: annotate_reduction_uses_r8
-        real(kind=8), intent(in) :: x
+        real(kind=8), intent(in), target :: x
         if (.not. initialized) call load_itt_library
         call reduction_uses(C_LOC(x), 8)
     end subroutine annotate_reduction_uses_r8
 
     subroutine annotate_reduction_uses_c4(x)
         !DEC$ ATTRIBUTES DEFAULT :: annotate_reduction_uses_c4
-        complex(kind=4), intent(in) :: x
+        complex(kind=4), intent(in), target :: x
         if (.not. initialized) call load_itt_library
         call reduction_uses(C_LOC(x), 8)
     end subroutine annotate_reduction_uses_c4
 
     subroutine annotate_reduction_uses_c8(x)
         !DEC$ ATTRIBUTES DEFAULT :: annotate_reduction_uses_c8
-        complex(kind=16), intent(in) :: x
+        complex(kind=16), intent(in), target :: x
         if (.not. initialized) call load_itt_library
         call reduction_uses(C_LOC(x), 16)
     end subroutine annotate_reduction_uses_c8
 
     subroutine annotate_observe_uses_i2(x)
         !DEC$ ATTRIBUTES DEFAULT :: annotate_observe_uses_i2
-        integer(kind=2), intent(in) :: x
+        integer(kind=2), intent(in), target :: x
         if (.not. initialized) call load_itt_library
         call observe_uses(C_LOC(x), 2)
     end subroutine annotate_observe_uses_i2
 
     subroutine annotate_observe_uses_i4(x)
         !DEC$ ATTRIBUTES DEFAULT :: annotate_observe_uses_i4
-        integer(kind=4), intent(in) :: x
+        integer(kind=4), intent(in), target :: x
         if (.not. initialized) call load_itt_library
         call observe_uses(C_LOC(x), 4)
     end subroutine annotate_observe_uses_i4
 
     subroutine annotate_observe_uses_i8(x)
         !DEC$ ATTRIBUTES DEFAULT :: annotate_observe_uses_i8
-        integer(kind=8), intent(in) :: x
+        integer(kind=8), intent(in), target :: x
         if (.not. initialized) call load_itt_library
         call observe_uses(C_LOC(x), 8)
     end subroutine annotate_observe_uses_i8
 
     subroutine annotate_observe_uses_r4(x)
         !DEC$ ATTRIBUTES DEFAULT :: annotate_observe_uses_r4
-        real(kind=4), intent(in) :: x
+        real(kind=4), intent(in), target :: x
         if (.not. initialized) call load_itt_library
         call observe_uses(C_LOC(x), 4)
     end subroutine annotate_observe_uses_r4
 
     subroutine annotate_observe_uses_r8(x)
         !DEC$ ATTRIBUTES DEFAULT :: annotate_observe_uses_r8
-        real(kind=8), intent(in) :: x
+        real(kind=8), intent(in), target :: x
         if (.not. initialized) call load_itt_library
         call observe_uses(C_LOC(x), 8)
     end subroutine annotate_observe_uses_r8
 
     subroutine annotate_observe_uses_c4(x)
         !DEC$ ATTRIBUTES DEFAULT :: annotate_observe_uses_c4
-        complex(kind=4), intent(in) :: x
+        complex(kind=4), intent(in), target :: x
         if (.not. initialized) call load_itt_library
         call observe_uses(C_LOC(x), 8)
     end subroutine annotate_observe_uses_c4
 
     subroutine annotate_observe_uses_c8(x)
         !DEC$ ATTRIBUTES DEFAULT :: annotate_observe_uses_c8
-        complex(kind=16), intent(in) :: x
+        complex(kind=16), intent(in), target :: x
         if (.not. initialized) call load_itt_library
         call observe_uses(C_LOC(x), 16)
     end subroutine annotate_observe_uses_c8
 
     subroutine annotate_clear_uses_i2(x)
         !DEC$ ATTRIBUTES DEFAULT :: annotate_clear_uses_i2
-        integer(kind=2), intent(in) :: x
+        integer(kind=2), intent(in), target :: x
         if (.not. initialized) call load_itt_library
         call clear_uses(C_LOC(x), 2)
     end subroutine annotate_clear_uses_i2
 
     subroutine annotate_clear_uses_i4(x)
         !DEC$ ATTRIBUTES DEFAULT :: annotate_clear_uses_i4
-        integer(kind=4), intent(in) :: x
+        integer(kind=4), intent(in), target :: x
         if (.not. initialized) call load_itt_library
         call clear_uses(C_LOC(x), 4)
     end subroutine annotate_clear_uses_i4
 
     subroutine annotate_clear_uses_i8(x)
         !DEC$ ATTRIBUTES DEFAULT :: annotate_clear_uses_i8
-        integer(kind=8), intent(in) :: x
+        integer(kind=8), intent(in), target :: x
         if (.not. initialized) call load_itt_library
         call clear_uses(C_LOC(x), 8)
     end subroutine annotate_clear_uses_i8
 
     subroutine annotate_clear_uses_r4(x)
         !DEC$ ATTRIBUTES DEFAULT :: annotate_clear_uses_r4
-        real(kind=4), intent(in) :: x
+        real(kind=4), intent(in), target :: x
         if (.not. initialized) call load_itt_library
         call clear_uses(C_LOC(x), 4)
     end subroutine annotate_clear_uses_r4
 
     subroutine annotate_clear_uses_r8(x)
         !DEC$ ATTRIBUTES DEFAULT :: annotate_clear_uses_r8
-        real(kind=8), intent(in) :: x
+        real(kind=8), intent(in), target :: x
         if (.not. initialized) call load_itt_library
         call clear_uses(C_LOC(x), 8)
     end subroutine annotate_clear_uses_r8
 
     subroutine annotate_clear_uses_c4(x)
         !DEC$ ATTRIBUTES DEFAULT :: annotate_clear_uses_c4
-        complex(kind=4), intent(in) :: x
+        complex(kind=4), intent(in), target :: x
         if (.not. initialized) call load_itt_library
         call clear_uses(C_LOC(x), 8)
     end subroutine annotate_clear_uses_c4
 
     subroutine annotate_clear_uses_c8(x)
         !DEC$ ATTRIBUTES DEFAULT :: annotate_clear_uses_c8
-        complex(kind=16), intent(in) :: x
+        complex(kind=16), intent(in), target :: x
         if (.not. initialized) call load_itt_library
         call clear_uses(C_LOC(x), 16)
     end subroutine annotate_clear_uses_c8
