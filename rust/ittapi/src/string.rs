@@ -17,6 +17,10 @@ impl StringHandle {
     /// let b: StringHandle = "test".into();
     /// assert_eq!(a, b);
     /// ```
+    ///
+    /// # Panics
+    ///
+    /// Panics if the string contains a `0` byte.
     #[must_use]
     pub fn new(name: &str) -> Self {
         #[cfg(unix)]

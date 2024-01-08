@@ -15,6 +15,10 @@ impl Domain {
     /// # use ittapi::Domain;
     /// let domain = Domain::new("test-domain");
     /// ```
+    ///
+    /// # Panics
+    ///
+    /// Panics if the domain name contains a `0` byte.
     #[must_use]
     pub fn new(name: &str) -> Self {
         #[cfg(unix)]
@@ -29,7 +33,7 @@ impl Domain {
 
     /// Use the `__itt_domain` pointer internally.
     pub(crate) fn as_ptr(&self) -> *const ittapi_sys::__itt_domain {
-        self.0 as *const _
+        self.0.cast_const()
     }
 }
 
