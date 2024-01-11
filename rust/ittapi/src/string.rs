@@ -45,12 +45,15 @@ mod tests {
     #[test]
     fn construct_string_handle() {
         let sh = super::StringHandle::new("test2");
+        // `ittapi` profiling is only enabled when the `INTEL_LIBITTNOTIFY64` environment variable
+        // is set, which points to the profiling collector. If set, the string handle is actually
+        // allocated; if not set, no allocation is performed (this is a general `ittapi` property:
+        // no allocation without a profiling collector). Note that string handles are thus invalid
+        // in the latter case--no collector--but the API safely does not provide any way to observe
+        // this.
         if std::env::var("INTEL_LIBITTNOTIFY64").is_ok() {
             assert!(!sh.as_ptr().is_null());
         } else {
-            // What this test shows (and reminds us) is that `StringHandle` has issues when the
-            // collector is not set dynamically (i.e., when INTEL_LIBITTNOTIFY64 is set in the
-            // environment).
             assert!(sh.as_ptr().is_null());
         }
     }
