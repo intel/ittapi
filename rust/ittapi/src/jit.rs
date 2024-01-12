@@ -1,10 +1,9 @@
 //! The JIT (Just-In-Time) Profiling API provides functionality to report information about
-//! just-in-time generated code that can be used by performance tools. The [Jit] Rust structure is a
-//! high-level view of a subset of the full functionality available. See the [JIT Profiling API] for
-//! more information.
+//! just-in-time generated code that can be used by performance tools. The [`Jit`] Rust structure
+//! is a high-level view of a subset of the full functionality available. See the [JIT Profiling
+//! API] for more information.
 //!
-//! [JIT Profiling API]:
-///     https://www.intel.com/content/www/us/en/develop/documentation/vtune-help/top/api-support/jit-profiling-api.html
+//! [JIT Profiling API]: https://www.intel.com/content/www/us/en/develop/documentation/vtune-help/top/api-support/jit-profiling-api.html
 use anyhow::Context;
 use std::{ffi::CString, os, ptr};
 
@@ -176,16 +175,20 @@ impl MethodLoadBuilder {
     ///
     /// # Errors
     ///
-    /// May fail if the various names passed to this builder are not valid C strings.
+    /// May fail if the various names passed to this builder are not valid C strings or if the
+    /// length of the code region will not fit in a 32-bit representation.
     pub fn build(self, method_id: MethodId) -> anyhow::Result<EventType> {
         Ok(EventType::MethodLoadFinished(MethodLoad(
             ittapi_sys::_iJIT_Method_Load {
                 method_id: method_id.0,
                 method_name: CString::new(self.method_name)
-                    .context("CString::new failed")?
+                    .context("method name cannot be represented as a CString")?
                     .into_raw(),
                 method_load_address: self.addr as *mut os::raw::c_void,
-                method_size: self.len.try_into().expect("cannot fit length into 32 bits"),
+                method_size: self
+                    .len
+                    .try_into()
+                    .context("cannot fit code length into 32 bits")?,
                 line_number_size: 0,
                 line_number_table: ptr::null_mut(),
                 class_id: 0, // Field officially obsolete in Intel's doc.
@@ -194,14 +197,14 @@ impl MethodLoadBuilder {
                         .as_deref()
                         .unwrap_or("<unknown class file name>"),
                 )
-                .context("CString::new failed")?
+                .context("class file name cannot be represented as a CString")?
                 .into_raw(),
                 source_file_name: CString::new(
                     self.source_file_name
                         .as_deref()
                         .unwrap_or("<unknown source file name>"),
                 )
-                .context("CString::new failed")?
+                .context("source file name cannot be represented as a CString")?
                 .into_raw(),
             },
         )))
