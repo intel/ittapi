@@ -33,8 +33,12 @@ Linux](https://docs.wasmtime.dev/examples-profiling-vtune.html)
 
 ```toml
 [dependencies]
-ittapi = "0.3"
+ittapi = "*"
 ```
+
+Instrument the code to measure with `ittapi`; e.g.,:
+ - to [pause and resume](https://docs.rs/ittapi/latest/ittapi/fn.pause.html#example) collection
+ - to [measure a task](https://docs.rs/ittapi/latest/ittapi/struct.Task.html)
 
 ### Build
 

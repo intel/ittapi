@@ -15,6 +15,11 @@ use std::{ffi::CString, marker::PhantomData};
 pub struct Event(ittapi_sys::__itt_event);
 impl Event {
     /// Create the event.
+    ///
+    /// # Panics
+    ///
+    /// Panics if the name contains a `0` byte or if its size will not fit in a 32-bit
+    /// representation.
     #[must_use]
     pub fn new(name: &str) -> Self {
         #[cfg(unix)]
