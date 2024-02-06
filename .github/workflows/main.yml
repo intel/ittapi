@@ -46,7 +46,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
-    - uses: EmbarkStudios/cargo-deny-action@1e59595bed8fc55c969333d08d7817b36888f0c5 # v1.5.5
+    - uses: EmbarkStudios/cargo-deny-action@5def368d93be6684ad20a0fdec5f23c8ea11e022 # v1.5.13
       with:
         arguments: --manifest-path rust/Cargo.toml
 
