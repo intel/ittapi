@@ -32,6 +32,11 @@ fn test_ittnotify_bindings_up_to_date() {
         .formatter(bindgen::Formatter::Rustfmt)
         .allowlist_var("ITT.*")
         .allowlist_var("__itt.*")
+        // Also, note how few functions we allow: if we generate bindings for all the declared
+        // functions, we run into linking errors. Only some functions are actually defined in
+        // `libittnotify.a` but most are provided dynamically by the dynamic collection library. See
+        // the `README.md` for more details.
+        .allowlist_function("__itt_mark_pt.*")
         .header(concat(INCLUDE_PATH, "/ittnotify.h"))
         .generate()
         .expect("Unable to generate ittnotify bindings.")
