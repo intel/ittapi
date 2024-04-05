@@ -155,7 +155,7 @@ static int loadiJIT_Funcs()
         {
             envret = GetEnvironmentVariableA(NEW_DLL_ENVIRONMENT_VAR, 
                                              dllName, dNameLength);
-            if (envret)
+            if (envret&&!PathIsRelativeA(dllName))
             {
                 /* Try to load the dll from the PATH... */
                 m_libHandle = LoadLibraryExA(dllName, 
