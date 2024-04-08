@@ -8,6 +8,7 @@
 
 #if ITT_PLATFORM==ITT_PLATFORM_WIN
 #include <windows.h>
+#include <shlwapi.h>
 #endif /* ITT_PLATFORM==ITT_PLATFORM_WIN */
 #if ITT_PLATFORM != ITT_PLATFORM_MAC && ITT_PLATFORM != ITT_PLATFORM_FREEBSD && ITT_PLATFORM != ITT_PLATFORM_OPENBSD
 #include <malloc.h>
