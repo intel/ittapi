@@ -94,7 +94,6 @@ jobs:
     - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
       with:
         submodules: recursive
-    - name: Install VTune
-      uses: abrown/install-vtune-action
+    - uses: abrown/install-vtune-action@v1
     - name: Run integration tests
       run: cargo test
