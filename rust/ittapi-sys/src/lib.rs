@@ -32,11 +32,3 @@ include!("windows/jitprofiling_bindings.rs");
 include!("freebsd/jitprofiling_bindings.rs");
 #[cfg(target_os = "openbsd")]
 include!("openbsd/jitprofiling_bindings.rs");
-
-// #[link(name = "ittnotify", kind = "static")]
-// extern "C" {
-//     #[link_name = "__itt_domain_create_init_3_0"]
-//     pub fn __itt_domain_create_init_3_0(name: *const std::os::raw::c_char) -> *mut __itt_domain;
-//     // #[link_name = "__itt_domain_create_init_3_0"]
-//     // pub fn __itt_domain_create(name: *const std::os::raw::c_char) -> *mut __itt_domain;
-// }
