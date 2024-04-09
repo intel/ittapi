@@ -82,3 +82,19 @@ jobs:
       # The Windows CI transforms the `c-library` symlink into a real directory, modifying the Git
       # state, so we ignore these changes with `--allow-dirty` here.
       run: scripts/verify-publish.sh --allow-dirty
+
+  rust_test:
+    name: Run Rust integration tests
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: rust/integration-tests
+        shell: bash
+    steps:
+    - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      with:
+        submodules: recursive
+    - name: Install VTune
+      uses: abrown/install-vtune-action
+    - name: Run integration tests
+      run: cargo test
