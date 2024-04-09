@@ -43,3 +43,14 @@ impl Domain {
 /// [ITT documentation]:
 ///     https://www.intel.com/content/www/us/en/develop/documentation/vtune-help/top/api-support/instrumentation-and-tracing-technology-apis/instrumentation-tracing-technology-api-reference/domain-api.html
 unsafe impl Sync for Domain {}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    #[should_panic(expected = "unable to create a CString; does it contain a 0 byte?")]
+    fn zero_byte() {
+        let _domain = Domain::new("zero\0byte\0name");
+    }
+}
