@@ -8,7 +8,8 @@
 
 #if ITT_PLATFORM==ITT_PLATFORM_WIN
 #include <windows.h>
-#include <shlwapi.h>
+#include <cstring>
+#include <cctype>
 #endif /* ITT_PLATFORM==ITT_PLATFORM_WIN */
 #if ITT_PLATFORM != ITT_PLATFORM_MAC && ITT_PLATFORM != ITT_PLATFORM_FREEBSD && ITT_PLATFORM != ITT_PLATFORM_OPENBSD
 #include <malloc.h>
@@ -147,16 +148,37 @@ static int loadiJIT_Funcs()
 
     /* Try to get the dll name from the environment */
 #if ITT_PLATFORM==ITT_PLATFORM_WIN
+
+    auto isPathRelative=[](char *path)->bool{
+        if(path==NULL)
+        {
+            return true;
+        }
+        else if(strlen(path)>=2) 
+        {
+            if(isalpha(path[0]) && path[1]==':')
+            {
+                return false;
+            }
+            else if(path[0]=='\\' && path[1]=='\\')
+            {
+                return false;
+            }
+        }
+        return true;
+    };
+
     dNameLength = GetEnvironmentVariableA(NEW_DLL_ENVIRONMENT_VAR, NULL, 0);
     if (dNameLength)
     {
         DWORD envret = 0;
         dllName = (char*)malloc(sizeof(char) * (dNameLength + 1));
+        dllName[dNameLength]='\0'; // To handle a corner case to prevent out of bounds memory access. 
         if(dllName != NULL)
         {
             envret = GetEnvironmentVariableA(NEW_DLL_ENVIRONMENT_VAR, 
                                              dllName, dNameLength);
-            if (envret&&!PathIsRelativeA(dllName))
+            if (envret&&!isPathRelative(dllName))
             {
                 /* Try to load the dll from the PATH... */
                 m_libHandle = LoadLibraryExA(dllName, 
