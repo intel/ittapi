@@ -8,8 +8,8 @@
 
 #if ITT_PLATFORM==ITT_PLATFORM_WIN
 #include <windows.h>
-#include <cstring>
-#include <cctype>
+#include <string.h>
+#include <ctype.h>
 #endif /* ITT_PLATFORM==ITT_PLATFORM_WIN */
 #if ITT_PLATFORM != ITT_PLATFORM_MAC && ITT_PLATFORM != ITT_PLATFORM_FREEBSD && ITT_PLATFORM != ITT_PLATFORM_OPENBSD
 #include <malloc.h>
@@ -114,6 +114,28 @@ ITT_EXTERN_C iJIT_IsProfilingActiveFlags JITAPI iJIT_IsProfilingActive()
     return executionMode;
 }
 
+#if ITT_PLATFORM==ITT_PLATFORM_WIN
+int isPathRelative(char *path)
+{
+    if(path==NULL)
+    {
+        return 1;
+    }
+    else if(strlen(path)>1) 
+    {
+        if(isalpha(path[0]) && path[1]==':')
+        {
+            return 0;
+        }
+        else if(path[0]=='\\' && path[1]=='\\')
+        {
+            return 0;
+        }
+    }
+    return 1;
+}
+#endif
+
 /* This function loads the collector dll and the relevant functions.
  * on success: all functions load,     iJIT_DLL_is_missing = 0, return value = 1
  * on failure: all functions are NULL, iJIT_DLL_is_missing = 1, return value = 0
@@ -148,26 +170,6 @@ static int loadiJIT_Funcs()
 
     /* Try to get the dll name from the environment */
 #if ITT_PLATFORM==ITT_PLATFORM_WIN
-
-    auto isPathRelative=[](char *path)->bool{
-        if(path==NULL)
-        {
-            return true;
-        }
-        else if(strlen(path)>=2) 
-        {
-            if(isalpha(path[0]) && path[1]==':')
-            {
-                return false;
-            }
-            else if(path[0]=='\\' && path[1]=='\\')
-            {
-                return false;
-            }
-        }
-        return true;
-    };
-
     dNameLength = GetEnvironmentVariableA(NEW_DLL_ENVIRONMENT_VAR, NULL, 0);
     if (dNameLength)
     {
@@ -178,7 +180,7 @@ static int loadiJIT_Funcs()
         {
             envret = GetEnvironmentVariableA(NEW_DLL_ENVIRONMENT_VAR, 
                                              dllName, dNameLength);
-            if (envret&&!isPathRelative(dllName))
+            if (envret && !isPathRelative(dllName))
             {
                 /* Try to load the dll from the PATH... */
                 m_libHandle = LoadLibraryExA(dllName, 
