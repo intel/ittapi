@@ -69,6 +69,14 @@ pub type __itt_pt_region_create_ptr__3_0_t = ::std::option::Option<
 extern "C" {
     pub static mut __itt_pt_region_create_ptr__3_0: __itt_pt_region_create_ptr__3_0_t;
 }
+extern "C" {
+    #[doc = " @brief function contains a special code pattern identified on the post-processing stage and\n marks the beginning of a code region targeted for Intel PT analysis\n @param[in] region - region id, 0 <= region < 8"]
+    pub fn __itt_mark_pt_region_begin(region: __itt_pt_region);
+}
+extern "C" {
+    #[doc = " @brief function contains a special code pattern identified on the post-processing stage and\n marks the end of a code region targeted for Intel PT analysis\n @param[in] region - region id, 0 <= region < 8"]
+    pub fn __itt_mark_pt_region_end(region: __itt_pt_region);
+}
 pub type __itt_thread_set_name_ptr__3_0_t =
     ::std::option::Option<unsafe extern "C" fn(name: *const ::std::os::raw::c_char)>;
 extern "C" {

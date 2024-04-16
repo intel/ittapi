@@ -26,9 +26,16 @@ Linux](https://docs.wasmtime.dev/examples-profiling-vtune.html)
 
 ```toml
 [dependencies]
-ittapi-sys = "0.3"
+ittapi-sys = "*"
 ```
 
+Using the symbols in this crate can be tricky: `ittapi` consists of a static part (e.g.,
+`libittnotify.a`) linked in this crate _and_ a dynamic part (e.g., `libittnotify_collector.so`,
+VTune Profiler). The static part provides the ITT data symbols that may be subsequently resolved to
+actual implementations in the dynamic part--the data collector. This crate only provides symbols
+like `__itt_task_begin_ptr__3_0`, not `__itt_task_begin`, to avoid link errors; programs using
+`ittapi` should compile even if the dynamic part is not present. Using the [high-level Rust crate]
+avoids this complexity.
 
 ### Build
 
