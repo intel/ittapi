@@ -115,24 +115,24 @@ ITT_EXTERN_C iJIT_IsProfilingActiveFlags JITAPI iJIT_IsProfilingActive()
 }
 
 #if ITT_PLATFORM==ITT_PLATFORM_WIN
-int isPathRelative(char *path)
+static int isValidAbsolutePath(char *path)
 {
     if(path==NULL)
     {
-        return 1;
+        return 0;
     }
-    else if(strlen(path)>1) 
+    else if(strlen(path)>2) 
     {
-        if(isalpha(path[0]) && path[1]==':')
+        if(isalpha(path[0]) && path[1]==':' && path[2]=='\\')
         {
-            return 0;
+            return 1;
         }
-        else if(path[0]=='\\' && path[1]=='\\')
+        else if(path[0]=='\\' && path[1]=='\\' && isalpha(path[2]))
         {
-            return 0;
+            return 1;
         }
     }
-    return 1;
+    return 0;
 }
 #endif
 
@@ -175,12 +175,11 @@ static int loadiJIT_Funcs()
     {
         DWORD envret = 0;
         dllName = (char*)malloc(sizeof(char) * (dNameLength + 1));
-        dllName[dNameLength]='\0'; // To handle a corner case to prevent out of bounds memory access. 
         if(dllName != NULL)
         {
             envret = GetEnvironmentVariableA(NEW_DLL_ENVIRONMENT_VAR, 
                                              dllName, dNameLength);
-            if (envret && !isPathRelative(dllName))
+            if (envret && isValidAbsolutePath(dllName))
             {
                 /* Try to load the dll from the PATH... */
                 m_libHandle = LoadLibraryExA(dllName, 
