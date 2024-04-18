@@ -117,17 +117,17 @@ ITT_EXTERN_C iJIT_IsProfilingActiveFlags JITAPI iJIT_IsProfilingActive()
 #if ITT_PLATFORM==ITT_PLATFORM_WIN
 static int isValidAbsolutePath(char *path)
 {
-    if(path==NULL)
+    if (path==NULL)
     {
         return 0;
     }
-    else if(strlen(path)>2) 
+    else if (strlen(path)>2) 
     {
-        if(isalpha(path[0]) && path[1]==':' && path[2]=='\\')
+        if (isalpha(path[0]) && path[1]==':' && path[2]=='\\')
         {
             return 1;
         }
-        else if(path[0]=='\\' && path[1]=='\\' && isalpha(path[2]))
+        else if (path[0]=='\\' && path[1]=='\\')
         {
             return 1;
         }
