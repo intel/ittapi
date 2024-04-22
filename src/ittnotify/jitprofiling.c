@@ -114,7 +114,7 @@ ITT_EXTERN_C iJIT_IsProfilingActiveFlags JITAPI iJIT_IsProfilingActive()
     return executionMode;
 }
 
-#if ITT_PLATFORM==ITT_PLATFORM_WIN
+#if ITT_PLATFORM == ITT_PLATFORM_WIN
 static int isValidAbsolutePath(char *path)
 {
     if (path == NULL)
