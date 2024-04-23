@@ -1,0 +1,12 @@
+include LICENSE
+include README.md
+include MANIFEST.in
+include pyproject.toml
+include setup.py
+recursive-include pyitt *.py
+recursive-include pyitt.native *.cpp *.hpp
+recursive-include ittapi/include *.h
+recursive-include ittapi/LICENSES *
+recursive-include ittapi/src *
+include ittapi/README.md
+include ittapi/SECURITY.md
