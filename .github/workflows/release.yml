@@ -24,12 +24,12 @@ jobs:
       if: runner.os == 'Linux'
       run: sudo apt-get install gcc-multilib
     - name: Build C library
-      run: python buildall.py -pt -v
+      run: python buildall.py ${{ runner.os != 'macOS' && '-pt -v' || '-v' }}
     - name: Display structure of files
       run: ls -R
     - uses: actions/upload-artifact@26f96dfa697d77e81fd5907df203aa23a56210a8 # v4.3.0
       with:
-        name: build-artifacts
+        name: build-artifacts-${{ matrix.os }}
         path: build*/**/bin
 
   create_release:
@@ -53,6 +53,10 @@ jobs:
           prerelease: false
       - name: Download Artifacts
         uses: actions/download-artifact@6b208ae046db98c579e8a3aa621ab581ff575935 # v4.1.1
+        with:
+          path: build-artifacts
+          pattern: build-artifacts-*
+          merge-multiple: true
       - name: Display structure of downloaded files
         run: ls -R
       - name: Zip files
