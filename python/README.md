@@ -59,7 +59,7 @@ for `pyitt.task` in the same way as for the decorator form.
 
 ## Installation
 
-[TODO] pyitt package is available on PyPi and can be installed in the usual way for the supported configurations:
+[TODO] intel-pyitt package is available on PyPi and can be installed in the usual way for the supported configurations:
 
 [TODO]    pip install intel-pyitt
 
@@ -80,7 +80,7 @@ standard, for example GCC-10 for Linux and Visual Studio 2022 for Windows.
 
 3. Build and install pyitt:
 
-       cd pyitt
+       cd python
        pip install .
 
 ### Windows 10/11
@@ -96,7 +96,7 @@ standard, for example GCC-10 for Linux and Visual Studio 2022 for Windows.
 
 4. Build and install pyitt
 
-       cd pyitt
+       cd python
        pip install .
 
 ## References

@@ -39,7 +39,10 @@ build_itt_with_ipt_support = build_itt_with_ipt_support if build_itt_with_ipt_su
 
 itt_source = [os.path.join(itt_dir, 'src', 'ittnotify', 'ittnotify_static.c')]
 itt_include_dirs = [os.path.join(itt_dir, 'include')]
-itt_license_files = [os.path.join(itt_dir, 'LICENSES', 'BSD-3-Clause.txt')] if itt_dir == ITT_DEFAULT_DIR else []
+itt_license_files = []
+if itt_dir == ITT_DEFAULT_DIR:
+    itt_license_files = [os.path.join(itt_dir, 'LICENSES', 'BSD-3-Clause.txt'),
+                         os.path.join(itt_dir, 'LICENSES', 'GPL-2.0-only.txt')]
 
 if build_itt_with_ipt_support:
     itt_compiler_flags = ['-DITT_API_IPT_SUPPORT']
@@ -52,7 +55,7 @@ else:
     itt_compiler_flags = []
     itt_extra_objects = []
 
-pyitt_license_files = ['LICENSE']
+pyitt_license_files = []
 pyitt_native_sources = ['pyitt.native/extensions/python.cpp',
                         'pyitt.native/extensions/string.cpp',
                         'pyitt.native/collection_control.cpp',
@@ -117,7 +120,7 @@ class NativeBuildExtension(build_ext):  # pylint: disable=R0903
         build_ext.build_extension(self, ext)
 
 
-setup(name='pyitt',
+setup(name='intel-pyitt',
       version='1.1.0',
       description='ITT API bindings for Python',
       packages=['pyitt'],
