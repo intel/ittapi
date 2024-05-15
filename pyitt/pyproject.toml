@@ -2,7 +2,7 @@
 name = "pyitt"
 version = "1.1.0"
 authors = [
-  { name="Egor Suldin", email="rd3tap@yandex.ru" },
+  { name="Egor Suldin", email="egor.suldin@intel.com" },
 ]
 description = "Python bindings to Intel Instrumentation and Tracing Technology (ITT) API."
 readme = "README.md"
@@ -19,8 +19,8 @@ classifiers = [
 ]
 
 [project.urls]
-"Homepage" = "https://github.com/esuldin/pyitt"
-"Bug Tracker" = "https://github.com/esuldin/pyitt/issues"
+"Homepage" = "https://github.com/intel/ittapi"
+"Bug Tracker" = "https://github.com/intel/ittapi/issues"
 
 [build-system]
 requires = ["setuptools>=61.0"]

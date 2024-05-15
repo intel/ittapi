@@ -23,7 +23,7 @@ def get_environment_flag(name):
 IS_64_ARCHITECTURE = sys.maxsize > 2 ** 32
 
 # Check if custom location for ITT API source code is specified
-ITT_DEFAULT_DIR = 'ittapi'
+ITT_DEFAULT_DIR = '../'
 itt_dir = os.environ.get('PYITT_ITT_API_SOURCE_DIR', None)
 itt_dir = itt_dir if itt_dir else ITT_DEFAULT_DIR
 

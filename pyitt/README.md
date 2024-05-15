@@ -1,6 +1,3 @@
-![PyPI - Python Version](https://img.shields.io/pypi/pyversions/pyitt)
-![PyPI](https://badge.fury.io/py/pyitt.svg)
-
 # pyitt
 
 pyitt is a Python binding to Intel Instrumentation and Tracing Technology (ITT) API. It provides a convenient way
@@ -62,9 +59,9 @@ for `pyitt.task` in the same way as for the decorator form.
 
 ## Installation
 
-pyitt package is available on PyPi and can be installed in the usual way for the supported configurations:
+[TODO] pyitt package is available on PyPi and can be installed in the usual way for the supported configurations:
 
-    pip install pyitt
+[TODO]    pip install intel-pyitt
 
 ## Build
 
@@ -79,7 +76,7 @@ standard, for example GCC-10 for Linux and Visual Studio 2022 for Windows.
 
 2. Clone the repository:
 
-       git clone --recurse-submodules https://github.com/esuldin/pyitt.git
+       git clone --recurse-submodules https://github.com/intel/ittapi.git
 
 3. Build and install pyitt:
 
@@ -95,7 +92,7 @@ standard, for example GCC-10 for Linux and Visual Studio 2022 for Windows.
 
 3. Clone the repository
 
-       git clone --recurse-submodules https://github.com/esuldin/pyitt.git
+       git clone --recurse-submodules https://github.com/intel/ittapi.git
 
 4. Build and install pyitt
 
