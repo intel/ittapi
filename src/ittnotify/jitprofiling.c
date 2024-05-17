@@ -123,6 +123,13 @@ static int isValidAbsolutePath(char *path, size_t maxPathLength)
     }
 
     size_t pathLength = strnlen(path, maxPathLength);
+    if (pathLength == maxPathLength)
+    {
+      /* The strnlen() function returns maxPathLength if there is no null terminating
+       * among the first maxPathLength characters in the string pointed to by path.
+       */
+      return 0;
+    }
 
     if (pathLength > 2)
     {
