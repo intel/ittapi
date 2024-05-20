@@ -2,7 +2,7 @@ use std::{ffi::CString, marker::PhantomData};
 
 /// See the [Event API] documentation.
 ///
-/// [Event API]: https://www.intel.com/content/www/us/en/develop/documentation/vtune-help/top/api-support/instrumentation-and-tracing-technology-apis/instrumentation-tracing-technology-api-reference/event-api.html
+/// [Event API]: https://www.intel.com/content/www/us/en/docs/vtune-profiler/user-guide/2024-1/event-api.html
 ///
 /// ```
 /// let event = ittapi::Event::new("foo");

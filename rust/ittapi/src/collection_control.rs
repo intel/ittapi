@@ -37,7 +37,7 @@
 /// // Do finalization work here
 /// ```
 ///
-/// [Collection Control API]: https://www.intel.com/content/www/us/en/develop/documentation/vtune-help/top/api-support/instrumentation-and-tracing-technology-apis/instrumentation-tracing-technology-api-reference/collection-control-api.html
+/// [Collection Control API]: https://www.intel.com/content/www/us/en/docs/vtune-profiler/user-guide/2024-1/collection-control-api.html
 pub fn pause() {
     if let Some(pause_fn) = unsafe { ittapi_sys::__itt_pause_ptr__3_0 } {
         unsafe { (pause_fn)() };
@@ -54,7 +54,7 @@ pub fn pause() {
 ///
 /// See [pause#example].
 ///
-/// [Collection Control API]: https://www.intel.com/content/www/us/en/develop/documentation/vtune-help/top/api-support/instrumentation-and-tracing-technology-apis/instrumentation-tracing-technology-api-reference/collection-control-api.html
+/// [Collection Control API]: https://www.intel.com/content/www/us/en/docs/vtune-profiler/user-guide/2024-1/collection-control-api.html
 pub fn resume() {
     if let Some(resume_fn) = unsafe { ittapi_sys::__itt_resume_ptr__3_0 } {
         unsafe { (resume_fn)() };
@@ -72,7 +72,7 @@ pub fn resume() {
 ///
 /// Detach behaves similarly to [pause#example].
 ///
-/// [Collection Control API]: https://www.intel.com/content/www/us/en/develop/documentation/vtune-help/top/api-support/instrumentation-and-tracing-technology-apis/instrumentation-tracing-technology-api-reference/collection-control-api.html
+/// [Collection Control API]: https://www.intel.com/content/www/us/en/docs/vtune-profiler/user-guide/2024-1/collection-control-api.html
 pub fn detach() {
     if let Some(detach_fn) = unsafe { ittapi_sys::__itt_detach_ptr__3_0 } {
         unsafe { (detach_fn)() };
