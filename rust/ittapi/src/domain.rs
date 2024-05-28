@@ -5,7 +5,7 @@ use std::ffi::CString;
 /// [Domain API] documentation for more information.
 ///
 /// [Domain API]:
-///     https://www.intel.com/content/www/us/en/docs/vtune-profiler/user-guide/2024-1/domain-api.html
+///     https://www.intel.com/content/www/us/en/docs/vtune-profiler/user-guide/current/domain-api.html
 pub struct Domain(*mut ittapi_sys::__itt_domain);
 impl Domain {
     /// Create a new domain. Note that, if the `ittnotify` library is not initialized, this call
@@ -41,7 +41,7 @@ impl Domain {
 /// thread in the process.
 ///
 /// [ITT documentation]:
-///     https://www.intel.com/content/www/us/en/docs/vtune-profiler/user-guide/2024-1/domain-api.html
+///     https://www.intel.com/content/www/us/en/docs/vtune-profiler/user-guide/current/domain-api.html
 unsafe impl Sync for Domain {}
 
 #[cfg(test)]

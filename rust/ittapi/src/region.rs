@@ -34,7 +34,7 @@ impl Region {
     /// used for fine-grained profiling, such as [anomaly detection] (a preview feature of VTune).
     ///
     /// [anomaly detection]:
-    ///     https://www.intel.com/content/www/us/en/docs/vtune-profiler/user-guide/2024-1/anomaly-detection-analysis.html
+    ///     https://www.intel.com/content/www/us/en/docs/vtune-profiler/user-guide/current/anomaly-detection-analysis.html
     ///
     /// ```
     /// # use ittapi::Region;

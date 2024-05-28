@@ -17,5 +17,5 @@ To install VTune, see the [User Guide]. The environment setup script (e.g., `vtu
 found within the VTune installation; e.g., `$HOME/intel/oneapi/vtune/latest` or
 `/opt/intel/oneapi/vtune/latest` on [Linux].
 
-[User Guide]: https://www.intel.com/content/www/us/en/docs/vtune-profiler/user-guide/2024-1/installation.html
-[Linux]: https://www.intel.com/content/www/us/en/docs/vtune-profiler/get-started-guide/2024-1/linux-os.html
+[User Guide]: https://www.intel.com/content/www/us/en/docs/vtune-profiler/user-guide/current/installation.html
+[Linux]: https://www.intel.com/content/www/us/en/docs/vtune-profiler/get-started-guide/current/linux-os.html
