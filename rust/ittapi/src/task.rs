@@ -3,7 +3,7 @@ use crate::{domain::Domain, string::StringHandle};
 /// A task is a logical unit of work performed by a particular thread. See the [Task API]
 /// documentation for more information.
 ///
-/// [Task API]: https://www.intel.com/content/www/us/en/docs/vtune-profiler/user-guide/2024-1/task-api.html
+/// [Task API]: https://www.intel.com/content/www/us/en/docs/vtune-profiler/user-guide/current/task-api.html
 ///
 /// ```
 /// # use ittapi::{Domain, StringHandle, Task};
