@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [ master ]
+    branches: [ master, fortran_ittapi ]
   pull_request:
     branches: [ master ]
 
@@ -21,13 +21,16 @@ jobs:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
     steps:
-    - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+    - name: Checkout sources
+      uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+    - name: Setup Fortran Compiler
+      uses: fortran-lang/setup-fortran@8821f57b53846d35d62632eb51c60ac6c4bff4ce # v1.6.1
       with:
-        submodules: recursive
+          compiler: intel
     - name: Build C library
-      # TODO: Ubuntu is phasing out support for 32-bit packages (e.g., `apt install gcc-multilib`
-      # fails on GitHub's runner); only build the 64-bit version for now.
-      run: python buildall.py --force_bits 64
+      # Force to only build the 64-bit version since
+      # ITT API 32-bit support will be discontinued soon
+      run: python buildall.py --force_bits 64 -ft ${{ runner.os != 'macOS' && '-pt' || '' }}
 
   rust_format:
     name: Check Rust formatting

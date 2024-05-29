@@ -4,9 +4,9 @@
 # SPDX-License-Identifier: GPL-2.0-only OR BSD-3-Clause
 #
 
-cmake_minimum_required(VERSION 2.8.12)
+cmake_minimum_required(VERSION 3.5)
 
-if (POLICY CMP0048)
+if(POLICY CMP0048)
     # The `project()` command manages `VERSION` variables
     cmake_policy(SET CMP0048 NEW)
 endif()
@@ -23,17 +23,22 @@ endif()
 
 project(ittapi)
 
-OPTION(FORCE_32 "Force a 32bit compile on 64bit" OFF)
-OPTION(ITT_API_IPT_SUPPORT "ptmarks support" OFF)
-OPTION(ITT_API_FORTRAN_SUPPORT "fortran support" OFF)
+option(FORCE_32 "Force a 32-bit compile on 64-bit" OFF)
+option(ITT_API_IPT_SUPPORT "ptmarks support" OFF)
+option(ITT_API_FORTRAN_SUPPORT "fortran support" OFF)
 
-IF(FORCE_32 AND UNIX)
+if(FORCE_32 AND UNIX)
     SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -m32")
     SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -m32")
-ENDIF()
+endif()
 
 if(CMAKE_SIZEOF_VOID_P MATCHES "8" AND NOT(FORCE_32))
     set(ARCH_64 ON)
+endif()
+
+if(FORCE_32 AND ITT_API_FORTRAN_SUPPORT)
+    message(WARNING "Fortran support for 32-bit has been discontinued")
+    set(ITT_API_FORTRAN_SUPPORT OFF)
 endif()
 
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "^(Apple)?Clang$")
@@ -48,10 +53,10 @@ endif()
 
 set(LIBRARY_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin)
 
-foreach( OUTPUTCONFIG ${CMAKE_CONFIGURATION_TYPES} )
-    string( TOUPPER ${OUTPUTCONFIG} OUTPUTCONFIG )
-    set( CMAKE_LIBRARY_OUTPUT_DIRECTORY_${OUTPUTCONFIG} ${LIBRARY_OUTPUT_PATH} )
-endforeach( )
+foreach(OUTPUTCONFIG ${CMAKE_CONFIGURATION_TYPES})
+    string(TOUPPER ${OUTPUTCONFIG} OUTPUTCONFIG)
+    set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_${OUTPUTCONFIG} ${LIBRARY_OUTPUT_PATH})
+endforeach()
 
 set(ITT_PUBLIC_HDRS
     include/ittnotify.h
@@ -61,21 +66,21 @@ set(ITT_PUBLIC_HDRS
 
 file(GLOB ITT_SRCS "src/ittnotify/*.c" "src/ittnotify/*.h")
 
-if (ITT_API_IPT_SUPPORT)
+if(ITT_API_IPT_SUPPORT)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DITT_API_IPT_SUPPORT")
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DITT_API_IPT_SUPPORT")
-    if (NOT WIN32)
+    if(NOT WIN32)
         enable_language(ASM)
-        if (ARCH_64)
+        if(ARCH_64)
             set(ITT_PT src/ittnotify/ittptmark64.S)
         else()
             set(ASM_OPTIONS "-m32")
             set(ITT_PT src/ittnotify/ittptmark32.S)
         endif()
-        set(CMAKE_ASM_FLAGS "${CFLAGS} ${ASM_OPTIONS}" )
+        set(CMAKE_ASM_FLAGS "${CFLAGS} ${ASM_OPTIONS}")
     else()
         enable_language(ASM_MASM)
-        if (ARCH_64)
+        if(ARCH_64)
             set(ITT_PT src/ittnotify/ittptmark64.asm)
 	    else()
             set(ITT_PT src/ittnotify/ittptmark32.asm)
@@ -83,7 +88,7 @@ if (ITT_API_IPT_SUPPORT)
     endif()
 endif()
 
-if (NOT WIN32)
+if(NOT WIN32)
     set(PLATFORM_PATH "posix")
     set(PLATFORM_EXT "o")
 else()
@@ -91,18 +96,61 @@ else()
     set(PLATFORM_EXT "obj")
 endif()
 
-if (ARCH_64)
-    set(ARCH_PATH "x86_64")
-else()
-    set(ARCH_PATH "x86")
-endif()
-
 if(ITT_API_FORTRAN_SUPPORT)
-    set(ITT_FORTRAN include/fortran/${PLATFORM_PATH}/${ARCH_PATH}/ittfortran.${PLATFORM_EXT})
-    set(ADVISOR_ANNOTATION include/fortran/${PLATFORM_PATH}/${ARCH_PATH}/advisor_annotate.${PLATFORM_EXT})
+    # Workaround to find and force to use the Intel Fortran compiler
+    # since enable_language(Fortran) does not always work properly
+    find_program(IFX_FOUND ifx)
+    if(IFX_FOUND)
+        set(CMAKE_Fortran_COMPILER ${IFX_FOUND})
+    else()
+        find_program(IFORT_FOUND ifort)
+        if(IFORT_FOUND)
+            set(CMAKE_Fortran_COMPILER ${IFORT_FOUND})
+        else()
+            message(FATAL_ERROR "Intel Fortran compiler was found")
+        endif()
+    endif()
+
+    set(ITT_FORTRAN_SRC ${CMAKE_CURRENT_SOURCE_DIR}/include/fortran/${PLATFORM_PATH}/ittnotify.f90)
+    set(ADVISOR_ANNOTATION_SRC ${CMAKE_CURRENT_SOURCE_DIR}/include/fortran/advisor_annotate.f90)
+
+    set(FORTRAN_BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR}/fortran)
+    file(MAKE_DIRECTORY ${FORTRAN_BINARY_DIR})
+
+    set(ITT_FORTRAN ${FORTRAN_BINARY_DIR}/ittfortran.${PLATFORM_EXT})
+    set(ADVISOR_ANNOTATION ${FORTRAN_BINARY_DIR}/advisor_annotate.${PLATFORM_EXT})
+
+    if(WIN32)
+        set(FORTRAN_BUILD_CMD ${CMAKE_Fortran_COMPILER} /Z7 /nologo /libdir:noauto /c /O2 /module:${FORTRAN_BINARY_DIR})
+        set(ITT_FORTRAN_BUILD_CMD ${FORTRAN_BUILD_CMD} /object:${ITT_FORTRAN} ${ITT_FORTRAN_SRC})
+        set(ADVISOR_ANNOTATION_BUILD_CMD ${FORTRAN_BUILD_CMD} /object:${ADVISOR_ANNOTATION} ${ADVISOR_ANNOTATION_SRC})
+    else()
+        set(FORTRAN_BUILD_CMD ${CMAKE_Fortran_COMPILER} -g -c -fPIC -O2 -module ${FORTRAN_BINARY_DIR})
+        set(ITT_FORTRAN_BUILD_CMD ${FORTRAN_BUILD_CMD} -o ${ITT_FORTRAN} ${ITT_FORTRAN_SRC})
+        set(ADVISOR_ANNOTATION_BUILD_CMD ${FORTRAN_BUILD_CMD} -o ${ADVISOR_ANNOTATION} ${ADVISOR_ANNOTATION_SRC})
+    endif()
+
+    # Add custom command to compile fortran sources into object files
+    add_custom_command(OUTPUT  ${ITT_FORTRAN}
+                       COMMAND ${ITT_FORTRAN_BUILD_CMD}
+                       DEPENDS ${ITT_FORTRAN_SRC}
+                       COMMENT "Building ITT Fortran")
+
+    add_custom_command(OUTPUT  ${ADVISOR_ANNOTATION}
+                       COMMAND ${ADVISOR_ANNOTATION_BUILD_CMD}
+                       DEPENDS ${ADVISOR_ANNOTATION_SRC}
+                       COMMENT "Building Advisor Annotation")
+
+    # Add custom targets to ensure the above commands are executed before the libraries are built
+    add_custom_target(ittfortran ALL DEPENDS ${ITT_FORTRAN})
+    add_custom_target(advisor_annotate ALL DEPENDS ${ADVISOR_ANNOTATION})
 
     add_library(ittnotify STATIC ${ITT_SRCS} ${ITT_PUBLIC_HDRS} ${ITT_PT} ${ITT_FORTRAN})
     add_library(advisor STATIC ${ADVISOR_ANNOTATION})
+
+    # Add dependencies to the libraries
+    add_dependencies(ittnotify ittfortran)
+    add_dependencies(advisor advisor_annotate)
 else()
     add_library(ittnotify STATIC ${ITT_SRCS} ${ITT_PUBLIC_HDRS} ${ITT_PT})
 endif()
@@ -111,24 +159,24 @@ set(JITPROFILING_SRC "src/ittnotify/jitprofiling.c")
 add_library(jitprofiling STATIC ${JITPROFILING_SRC})
 
 if(WIN32)
-    SET_TARGET_PROPERTIES(ittnotify PROPERTIES OUTPUT_NAME libittnotify)
-    SET_TARGET_PROPERTIES(jitprofiling PROPERTIES OUTPUT_NAME libjitprofiling)
+    set_target_properties(ittnotify PROPERTIES OUTPUT_NAME libittnotify)
+    set_target_properties(jitprofiling PROPERTIES OUTPUT_NAME libjitprofiling)
     if(ITT_API_FORTRAN_SUPPORT)
-        SET_TARGET_PROPERTIES(advisor PROPERTIES OUTPUT_NAME libadvisor)
+        set_target_properties(advisor PROPERTIES OUTPUT_NAME libadvisor)
     endif()
 else()
-    SET_TARGET_PROPERTIES(ittnotify PROPERTIES OUTPUT_NAME ittnotify)
-    SET_TARGET_PROPERTIES(jitprofiling PROPERTIES OUTPUT_NAME jitprofiling)
+    set_target_properties(ittnotify PROPERTIES OUTPUT_NAME ittnotify)
+    set_target_properties(jitprofiling PROPERTIES OUTPUT_NAME jitprofiling)
     if(ITT_API_FORTRAN_SUPPORT)
-        SET_TARGET_PROPERTIES(advisor PROPERTIES OUTPUT_NAME advisor)
+        set_target_properties(advisor PROPERTIES OUTPUT_NAME advisor)
     endif()
 endif()
 
-TARGET_LINK_LIBRARIES(ittnotify PRIVATE ${CMAKE_DL_LIBS})
+target_link_libraries(ittnotify PRIVATE ${CMAKE_DL_LIBS})
 
-SET_TARGET_PROPERTIES(ittnotify PROPERTIES LINKER_LANGUAGE C)
+set_target_properties(ittnotify PROPERTIES LINKER_LANGUAGE C)
 if(ITT_API_FORTRAN_SUPPORT)
-    SET_TARGET_PROPERTIES(advisor PROPERTIES LINKER_LANGUAGE C)
+    set_target_properties(advisor PROPERTIES LINKER_LANGUAGE C)
 endif()
 
 target_include_directories(ittnotify
