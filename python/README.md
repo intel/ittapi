@@ -76,7 +76,7 @@ standard, for example GCC-10 for Linux and Visual Studio 2022 for Windows.
 
 2. Clone the repository:
 
-       git clone --recurse-submodules https://github.com/intel/ittapi.git
+       git clone https://github.com/intel/ittapi.git
 
 3. Build and install pyitt:
 
@@ -92,7 +92,7 @@ standard, for example GCC-10 for Linux and Visual Studio 2022 for Windows.
 
 3. Clone the repository
 
-       git clone --recurse-submodules https://github.com/intel/ittapi.git
+       git clone https://github.com/intel/ittapi.git
 
 4. Build and install pyitt
 
