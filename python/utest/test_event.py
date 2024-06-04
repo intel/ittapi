@@ -5,7 +5,7 @@ from unittest import main as unittest_main, TestCase
 from unittest.mock import call
 
 from pyitt_native_mock import patch as pyitt_native_patch
-import pyitt
+import ittapi
 
 
 class EventCreationTests(TestCase):
@@ -14,7 +14,7 @@ class EventCreationTests(TestCase):
     def test_event_creation_with_default_constructor(self, event_mock, string_handle_mock):
         string_handle_mock.side_effect = lambda x: x
 
-        event = pyitt.event()
+        event = ittapi.event()
         caller = stack()[0]
         expected_name = f'{basename(caller.filename)}:{caller.lineno-1}'
 
@@ -30,7 +30,7 @@ class EventCreationTests(TestCase):
     def test_event_creation_as_decorator_for_function(self, event_mock, string_handle_mock):
         string_handle_mock.side_effect = lambda x: x
 
-        @pyitt.event
+        @ittapi.event
         def my_function():
             pass  # pragma: no cover
 
@@ -41,7 +41,7 @@ class EventCreationTests(TestCase):
     def test_event_creation_as_decorator_with_empty_arguments_for_function(self, event_mock, string_handle_mock):
         string_handle_mock.side_effect = lambda x: x
 
-        @pyitt.event()
+        @ittapi.event()
         def my_function():
             pass  # pragma: no cover
 
@@ -52,7 +52,7 @@ class EventCreationTests(TestCase):
     def test_event_creation_as_decorator_with_name_for_function(self, event_mock, string_handle_mock):
         string_handle_mock.side_effect = lambda x: x
 
-        @pyitt.event('my function')
+        @ittapi.event('my function')
         def my_function():
             pass  # pragma: no cover
 
@@ -63,8 +63,8 @@ class EventCreationTests(TestCase):
     def test_event_creation_as_decorator_with_empty_args_and_name_for_function(self, event_mock, string_handle_mock):
         string_handle_mock.side_effect = lambda x: x
 
-        @pyitt.event
-        @pyitt.event('my function')
+        @ittapi.event
+        @ittapi.event('my function')
         def my_function():
             pass  # pragma: no cover
 
@@ -78,7 +78,7 @@ class EventCreationTests(TestCase):
         string_handle_mock.side_effect = lambda x: x
 
         caller = stack()[0]
-        with pyitt.event():
+        with ittapi.event():
             pass
 
         event_mock.assert_called_once_with(f'{basename(caller.filename)}:{caller.lineno+1}')
@@ -88,7 +88,7 @@ class EventCreationTests(TestCase):
     def test_event_creation_with_name_and_domain_as_context_manager(self, event_mock, string_handle_mock):
         string_handle_mock.side_effect = lambda x: x
 
-        with pyitt.event('my event'):
+        with ittapi.event('my event'):
             pass
 
         event_mock.assert_called_once_with('my event')
@@ -102,7 +102,7 @@ class EventCreationTests(TestCase):
             def __call__(self, *args, **kwargs):
                 pass  # pragma: no cover
 
-        event = pyitt.event(CallableClass())
+        event = ittapi.event(CallableClass())
 
         expected_name = f'{CallableClass.__name__}.__call__'
         event_mock.assert_called_once_with(expected_name)
@@ -118,7 +118,7 @@ class EventCreationTests(TestCase):
             def __call__(self, *args, **kwargs):
                 pass  # pragma: no cover
 
-        event = pyitt.event()
+        event = ittapi.event()
         event(CallableClass())
 
         expected_name = f'{CallableClass.__name__}.__call__'
@@ -131,7 +131,7 @@ class EventCreationTests(TestCase):
         string_handle_mock.side_effect = lambda x: x
 
         class MyClass:
-            @pyitt.event
+            @ittapi.event
             def my_method(self):
                 pass  # pragma: no cover
 
@@ -148,7 +148,7 @@ class EventPropertiesTest(TestCase):
             def __call__(self, *args, **kwargs):
                 pass  # pragma: no cover
 
-        event = pyitt.event(CallableClass())
+        event = ittapi.event(CallableClass())
 
         expected_name = f'{CallableClass.__name__}.__call__'
         event_mock.assert_called_once_with(expected_name)
@@ -165,7 +165,7 @@ class EventExecutionTests(TestCase):
     def test_event_for_function(self, event_mock, string_handle_mock):
         string_handle_mock.return_value = 'string_handle'
 
-        @pyitt.event
+        @ittapi.event
         def my_function():
             return 42
 
@@ -183,8 +183,8 @@ class EventExecutionTests(TestCase):
     def test_nested_events_for_function(self, event_mock, string_handle_mock):
         string_handle_mock.side_effect = lambda x: x
 
-        @pyitt.event
-        @pyitt.event('my function')
+        @ittapi.event
+        @ittapi.event('my function')
         def my_function():
             return 42
 
@@ -207,7 +207,7 @@ class EventExecutionTests(TestCase):
         string_handle_mock.side_effect = lambda x: x
 
         region_name = 'my region'
-        with pyitt.event(region_name):
+        with ittapi.event(region_name):
             pass
 
         string_handle_mock.assert_called_once_with(region_name)
@@ -226,7 +226,7 @@ class EventExecutionTests(TestCase):
             def __call__(self, *args, **kwargs):
                 return 42
 
-        callable_object = pyitt.event(CallableClass())
+        callable_object = ittapi.event(CallableClass())
         string_handle_mock.assert_called_once_with(f'{CallableClass.__name__}.__call__')
         event_mock.assert_called_once_with(string_handle_mock.return_value)
 
@@ -241,7 +241,7 @@ class EventExecutionTests(TestCase):
             def __call__(self, *args, **kwargs):
                 pass  # pragma: no cover
 
-        event = pyitt.event()
+        event = ittapi.event()
         event(CallableClass())
 
         with self.assertRaises(RuntimeError) as context:
@@ -252,7 +252,7 @@ class EventExecutionTests(TestCase):
 
     def test_event_for_noncallable_object(self):
         with self.assertRaises(TypeError) as context:
-            pyitt.event()(42)
+            ittapi.event()(42)
 
         self.assertEqual(str(context.exception), 'Callable object is expected as a first argument.')
 
@@ -262,7 +262,7 @@ class EventExecutionTests(TestCase):
         string_handle_mock.side_effect = lambda x: x
 
         class MyClass:
-            @pyitt.event
+            @ittapi.event
             def my_method(self):
                 return 42
 
@@ -283,7 +283,7 @@ class EventExecutionTests(TestCase):
 
         class MyClass:
             @classmethod
-            @pyitt.event
+            @ittapi.event
             def my_class_method(cls):
                 return 42
 
@@ -303,7 +303,7 @@ class EventExecutionTests(TestCase):
 
         class MyClass:
             @staticmethod
-            @pyitt.event
+            @ittapi.event
             def my_static_method():
                 return 42
 
@@ -325,7 +325,7 @@ class EventExecutionTests(TestCase):
         string_handle_mock.side_effect = lambda x: x
 
         class MyClass:
-            @pyitt.event
+            @ittapi.event
             @staticmethod
             def my_static_method():
                 return 42  # pragma: no cover
@@ -344,7 +344,7 @@ class EventExecutionTests(TestCase):
             event_mock.assert_has_calls(expected_calls)
         else:
             # @staticmethod decorator returns a descriptor which is not callable before Python 3.10
-            # therefore, it cannot be traced. @staticmethod have to be always above pyitt decorators for Python 3.9 or
+            # therefore, it cannot be traced. @staticmethod have to be always above ittapi decorators for Python 3.9 or
             # older. otherwise, the exception is thrown.
             with self.assertRaises(TypeError) as context:
                 MyClass().my_static_method()
@@ -353,10 +353,10 @@ class EventExecutionTests(TestCase):
 
     def test_event_for_class_method_with_wrong_order_of_decorators(self):
         # @classmethod decorator returns a descriptor and the descriptor is not callable object,
-        # therefore, it cannot be traced. @classmethod have to be always above pyitt decorators,
+        # therefore, it cannot be traced. @classmethod have to be always above ittapi decorators,
         # otherwise, the exception is thrown.
         class MyClass:
-            @pyitt.event
+            @ittapi.event
             @classmethod
             def my_class_method(cls):
                 return 42  # pragma: no cover
@@ -378,7 +378,7 @@ class EventExecutionTests(TestCase):
 
         exception_msg = 'ValueError exception from my_function'
 
-        @pyitt.event
+        @ittapi.event
         def my_function():
             raise ValueError(exception_msg)
 
@@ -402,7 +402,7 @@ class EventExecutionTests(TestCase):
         exception_msg = 'ValueError exception from my_method'
 
         class MyClass:
-            @pyitt.event
+            @ittapi.event
             def my_method(self):
                 raise ValueError(exception_msg)
 

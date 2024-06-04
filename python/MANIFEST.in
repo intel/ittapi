@@ -2,8 +2,8 @@ include README.md
 include MANIFEST.in
 include pyproject.toml
 include setup.py
-recursive-include pyitt *.py
-recursive-include pyitt.native *.cpp *.hpp
+recursive-include ittapi *.py
+recursive-include ittapi.native *.cpp *.hpp
 recursive-include ../include *.h
 recursive-include ../LICENSES *
 recursive-include ../src *

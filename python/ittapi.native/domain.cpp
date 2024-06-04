@@ -1,7 +1,8 @@
-#include "string_handle.hpp"
+#include "domain.hpp"
 
 #include <structmember.h>
 
+#include "string_handle.hpp"
 #include "extensions/string.hpp"
 
 
@@ -9,40 +10,40 @@ namespace pyitt
 {
 
 template<typename T>
-T* string_handle_cast(StringHandle* self);
+T* domain_cast(Domain* self);
 
 template<>
-PyObject* string_handle_cast(StringHandle* self)
+PyObject* domain_cast(Domain* self)
 {
     return reinterpret_cast<PyObject*>(self);
 }
 
-static PyObject* string_handle_new(PyTypeObject* type, PyObject* args, PyObject* kwargs);
-static void string_handle_dealloc(PyObject* self);
+static PyObject* domain_new(PyTypeObject* type, PyObject* args, PyObject* kwargs);
+static void domain_dealloc(PyObject* self);
 
-static PyObject* string_handle_repr(PyObject* self);
-static PyObject* string_handle_str(PyObject* self);
+static PyObject* domain_repr(PyObject* self);
+static PyObject* domain_str(PyObject* self);
 
-static PyMemberDef string_handle_attrs[] =
+static PyMemberDef domain_attrs[] =
 {
-    {"_str",  T_OBJECT, offsetof(StringHandle, str), READONLY, "a string for which the handle has been created"},
+    {"name",  T_OBJECT, offsetof(Domain, name), READONLY, "a domain name"},
     {nullptr},
 };
 
-PyTypeObject StringHandleType =
+PyTypeObject DomainType =
 {
     .ob_base              = PyVarObject_HEAD_INIT(nullptr, 0)
-    .tp_name              = "pyitt.native.StringHandle",
-    .tp_basicsize         = sizeof(StringHandle),
+    .tp_name              = "ittapi.native.Domain",
+    .tp_basicsize         = sizeof(Domain),
     .tp_itemsize          = 0,
 
     /* Methods to implement standard operations */
-    .tp_dealloc           = string_handle_dealloc,
+    .tp_dealloc           = domain_dealloc,
     .tp_vectorcall_offset = 0,
     .tp_getattr           = nullptr,
     .tp_setattr           = nullptr,
     .tp_as_async          = nullptr,
-    .tp_repr              = string_handle_repr,
+    .tp_repr              = domain_repr,
 
     /* Method suites for standard classes */
     .tp_as_number         = nullptr,
@@ -52,7 +53,7 @@ PyTypeObject StringHandleType =
     /* More standard operations (here for binary compatibility) */
     .tp_hash              = nullptr,
     .tp_call              = nullptr,
-    .tp_str               = string_handle_str,
+    .tp_str               = domain_str,
     .tp_getattro          = nullptr,
     .tp_setattro          = nullptr,
 
@@ -63,7 +64,7 @@ PyTypeObject StringHandleType =
     .tp_flags             = Py_TPFLAGS_DEFAULT,
 
     /* Documentation string */
-    .tp_doc               = "A class that represents a ITT string handle.",
+    .tp_doc               = "A class that represents a ITT domain.",
 
     /* Assigned meaning in release 2.0 call function for all accessible objects */
     .tp_traverse          = nullptr,
@@ -83,7 +84,7 @@ PyTypeObject StringHandleType =
 
     /* Attribute descriptor and subclassing stuff */
     .tp_methods           = nullptr,
-    .tp_members           = string_handle_attrs,
+    .tp_members           = domain_attrs,
     .tp_getset            = nullptr,
 
     /* Strong reference on a heap type, borrowed reference on a static type */
@@ -94,7 +95,7 @@ PyTypeObject StringHandleType =
     .tp_dictoffset        = 0,
     .tp_init              = nullptr,
     .tp_alloc             = nullptr,
-    .tp_new               = string_handle_new,
+    .tp_new               = domain_new,
 
     /* Low-level free-memory routine */
     .tp_free              = nullptr,
@@ -117,112 +118,118 @@ PyTypeObject StringHandleType =
     .tp_vectorcall        = nullptr,
 };
 
-static PyObject* string_handle_new(PyTypeObject* type, PyObject* args, PyObject* kwargs)
+static PyObject* domain_new(PyTypeObject* type, PyObject* args, PyObject* kwargs)
 {
-    StringHandle* self = string_handle_obj(type->tp_alloc(type, 0));
-
+    Domain* self = domain_obj(type->tp_alloc(type, 0));
     if (self == nullptr)
     {
         return nullptr;
     }
 
-    char str_key[] = { "str" };
-    char* kwlist[] = { str_key, nullptr };
+    char name_key[] = { "name" };
+    char* kwlist[] = { name_key, nullptr };
 
-    PyObject* str = nullptr;
-
-    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O", kwlist, &str))
+    PyObject* name = nullptr;
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|O", kwlist, &name))
     {
         return nullptr;
     }
 
-    if (str && PyUnicode_Check(str))
+    if (name == nullptr || name == Py_None)
     {
-        self->str = pyext::new_ref(str);
+        self->name = PyUnicode_FromString("ittapi");
+    }
+    else if (PyUnicode_Check(name))
+    {
+        self->name = pyext::new_ref(name);
+    }
+    else if (Py_TYPE(name) == &StringHandleType)
+    {
+        self->name = pyext::new_ref(string_handle_obj(name)->str);
     }
     else
     {
-        Py_DecRef(string_handle_cast<PyObject>(self));
+        Py_DecRef(domain_cast<PyObject>(self));
 
-        PyErr_SetString(PyExc_TypeError, "The passed string to create string handle is not a valid instance of str.");
+        PyErr_SetString(PyExc_TypeError, "The passed domain name is not a valid instance of str or StringHandle.");
         return nullptr;
     }
 
-    pyext::string str_wrapper = pyext::string::from_unicode(self->str);
-    if (str_wrapper.c_str() == nullptr)
+    pyext::string name_str = pyext::string::from_unicode(self->name);
+    if (name_str.c_str() == nullptr)
     {
-        Py_DecRef(string_handle_cast<PyObject>(self));
+        Py_DecRef(domain_cast<PyObject>(self));
         return nullptr;
     }
 
 #if defined(_WIN32)
-    self->handle = __itt_string_handle_createW(str_wrapper.c_str());
+    self->handle = __itt_domain_createW(name_str.c_str());
 #else
-    self->handle = __itt_string_handle_create(str_wrapper.c_str());
+    self->handle = __itt_domain_create(name_str.c_str());
 #endif
 
-    return string_handle_cast<PyObject>(self);
+    return domain_cast<PyObject>(self);
 }
 
-static void string_handle_dealloc(PyObject* self)
+static void domain_dealloc(PyObject* self)
 {
     if (self == nullptr)
     {
         return;
     }
 
-    StringHandle* obj = string_handle_obj(self);
-    Py_XDECREF(obj->str);
+    Domain* obj = domain_obj(self);
+    Py_XDECREF(obj->name);
 }
 
-static PyObject* string_handle_repr(PyObject* self)
+static PyObject* domain_repr(PyObject* self)
 {
-    StringHandle* obj = string_handle_check(self);
+    Domain* obj = domain_check(self);
     if (obj == nullptr)
     {
         return nullptr;
     }
 
-    if (obj->str == nullptr)
+    if (obj->name == nullptr)
     {
-        PyErr_SetString(PyExc_AttributeError, "The str attribute has not been initialized.");
+        PyErr_SetString(PyExc_AttributeError, "The name attribute has not been initialized.");
         return nullptr;
     }
 
-    return PyUnicode_FromFormat("%s('%U')", StringHandleType.tp_name, obj->str);
+    return PyUnicode_FromFormat("%s('%U')", DomainType.tp_name, obj->name);
 }
 
-static PyObject* string_handle_str(PyObject* self)
+static PyObject* domain_str(PyObject* self)
 {
-    StringHandle* obj = string_handle_check(self);
+    Domain* obj = domain_check(self);
     if (obj == nullptr)
     {
         return nullptr;
     }
 
-    if (obj->str == nullptr)
+    if (obj->name == nullptr)
     {
-        PyErr_SetString(PyExc_AttributeError, "The str attribute has not been initialized.");
+        PyErr_SetString(PyExc_AttributeError, "The name attribute has not been initialized.");
         return nullptr;
     }
 
-    return pyext::new_ref(obj->str);
+    return pyext::new_ref(obj->name);
 }
 
-StringHandle* string_handle_check(PyObject* self)
+Domain* domain_check(PyObject* self)
 {
-    if (self == nullptr || Py_TYPE(self) != &StringHandleType)
+    if (self == nullptr || Py_TYPE(self) != &DomainType)
     {
-        PyErr_SetString(PyExc_TypeError, "The passed string handle is not a valid instance of StringHandle.");
+        PyErr_SetString(PyExc_TypeError, "The passed domain is not a valid instance of Domain type.");
         return nullptr;
     }
 
-    return string_handle_obj(self);
+    return domain_obj(self);
 }
 
-int exec_string_handle(PyObject* module)
+int exec_domain(PyObject* module)
 {
-    return pyext::add_type(module, &StringHandleType);
+    return pyext::add_type(module, &DomainType);
 }
 
-}
+} // namespace pyitt

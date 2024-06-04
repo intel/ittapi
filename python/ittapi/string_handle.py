@@ -1,7 +1,7 @@
 """
 string_handle.py - Python module wrapper for ITT String Handle API
 """
-from pyitt.native import StringHandle as _StringHandle
+from ittapi.native import StringHandle as _StringHandle
 
 
 def string_handle(string: str):

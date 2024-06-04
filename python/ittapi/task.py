@@ -1,8 +1,8 @@
 """
 task.py - Python module wrapper for ITT Task API
 """
-from pyitt.native import task_begin as _task_begin, task_end as _task_end
-from pyitt.native import task_begin_overlapped as _task_begin_overlapped, task_end_overlapped as _task_end_overlapped
+from ittapi.native import task_begin as _task_begin, task_end as _task_end
+from ittapi.native import task_begin_overlapped as _task_begin_overlapped, task_end_overlapped as _task_end_overlapped
 
 from .domain import domain as _domain
 from .id import id as _id

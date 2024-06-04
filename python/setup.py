@@ -1,5 +1,5 @@
 """
-setup.py - Python module to install pyitt package
+setup.py - Python module to install ittapi package
 """
 import os
 import sys
@@ -24,7 +24,7 @@ IS_64_ARCHITECTURE = sys.maxsize > 2 ** 32
 
 # Check if custom location for ITT API source code is specified
 ITT_DEFAULT_DIR = '../'
-itt_dir = os.environ.get('PYITT_ITT_API_SOURCE_DIR', None)
+itt_dir = os.environ.get('ITTAPI_ITT_API_SOURCE_DIR', None)
 itt_dir = itt_dir if itt_dir else ITT_DEFAULT_DIR
 
 assert os.path.exists(itt_dir), 'The specified directory with ITT API source code does not exist.'
@@ -34,7 +34,7 @@ assert itt_dir != ITT_DEFAULT_DIR or len(os.listdir(itt_dir)), \
      f'git submodule update --init --recursive')
 
 # Check if IPT support is requested
-build_itt_with_ipt_support = get_environment_flag('PYITT_BUILD_WITH_ITT_API_IPT_SUPPORT')
+build_itt_with_ipt_support = get_environment_flag('ITTAPI_BUILD_WITH_ITT_API_IPT_SUPPORT')
 build_itt_with_ipt_support = build_itt_with_ipt_support if build_itt_with_ipt_support is not None else True
 
 itt_source = [os.path.join(itt_dir, 'src', 'ittnotify', 'ittnotify_static.c')]
@@ -55,39 +55,39 @@ else:
     itt_compiler_flags = []
     itt_extra_objects = []
 
-pyitt_license_files = []
-pyitt_native_sources = ['pyitt.native/extensions/python.cpp',
-                        'pyitt.native/extensions/string.cpp',
-                        'pyitt.native/collection_control.cpp',
-                        'pyitt.native/domain.cpp',
-                        'pyitt.native/event.cpp',
-                        'pyitt.native/id.cpp',
-                        'pyitt.native/string_handle.cpp',
-                        'pyitt.native/task.cpp',
-                        'pyitt.native/thread_naming.cpp',
-                        'pyitt.native/pyitt.cpp']
+ittapi_license_files = []
+ittapi_native_sources = ['ittapi.native/extensions/python.cpp',
+                        'ittapi.native/extensions/string.cpp',
+                        'ittapi.native/collection_control.cpp',
+                        'ittapi.native/domain.cpp',
+                        'ittapi.native/event.cpp',
+                        'ittapi.native/id.cpp',
+                        'ittapi.native/string_handle.cpp',
+                        'ittapi.native/task.cpp',
+                        'ittapi.native/thread_naming.cpp',
+                        'ittapi.native/ittapi.cpp']
 
-pyitt_native_compiler_args = ['/std:c++20' if sys.platform == 'win32' else '-std=c++20']
+ittapi_native_compiler_args = ['/std:c++20' if sys.platform == 'win32' else '-std=c++20']
 if build_itt_with_ipt_support:
-    pyitt_native_compiler_args.append('-DPYITT_BUILD_WITH_ITT_API_IPT_SUPPORT=1')
+    ittapi_native_compiler_args.append('-DITTAPI_BUILD_WITH_ITT_API_IPT_SUPPORT=1')
 
-pyitt_native = Extension('pyitt.native',
-                         sources=itt_source + pyitt_native_sources,
+ittapi_native = Extension('ittapi.native',
+                         sources=itt_source + ittapi_native_sources,
                          include_dirs=itt_include_dirs,
-                         extra_compile_args=itt_compiler_flags + pyitt_native_compiler_args,
+                         extra_compile_args=itt_compiler_flags + ittapi_native_compiler_args,
                          extra_objects=itt_extra_objects)
 
 
 class NativeBuildExtension(build_ext):  # pylint: disable=R0903
     """
-    A class that implements the build extension to compile pyitt.native module.
+    A class that implements the build extension to compile ittapi.native module.
     """
     def build_extension(self, ext) -> None:
         """
         Build native extension module
         :param ext: the extension to build
         """
-        if ext.name == 'pyitt.native' and self.compiler.compiler_type == 'msvc':
+        if ext.name == 'ittapi.native' and self.compiler.compiler_type == 'msvc':
             # Setup asm tool
             as_tool = 'ml64.exe' if IS_64_ARCHITECTURE else 'ml.exe'
             as_ext = '.asm'
@@ -120,11 +120,11 @@ class NativeBuildExtension(build_ext):  # pylint: disable=R0903
         build_ext.build_extension(self, ext)
 
 
-setup(name='intel-pyitt',
+setup(name='intel-ittapi',
       version='1.1.0',
       description='ITT API bindings for Python',
-      packages=['pyitt'],
-      ext_modules=[pyitt_native],
-      license_files=pyitt_license_files + itt_license_files,
+      packages=['ittapi'],
+      ext_modules=[ittapi_native],
+      license_files=ittapi_license_files + itt_license_files,
       cmdclass={'build_ext': NativeBuildExtension} if build_itt_with_ipt_support else {},
       zip_safe=False)

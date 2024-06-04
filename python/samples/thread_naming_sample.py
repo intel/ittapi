@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-import pyitt
+import ittapi
 
 # pylint: disable=C0411
 from argparse import ArgumentParser
@@ -9,12 +9,12 @@ from threading import Thread
 
 
 def run_sample():
-    @pyitt.task
+    @ittapi.task
     def run_workload():
         workload()
 
     def thread_func(name: str):
-        pyitt.thread_set_name(name)
+        ittapi.thread_set_name(name)
         run_workload()
 
     threads = [Thread(target=thread_func, args=(f'Thread for iteration {i}',)) for i in range(4)]

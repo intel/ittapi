@@ -5,7 +5,7 @@ from unittest import main as unittest_main, TestCase
 from unittest.mock import call
 
 from pyitt_native_mock import patch as pyitt_native_patch
-import pyitt
+import ittapi
 
 
 class TaskCreationTests(TestCase):
@@ -13,11 +13,11 @@ class TaskCreationTests(TestCase):
     @pyitt_native_patch('StringHandle')
     @pyitt_native_patch('Id')
     def test_task_creation_with_default_constructor(self, domain_mock, string_handle_mock, id_mock):
-        domain_mock.return_value = 'pyitt'
+        domain_mock.return_value = 'ittapi'
         string_handle_mock.side_effect = lambda x: x
         id_mock.return_value = 1
 
-        task = pyitt.task()
+        task = ittapi.task()
         caller = stack()[0]
         expected_name = f'{basename(caller.filename)}:{caller.lineno-1}'
 
@@ -31,7 +31,7 @@ class TaskCreationTests(TestCase):
 
     @pyitt_native_patch('StringHandle')
     def test_task_creation_as_decorator_for_function(self, string_handle_mock):
-        @pyitt.task
+        @ittapi.task
         def my_function():
             pass  # pragma: no cover
 
@@ -39,7 +39,7 @@ class TaskCreationTests(TestCase):
 
     @pyitt_native_patch('StringHandle')
     def test_task_creation_as_decorator_with_empty_arguments_for_function(self, string_handle_mock):
-        @pyitt.task()
+        @ittapi.task()
         def my_function():
             pass  # pragma: no cover
 
@@ -47,7 +47,7 @@ class TaskCreationTests(TestCase):
 
     @pyitt_native_patch('StringHandle')
     def test_task_creation_as_decorator_with_name_for_function(self, string_handle_mock):
-        @pyitt.task('my function')
+        @ittapi.task('my function')
         def my_function():
             pass  # pragma: no cover
 
@@ -55,7 +55,7 @@ class TaskCreationTests(TestCase):
 
     @pyitt_native_patch('Domain')
     def test_task_creation_as_decorator_with_domain_for_function(self, domain_mock):
-        @pyitt.task(domain='my domain')
+        @ittapi.task(domain='my domain')
         def my_function():
             pass  # pragma: no cover
 
@@ -63,8 +63,8 @@ class TaskCreationTests(TestCase):
 
     @pyitt_native_patch('StringHandle')
     def test_task_creation_as_decorator_with_empty_args_and_name_for_function(self, string_handle_mock):
-        @pyitt.task
-        @pyitt.task('my function')
+        @ittapi.task
+        @ittapi.task('my function')
         def my_function():
             pass  # pragma: no cover
 
@@ -76,7 +76,7 @@ class TaskCreationTests(TestCase):
     @pyitt_native_patch('StringHandle')
     def test_task_creation_with_default_constructor_as_context_manager(self, domain_mock, string_handle_mock):
         caller = stack()[0]
-        with pyitt.task():
+        with ittapi.task():
             pass
 
         string_handle_mock.assert_called_once_with(f'{basename(caller.filename)}:{caller.lineno+1}')
@@ -85,7 +85,7 @@ class TaskCreationTests(TestCase):
     @pyitt_native_patch('Domain')
     @pyitt_native_patch('StringHandle')
     def test_task_creation_with_name_and_domain_as_context_manager(self, domain_mock, string_handle_mock):
-        with pyitt.task('my task', 'my domain'):
+        with ittapi.task('my task', 'my domain'):
             pass
 
         string_handle_mock.assert_called_once_with('my task')
@@ -103,7 +103,7 @@ class TaskCreationTests(TestCase):
             def __call__(self, *args, **kwargs):
                 pass  # pragma: no cover
 
-        task = pyitt.task(CallableClass())
+        task = ittapi.task(CallableClass())
 
         expected_name = f'{CallableClass.__name__}.__call__'
         string_handle_mock.assert_called_once_with(expected_name)
@@ -126,7 +126,7 @@ class TaskCreationTests(TestCase):
                 pass  # pragma: no cover
 
         caller = stack()[0]
-        task = pyitt.task()
+        task = ittapi.task()
         task(CallableClass())
 
         expected_name = f'{CallableClass.__name__}.__call__'
@@ -144,7 +144,7 @@ class TaskCreationTests(TestCase):
     @pyitt_native_patch('StringHandle')
     def test_task_creation_for_method(self, string_handle_mock):
         class MyClass:
-            @pyitt.task
+            @ittapi.task
             def my_method(self):
                 pass  # pragma: no cover
 
@@ -167,7 +167,7 @@ class TaskPropertiesTest(TestCase):
         domain_name = 'my domain'
         task_id = 2
         parent_id = 1
-        task = pyitt.task(CallableClass(), domain=domain_name, id=task_id, parent=parent_id)
+        task = ittapi.task(CallableClass(), domain=domain_name, id=task_id, parent=parent_id)
 
         expected_name = f'{CallableClass.__name__}.__call__'
         string_handle_mock.assert_called_once_with(expected_name)
@@ -195,7 +195,7 @@ class TaskExecutionTests(TestCase):
         string_handle_mock.return_value = 'string_handle'
         id_mock.return_value = 'id_handle'
 
-        @pyitt.task
+        @ittapi.task
         def my_function():
             return 42
 
@@ -219,8 +219,8 @@ class TaskExecutionTests(TestCase):
         string_handle_mock.side_effect = lambda x: x
         id_mock.return_value = 'id_handle'
 
-        @pyitt.task
-        @pyitt.task('my function')
+        @ittapi.task
+        @ittapi.task('my function')
         def my_function():
             return 42
 
@@ -249,7 +249,7 @@ class TaskExecutionTests(TestCase):
         id_mock.return_value = 'id_handle'
 
         region_name = 'my region'
-        with pyitt.task(region_name):
+        with ittapi.task(region_name):
             pass
 
         domain_mock.assert_called_once_with(None)
@@ -273,7 +273,7 @@ class TaskExecutionTests(TestCase):
             def __call__(self, *args, **kwargs):
                 return 42
 
-        callable_object = pyitt.task(CallableClass())
+        callable_object = ittapi.task(CallableClass())
         string_handle_mock.assert_called_once_with(f'{CallableClass.__name__}.__call__')
 
         self.assertEqual(callable_object(), 42)
@@ -287,7 +287,7 @@ class TaskExecutionTests(TestCase):
             def __call__(self, *args, **kwargs):
                 pass
 
-        task = pyitt.task()
+        task = ittapi.task()
         task(CallableClass())
 
         with self.assertRaises(RuntimeError) as context:
@@ -298,7 +298,7 @@ class TaskExecutionTests(TestCase):
 
     def test_task_for_noncallable_object(self):
         with self.assertRaises(TypeError) as context:
-            pyitt.task()(42)
+            ittapi.task()(42)
 
         self.assertEqual(str(context.exception), 'Callable object is expected as a first argument.')
 
@@ -313,7 +313,7 @@ class TaskExecutionTests(TestCase):
         id_mock.return_value = 'id_handle'
 
         class MyClass:
-            @pyitt.task
+            @ittapi.task
             def my_method(self):
                 return 42
 
@@ -338,7 +338,7 @@ class TaskExecutionTests(TestCase):
 
         class MyClass:
             @classmethod
-            @pyitt.task
+            @ittapi.task
             def my_class_method(cls):
                 return 42
 
@@ -362,7 +362,7 @@ class TaskExecutionTests(TestCase):
 
         class MyClass:
             @staticmethod
-            @pyitt.task
+            @ittapi.task
             def my_static_method():
                 return 42
 
@@ -395,7 +395,7 @@ class TaskExecutionTests(TestCase):
         id_mock.return_value = 'id_handle'
 
         class MyClass:
-            @pyitt.task
+            @ittapi.task
             @staticmethod
             def my_static_method():
                 return 42  # pragma: no cover
@@ -421,7 +421,7 @@ class TaskExecutionTests(TestCase):
             task_end_mock.assert_called_once_with(domain_mock.return_value)
         else:
             # @staticmethod decorator returns a descriptor which is not callable before Python 3.10
-            # therefore, it cannot be traced. @staticmethod have to be always above pyitt decorators for Python 3.9 or
+            # therefore, it cannot be traced. @staticmethod have to be always above ittapi decorators for Python 3.9 or
             # older. otherwise, the exception is thrown.
             with self.assertRaises(TypeError) as context:
                 MyClass().my_static_method()
@@ -430,10 +430,10 @@ class TaskExecutionTests(TestCase):
 
     def test_task_for_class_method_with_wrong_order_of_decorators(self):
         # @classmethod decorator returns a descriptor and the descriptor is not callable object,
-        # therefore, it cannot be traced. @classmethod have to be always above pyitt decorators,
+        # therefore, it cannot be traced. @classmethod have to be always above ittapi decorators,
         # otherwise, the exception is thrown.
         class MyClass:
-            @pyitt.task
+            @ittapi.task
             @classmethod
             def my_class_method(cls):
                 return 42  # pragma: no cover
@@ -461,7 +461,7 @@ class TaskExecutionTests(TestCase):
 
         exception_msg = 'ValueError exception from my_function'
 
-        @pyitt.task
+        @ittapi.task
         def my_function():
             raise ValueError(exception_msg)
 
@@ -492,7 +492,7 @@ class TaskExecutionTests(TestCase):
         exception_msg = 'ValueError exception from my_method'
 
         class MyClass:
-            @pyitt.task
+            @ittapi.task
             def my_method(self):
                 raise ValueError(exception_msg)
 
@@ -529,10 +529,10 @@ class TaskExecutionTests(TestCase):
         overlapped_task_1_name = 'overlapped task 1'
         overlapped_task_2_name = 'overlapped task 2'
 
-        overlapped_task_1 = pyitt.task(overlapped_task_1_name, overlapped=True)
+        overlapped_task_1 = ittapi.task(overlapped_task_1_name, overlapped=True)
         overlapped_task_1.begin()
 
-        overlapped_task_2 = pyitt.task(overlapped_task_2_name, overlapped=True)
+        overlapped_task_2 = ittapi.task(overlapped_task_2_name, overlapped=True)
         overlapped_task_2.begin()
 
         overlapped_task_1.end()
@@ -561,7 +561,7 @@ class NestedTaskCreationTests(TestCase):
     @pyitt_native_patch('Domain')
     @pyitt_native_patch('StringHandle')
     def test_task_creation_with_default_constructor(self, domain_mock, string_handle_mock):
-        pyitt.nested_task()
+        ittapi.nested_task()
         caller = stack()[0]
         string_handle_mock.assert_called_once_with(f'{basename(caller.filename)}:{caller.lineno-1}')
         domain_mock.assert_called_once_with(None)
@@ -571,7 +571,7 @@ class OverlappedTaskCreationTests(TestCase):
     @pyitt_native_patch('Domain')
     @pyitt_native_patch('StringHandle')
     def test_task_creation_with_default_constructor(self, domain_mock, string_handle_mock):
-        pyitt.overlapped_task()
+        ittapi.overlapped_task()
         caller = stack()[0]
         string_handle_mock.assert_called_once_with(f'{basename(caller.filename)}:{caller.lineno-1}')
         domain_mock.assert_called_once_with(None)

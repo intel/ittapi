@@ -5,8 +5,8 @@ This module provides a convenient way to mark up the Python code for further per
 analyzers from Intel like Intel VTune or others.
 """
 
-from pyitt.native import Domain, Id, StringHandle
-from pyitt.native import task_begin, task_end, task_begin_overlapped, task_end_overlapped
+from ittapi.native import Domain, Id, StringHandle
+from ittapi.native import task_begin, task_end, task_begin_overlapped, task_end_overlapped
 from .collection_control import detach, pause, resume, active_region, paused_region, ActiveRegion, PausedRegion
 from .event import event, Event
 from .domain import domain

@@ -33,7 +33,7 @@ static PyMemberDef id_attrs[] =
 PyTypeObject IdType =
 {
     .ob_base              = PyVarObject_HEAD_INIT(nullptr, 0)
-    .tp_name              = "pyitt.native.Id",
+    .tp_name              = "ittapi.native.Id",
     .tp_basicsize         = sizeof(Id),
     .tp_itemsize          = 0,
 

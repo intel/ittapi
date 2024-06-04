@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-import pyitt
+import ittapi
 
 # pylint: disable=C0411
 from argparse import ArgumentParser
@@ -8,25 +8,25 @@ from workload import workload
 
 
 def run_sample():
-    @pyitt.active_region
-    @pyitt.task
+    @ittapi.active_region
+    @ittapi.task
     def run_workload():
         workload()
 
     run_workload()
 
     for i in range(4):
-        with pyitt.active_region(activator=lambda: i % 2):  # pylint: disable=W0640
-            with pyitt.task(f'for loop iteration {i}'):
+        with ittapi.active_region(activator=lambda: i % 2):  # pylint: disable=W0640
+            with ittapi.task(f'for loop iteration {i}'):
                 workload()
 
-    pyitt.collection_control.resume()
+    ittapi.collection_control.resume()
 
-    with pyitt.task('resumed region'):
+    with ittapi.task('resumed region'):
         workload()
 
-    with pyitt.paused_region():
-        with pyitt.task('paused region'):
+    with ittapi.paused_region():
+        with ittapi.task('paused region'):
             workload()
 
 

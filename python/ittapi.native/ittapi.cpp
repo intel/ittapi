@@ -14,12 +14,12 @@ namespace pyitt
 {
 
 /**
- Initialize pyitt.
+ Initialize ittapi.
  May be called multiple times, so avoid using static state.
  */
-static int exec_pyitt_module(PyObject* module)
+static int exec_ittapi_module(PyObject* module)
 {
-    static PyMethodDef pyitt_functions[] =
+    static PyMethodDef ittapi_functions[] =
     {
         /* Collection Control API */
         {"pause",                 pause,                 METH_NOARGS,  "Pause data collection."},
@@ -36,7 +36,7 @@ static int exec_pyitt_module(PyObject* module)
         { nullptr },
     };
 
-    PyModule_AddFunctions(module, pyitt_functions);
+    PyModule_AddFunctions(module, ittapi_functions);
 
     PyModule_AddStringConstant(module, "__author__", "Egor Suldin");
     PyModule_AddStringConstant(module, "__version__", "1.1.0");
@@ -45,18 +45,18 @@ static int exec_pyitt_module(PyObject* module)
     return 0;
 }
 
-static void destroy_pyitt_module(void*)
+static void destroy_ittapi_module(void*)
 {
     __itt_release_resources();
 }
 
 PyMODINIT_FUNC PyInit_native()
 {
-    PyDoc_STRVAR(pyitt_doc, "The pyitt module.");
+    PyDoc_STRVAR(ittapi_doc, "The ittapi module.");
 
-    static PyModuleDef_Slot pyitt_slots[] =
+    static PyModuleDef_Slot ittapi_slots[] =
     {
-        { Py_mod_exec, reinterpret_cast<void*>(exec_pyitt_module) },
+        { Py_mod_exec, reinterpret_cast<void*>(exec_ittapi_module) },
         { Py_mod_exec, reinterpret_cast<void*>(exec_domain) },
         { Py_mod_exec, reinterpret_cast<void*>(exec_event) },
         { Py_mod_exec, reinterpret_cast<void*>(exec_id) },
@@ -64,19 +64,19 @@ PyMODINIT_FUNC PyInit_native()
         { 0, nullptr }
     };
 
-    static PyModuleDef pyitt_def = {
+    static PyModuleDef ittapi_def = {
         PyModuleDef_HEAD_INIT,
-        "pyitt",
-        pyitt_doc,
+        "ittapi",
+        ittapi_doc,
         0,                    /* m_size */
         nullptr,              /* m_methods */
-        pyitt_slots,
+        ittapi_slots,
         nullptr,              /* m_traverse */
         nullptr,              /* m_clear */
-        destroy_pyitt_module, /* m_free */
+        destroy_ittapi_module, /* m_free */
     };
 
-    return PyModuleDef_Init(&pyitt_def);
+    return PyModuleDef_Init(&ittapi_def);
 }
 
 } // namespace pyitt

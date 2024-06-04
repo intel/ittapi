@@ -1,10 +1,10 @@
-# pyitt
+# ittapi
 
-pyitt is a Python binding to Intel Instrumentation and Tracing Technology (ITT) API. It provides a convenient way
+ittapi is a Python binding to Intel Instrumentation and Tracing Technology (ITT) API. It provides a convenient way
 to mark up the Python code for further performance analysis using performance analyzers from Intel like Intel VTune
 or others.
 
-pyitt supports following ITT APIs:
+ittapi supports following ITT APIs:
  - Collection Control API
  - Domain API
  - Event API
@@ -16,56 +16,56 @@ pyitt supports following ITT APIs:
 ## Usage
 
 The main goal of the project is to provide the ability to instrument a Python code using ITT API in the Pythonic way.
-pyitt provides wrappers that simplify markup of Python code.
+ittapi provides wrappers that simplify markup of Python code.
 
 ```python
-import pyitt
+import ittapi
 
-@pyitt.task
+@ittapi.task
 def workload():
   pass
 
 workload()
 ```
 
-`pyitt.task` can be used as a decorator. In this case, the name of a callable object (`workload` function in this
-example) will be used as a name of the task and the task will be attributed to a default domain named 'pyitt'.
+`ittapi.task` can be used as a decorator. In this case, the name of a callable object (`workload` function in this
+example) will be used as a name of the task and the task will be attributed to a default domain named 'ittapi'.
 If you want to change the default name and/or other parameters for the task (e.g. task domain), you can pass
-them as arguments to `pyitt.task`:
+them as arguments to `ittapi.task`:
 
 ```python
-import pyitt
+import ittapi
 
-@pyitt.task('My Task', domain='My Task Domain')
+@ittapi.task('My Task', domain='My Task Domain')
 def workload():
   pass
 
 workload()
 ```
 
-Also, `pyitt.task` returns the object that can be used as a context manager:
+Also, `ittapi.task` returns the object that can be used as a context manager:
 
 ```python
-import pyitt
+import ittapi
 
-with pyitt.task():
+with ittapi.task():
     # some code here...
     pass
 ```
 
-If the task name is not specified, the `pyitt.task` uses call site information (filename and line number) to give
+If the task name is not specified, the `ittapi.task` uses call site information (filename and line number) to give
 the name to the task. A custom name for the task and other task parameters can be specified via arguments
-for `pyitt.task` in the same way as for the decorator form.
+for `ittapi.task` in the same way as for the decorator form.
 
 ## Installation
 
-[TODO] intel-pyitt package is available on PyPi and can be installed in the usual way for the supported configurations:
+[TODO] intel-ittapi package is available on PyPi and can be installed in the usual way for the supported configurations:
 
-[TODO]    pip install intel-pyitt
+[TODO]    pip install intel-ittapi
 
 ## Build
 
-The native part of pyitt module is written using C++20 standard, therefore you need a compiler that supports this
+The native part of ittapi module is written using C++20 standard, therefore you need a compiler that supports this
 standard, for example GCC-10 for Linux and Visual Studio 2022 for Windows.
 
 ### Ubuntu 22.04
@@ -78,7 +78,7 @@ standard, for example GCC-10 for Linux and Visual Studio 2022 for Windows.
 
        git clone https://github.com/intel/ittapi.git
 
-3. Build and install pyitt:
+3. Build and install ittapi:
 
        cd python
        pip install .
@@ -94,7 +94,7 @@ standard, for example GCC-10 for Linux and Visual Studio 2022 for Windows.
 
        git clone https://github.com/intel/ittapi.git
 
-4. Build and install pyitt
+4. Build and install ittapi
 
        cd python
        pip install .

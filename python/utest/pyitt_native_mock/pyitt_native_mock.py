@@ -1,7 +1,7 @@
 from types import ModuleType as _ModuleType
 from unittest.mock import MagicMock as _MagicMock
 
-PYITT_NATIVE_MODULE_NAME = 'pyitt.native'
+PYITT_NATIVE_MODULE_NAME = 'ittapi.native'
 
 
 class PyittNativeMock(_ModuleType):

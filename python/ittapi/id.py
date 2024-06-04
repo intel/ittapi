@@ -1,7 +1,7 @@
 """
 id.py - Python module wrapper for ITT ID API
 """
-from pyitt.native import Id as _Id
+from ittapi.native import Id as _Id
 
 
 def id(domain):

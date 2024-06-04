@@ -1,4 +1,4 @@
-#include "domain.hpp"
+#include "event.hpp"
 
 #include <structmember.h>
 
@@ -10,40 +10,50 @@ namespace pyitt
 {
 
 template<typename T>
-T* domain_cast(Domain* self);
+T* event_cast(Event* self);
 
 template<>
-PyObject* domain_cast(Domain* self)
+PyObject* event_cast(Event* self)
 {
     return reinterpret_cast<PyObject*>(self);
 }
 
-static PyObject* domain_new(PyTypeObject* type, PyObject* args, PyObject* kwargs);
-static void domain_dealloc(PyObject* self);
+static PyObject* event_new(PyTypeObject* type, PyObject* args, PyObject* kwargs);
+static void event_dealloc(PyObject* self);
 
-static PyObject* domain_repr(PyObject* self);
-static PyObject* domain_str(PyObject* self);
+static PyObject* event_repr(PyObject* self);
+static PyObject* event_str(PyObject* self);
 
-static PyMemberDef domain_attrs[] =
+static PyObject* event_begin(PyObject* self, PyObject* args);
+static PyObject* event_end(PyObject* self, PyObject* args);
+
+static PyMemberDef event_attrs[] =
 {
-    {"name",  T_OBJECT, offsetof(Domain, name), READONLY, "a domain name"},
+    {"name",  T_OBJECT_EX, offsetof(Event, name), READONLY, "a name of the event"},
     {nullptr},
 };
 
-PyTypeObject DomainType =
+static PyMethodDef event_methods[] =
+{
+    {"begin", event_begin, METH_NOARGS, "Marks the beginning of the event."},
+    {"end", event_end, METH_NOARGS, "Marks the end of the event."},
+    {nullptr},
+};
+
+PyTypeObject EventType =
 {
     .ob_base              = PyVarObject_HEAD_INIT(nullptr, 0)
-    .tp_name              = "pyitt.native.Domain",
-    .tp_basicsize         = sizeof(Domain),
+    .tp_name              = "ittapi.native.Event",
+    .tp_basicsize         = sizeof(Event),
     .tp_itemsize          = 0,
 
     /* Methods to implement standard operations */
-    .tp_dealloc           = domain_dealloc,
+    .tp_dealloc           = event_dealloc,
     .tp_vectorcall_offset = 0,
     .tp_getattr           = nullptr,
     .tp_setattr           = nullptr,
     .tp_as_async          = nullptr,
-    .tp_repr              = domain_repr,
+    .tp_repr              = event_repr,
 
     /* Method suites for standard classes */
     .tp_as_number         = nullptr,
@@ -53,7 +63,7 @@ PyTypeObject DomainType =
     /* More standard operations (here for binary compatibility) */
     .tp_hash              = nullptr,
     .tp_call              = nullptr,
-    .tp_str               = domain_str,
+    .tp_str               = event_str,
     .tp_getattro          = nullptr,
     .tp_setattro          = nullptr,
 
@@ -64,7 +74,7 @@ PyTypeObject DomainType =
     .tp_flags             = Py_TPFLAGS_DEFAULT,
 
     /* Documentation string */
-    .tp_doc               = "A class that represents a ITT domain.",
+    .tp_doc               = "A class that represents a ITT event.",
 
     /* Assigned meaning in release 2.0 call function for all accessible objects */
     .tp_traverse          = nullptr,
@@ -83,8 +93,8 @@ PyTypeObject DomainType =
     .tp_iternext          = nullptr,
 
     /* Attribute descriptor and subclassing stuff */
-    .tp_methods           = nullptr,
-    .tp_members           = domain_attrs,
+    .tp_methods           = event_methods,
+    .tp_members           = event_attrs,
     .tp_getset            = nullptr,
 
     /* Strong reference on a heap type, borrowed reference on a static type */
@@ -95,7 +105,7 @@ PyTypeObject DomainType =
     .tp_dictoffset        = 0,
     .tp_init              = nullptr,
     .tp_alloc             = nullptr,
-    .tp_new               = domain_new,
+    .tp_new               = event_new,
 
     /* Low-level free-memory routine */
     .tp_free              = nullptr,
@@ -118,9 +128,10 @@ PyTypeObject DomainType =
     .tp_vectorcall        = nullptr,
 };
 
-static PyObject* domain_new(PyTypeObject* type, PyObject* args, PyObject* kwargs)
+static PyObject* event_new(PyTypeObject* type, PyObject* args, PyObject* kwargs)
 {
-    Domain* self = domain_obj(type->tp_alloc(type, 0));
+    Event* self = event_obj(type->tp_alloc(type, 0));
+
     if (self == nullptr)
     {
         return nullptr;
@@ -130,78 +141,69 @@ static PyObject* domain_new(PyTypeObject* type, PyObject* args, PyObject* kwargs
     char* kwlist[] = { name_key, nullptr };
 
     PyObject* name = nullptr;
-    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|O", kwlist, &name))
+
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O", kwlist, &name))
     {
         return nullptr;
     }
 
-    if (name == nullptr || name == Py_None)
-    {
-        self->name = PyUnicode_FromString("pyitt");
-    }
-    else if (PyUnicode_Check(name))
+    if (name && PyUnicode_Check(name))
     {
         self->name = pyext::new_ref(name);
     }
-    else if (Py_TYPE(name) == &StringHandleType)
+    else if (name && Py_TYPE(name) == &StringHandleType)
     {
         self->name = pyext::new_ref(string_handle_obj(name)->str);
     }
     else
     {
-        Py_DecRef(domain_cast<PyObject>(self));
+        Py_DecRef(event_cast<PyObject>(self));
 
-        PyErr_SetString(PyExc_TypeError, "The passed domain name is not a valid instance of str or StringHandle.");
+        PyErr_SetString(PyExc_TypeError, "The passed event name is not a valid instance of str or StringHandle.");
         return nullptr;
     }
 
     pyext::string name_str = pyext::string::from_unicode(self->name);
     if (name_str.c_str() == nullptr)
     {
-        Py_DecRef(domain_cast<PyObject>(self));
+        Py_DecRef(event_cast<PyObject>(self));
         return nullptr;
     }
 
 #if defined(_WIN32)
-    self->handle = __itt_domain_createW(name_str.c_str());
+    self->event = __itt_event_createW(name_str.c_str(), static_cast<int>(name_str.length()));
 #else
-    self->handle = __itt_domain_create(name_str.c_str());
+    self->event = __itt_event_create(name_str.c_str(), static_cast<int>(name_str.length()));
 #endif
 
-    return domain_cast<PyObject>(self);
+    return event_cast<PyObject>(self);
 }
 
-static void domain_dealloc(PyObject* self)
+static void event_dealloc(PyObject* self)
 {
-    if (self == nullptr)
+    Event* obj = event_obj(self);
+    if (obj == nullptr)
     {
         return;
     }
 
-    Domain* obj = domain_obj(self);
     Py_XDECREF(obj->name);
 }
 
-static PyObject* domain_repr(PyObject* self)
+static PyObject* event_repr(PyObject* self)
 {
-    Domain* obj = domain_check(self);
+    Event* obj = event_check(self);
     if (obj == nullptr)
     {
         return nullptr;
     }
 
-    if (obj->name == nullptr)
-    {
-        PyErr_SetString(PyExc_AttributeError, "The name attribute has not been initialized.");
-        return nullptr;
-    }
-
-    return PyUnicode_FromFormat("%s('%U')", DomainType.tp_name, obj->name);
+    return PyUnicode_FromFormat("%s('%U')", EventType.tp_name, obj->name);
 }
 
-static PyObject* domain_str(PyObject* self)
+static PyObject* event_str(PyObject* self)
 {
-    Domain* obj = domain_check(self);
+    Event* obj = event_check(self);
     if (obj == nullptr)
     {
         return nullptr;
@@ -216,20 +218,46 @@ static PyObject* domain_str(PyObject* self)
     return pyext::new_ref(obj->name);
 }
 
-Domain* domain_check(PyObject* self)
+static PyObject* event_begin(PyObject* self, PyObject* args)
 {
-    if (self == nullptr || Py_TYPE(self) != &DomainType)
+    Event* obj = event_check(self);
+    if (obj == nullptr)
     {
-        PyErr_SetString(PyExc_TypeError, "The passed domain is not a valid instance of Domain type.");
         return nullptr;
     }
 
-    return domain_obj(self);
+    __itt_event_start(obj->event);
+
+    Py_RETURN_NONE;
 }
 
-int exec_domain(PyObject* module)
+static PyObject* event_end(PyObject* self, PyObject* args)
 {
-    return pyext::add_type(module, &DomainType);
+    Event* obj = event_check(self);
+    if (obj == nullptr)
+    {
+        return nullptr;
+    }
+
+    __itt_event_end(obj->event);
+
+    Py_RETURN_NONE;
+}
+
+Event* event_check(PyObject* self)
+{
+    if (self == nullptr || Py_TYPE(self) != &EventType)
+    {
+        PyErr_SetString(PyExc_TypeError, "The passed event is not a valid instance of Event type.");
+        return nullptr;
+    }
+
+    return event_obj(self);
+}
+
+int exec_event(PyObject* module)
+{
+    return pyext::add_type(module, &EventType);
 }
 
 } // namespace pyitt

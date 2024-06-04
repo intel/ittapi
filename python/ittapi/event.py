@@ -3,7 +3,7 @@ event.py - Python module wrapper for ITT Event API
 """
 from functools import partial as _partial
 
-from pyitt.native import Event as _Event
+from ittapi.native import Event as _Event
 
 from .region import _CallSite, _NamedRegion
 

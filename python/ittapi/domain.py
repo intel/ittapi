@@ -1,7 +1,7 @@
 """
 domain.py - Python module wrapper for ITT Domain API
 """
-from pyitt.native import Domain as _Domain
+from ittapi.native import Domain as _Domain
 
 
 def domain(name=None):
