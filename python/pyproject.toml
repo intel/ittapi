@@ -2,7 +2,7 @@
 name = "intel-ittapi"
 version = "1.1.0"
 authors = [
-  { name="Egor Suldin", email="" },
+  { name="Egor Suldin"},
 ]
 description = "Python bindings to Intel Instrumentation and Tracing Technology (ITT) API."
 readme = "README.md"
