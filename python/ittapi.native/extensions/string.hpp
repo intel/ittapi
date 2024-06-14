@@ -10,7 +10,7 @@
 #endif
 
 
-namespace pyitt
+namespace ittapi
 {
 namespace pyext
 {
@@ -62,5 +62,5 @@ std::size_t string::length() const
 #endif
 }
 
-}
-}
+} // namespace pyext
+} // namespace ittapi

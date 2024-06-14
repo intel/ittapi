@@ -4,14 +4,14 @@ from sys import version_info
 from unittest import main as unittest_main, TestCase
 from unittest.mock import call
 
-from pyitt_native_mock import patch as pyitt_native_patch
+from ittapi_native_mock import patch as ittapi_native_patch
 import ittapi
 
 
 class TaskCreationTests(TestCase):
-    @pyitt_native_patch('Domain')
-    @pyitt_native_patch('StringHandle')
-    @pyitt_native_patch('Id')
+    @ittapi_native_patch('Domain')
+    @ittapi_native_patch('StringHandle')
+    @ittapi_native_patch('Id')
     def test_task_creation_with_default_constructor(self, domain_mock, string_handle_mock, id_mock):
         domain_mock.return_value = 'ittapi'
         string_handle_mock.side_effect = lambda x: x
@@ -29,7 +29,7 @@ class TaskCreationTests(TestCase):
         self.assertEqual(task.id(), id_mock.return_value)
         self.assertIsNone(task.parent_id())
 
-    @pyitt_native_patch('StringHandle')
+    @ittapi_native_patch('StringHandle')
     def test_task_creation_as_decorator_for_function(self, string_handle_mock):
         @ittapi.task
         def my_function():
@@ -37,7 +37,7 @@ class TaskCreationTests(TestCase):
 
         string_handle_mock.assert_called_once_with(my_function.__qualname__)
 
-    @pyitt_native_patch('StringHandle')
+    @ittapi_native_patch('StringHandle')
     def test_task_creation_as_decorator_with_empty_arguments_for_function(self, string_handle_mock):
         @ittapi.task()
         def my_function():
@@ -45,7 +45,7 @@ class TaskCreationTests(TestCase):
 
         string_handle_mock.assert_called_with(my_function.__qualname__)
 
-    @pyitt_native_patch('StringHandle')
+    @ittapi_native_patch('StringHandle')
     def test_task_creation_as_decorator_with_name_for_function(self, string_handle_mock):
         @ittapi.task('my function')
         def my_function():
@@ -53,7 +53,7 @@ class TaskCreationTests(TestCase):
 
         string_handle_mock.assert_called_once_with('my function')
 
-    @pyitt_native_patch('Domain')
+    @ittapi_native_patch('Domain')
     def test_task_creation_as_decorator_with_domain_for_function(self, domain_mock):
         @ittapi.task(domain='my domain')
         def my_function():
@@ -61,7 +61,7 @@ class TaskCreationTests(TestCase):
 
         domain_mock.assert_called_once_with('my domain')
 
-    @pyitt_native_patch('StringHandle')
+    @ittapi_native_patch('StringHandle')
     def test_task_creation_as_decorator_with_empty_args_and_name_for_function(self, string_handle_mock):
         @ittapi.task
         @ittapi.task('my function')
@@ -72,8 +72,8 @@ class TaskCreationTests(TestCase):
                           call(my_function.__qualname__)]
         string_handle_mock.assert_has_calls(expected_calls)
 
-    @pyitt_native_patch('Domain')
-    @pyitt_native_patch('StringHandle')
+    @ittapi_native_patch('Domain')
+    @ittapi_native_patch('StringHandle')
     def test_task_creation_with_default_constructor_as_context_manager(self, domain_mock, string_handle_mock):
         caller = stack()[0]
         with ittapi.task():
@@ -82,8 +82,8 @@ class TaskCreationTests(TestCase):
         string_handle_mock.assert_called_once_with(f'{basename(caller.filename)}:{caller.lineno+1}')
         domain_mock.assert_called_once_with(None)
 
-    @pyitt_native_patch('Domain')
-    @pyitt_native_patch('StringHandle')
+    @ittapi_native_patch('Domain')
+    @ittapi_native_patch('StringHandle')
     def test_task_creation_with_name_and_domain_as_context_manager(self, domain_mock, string_handle_mock):
         with ittapi.task('my task', 'my domain'):
             pass
@@ -91,9 +91,9 @@ class TaskCreationTests(TestCase):
         string_handle_mock.assert_called_once_with('my task')
         domain_mock.assert_called_once_with('my domain')
 
-    @pyitt_native_patch('Domain')
-    @pyitt_native_patch('Id')
-    @pyitt_native_patch('StringHandle')
+    @ittapi_native_patch('Domain')
+    @ittapi_native_patch('Id')
+    @ittapi_native_patch('StringHandle')
     def test_task_creation_for_callable_object(self, domain_mock, id_mock, string_handle_mock):
         domain_mock.return_value = 'domain'
         string_handle_mock.side_effect = lambda x: x
@@ -113,9 +113,9 @@ class TaskCreationTests(TestCase):
         self.assertEqual(task.id(), id_mock.return_value)
         self.assertIsNone(task.parent_id())
 
-    @pyitt_native_patch('Domain')
-    @pyitt_native_patch('Id')
-    @pyitt_native_patch('StringHandle')
+    @ittapi_native_patch('Domain')
+    @ittapi_native_patch('Id')
+    @ittapi_native_patch('StringHandle')
     def test_unnamed_task_creation_for_callable_object(self, domain_mock, id_mock, string_handle_mock):
         domain_mock.return_value = 'domain'
         string_handle_mock.side_effect = lambda x: x
@@ -141,7 +141,7 @@ class TaskCreationTests(TestCase):
         self.assertEqual(task.id(), id_mock.return_value)
         self.assertIsNone(task.parent_id())
 
-    @pyitt_native_patch('StringHandle')
+    @ittapi_native_patch('StringHandle')
     def test_task_creation_for_method(self, string_handle_mock):
         class MyClass:
             @ittapi.task
@@ -152,9 +152,9 @@ class TaskCreationTests(TestCase):
 
 
 class TaskPropertiesTest(TestCase):
-    @pyitt_native_patch('Domain')
-    @pyitt_native_patch('Id')
-    @pyitt_native_patch('StringHandle')
+    @ittapi_native_patch('Domain')
+    @ittapi_native_patch('Id')
+    @ittapi_native_patch('StringHandle')
     def test_task_properties(self, domain_mock, id_mock, string_handle_mock):
         domain_mock.side_effect = lambda x: x
         string_handle_mock.side_effect = lambda x: x
@@ -185,11 +185,11 @@ class TaskPropertiesTest(TestCase):
 
 
 class TaskExecutionTests(TestCase):
-    @pyitt_native_patch('Domain')
-    @pyitt_native_patch('Id')
-    @pyitt_native_patch('StringHandle')
-    @pyitt_native_patch('task_begin')
-    @pyitt_native_patch('task_end')
+    @ittapi_native_patch('Domain')
+    @ittapi_native_patch('Id')
+    @ittapi_native_patch('StringHandle')
+    @ittapi_native_patch('task_begin')
+    @ittapi_native_patch('task_end')
     def test_task_for_function(self, domain_mock, id_mock, string_handle_mock, task_begin_mock, task_end_mock):
         domain_mock.return_value = 'domain_handle'
         string_handle_mock.return_value = 'string_handle'
@@ -209,11 +209,11 @@ class TaskExecutionTests(TestCase):
                                                 id_mock.return_value, None)
         task_end_mock.assert_called_once_with(domain_mock.return_value)
 
-    @pyitt_native_patch('Domain')
-    @pyitt_native_patch('Id')
-    @pyitt_native_patch('StringHandle')
-    @pyitt_native_patch('task_begin')
-    @pyitt_native_patch('task_end')
+    @ittapi_native_patch('Domain')
+    @ittapi_native_patch('Id')
+    @ittapi_native_patch('StringHandle')
+    @ittapi_native_patch('task_begin')
+    @ittapi_native_patch('task_end')
     def test_nested_tasks_for_function(self, domain_mock, id_mock, string_handle_mock, task_begin_mock, task_end_mock):
         domain_mock.return_value = 'domain_handle'
         string_handle_mock.side_effect = lambda x: x
@@ -238,11 +238,11 @@ class TaskExecutionTests(TestCase):
                           call(domain_mock.return_value)]
         task_end_mock.assert_has_calls(expected_calls)
 
-    @pyitt_native_patch('Domain')
-    @pyitt_native_patch('Id')
-    @pyitt_native_patch('StringHandle')
-    @pyitt_native_patch('task_begin')
-    @pyitt_native_patch('task_end')
+    @ittapi_native_patch('Domain')
+    @ittapi_native_patch('Id')
+    @ittapi_native_patch('StringHandle')
+    @ittapi_native_patch('task_begin')
+    @ittapi_native_patch('task_end')
     def test_task_as_context_manager(self, domain_mock, id_mock, string_handle_mock, task_begin_mock, task_end_mock):
         domain_mock.return_value = 'domain_handle'
         string_handle_mock.side_effect = lambda x: x
@@ -259,11 +259,11 @@ class TaskExecutionTests(TestCase):
         task_begin_mock.assert_called_once_with(domain_mock.return_value, region_name, id_mock.return_value, None)
         task_end_mock.assert_called_once_with(domain_mock.return_value)
 
-    @pyitt_native_patch('Domain')
-    @pyitt_native_patch('Id')
-    @pyitt_native_patch('StringHandle')
-    @pyitt_native_patch('task_begin')
-    @pyitt_native_patch('task_end')
+    @ittapi_native_patch('Domain')
+    @ittapi_native_patch('Id')
+    @ittapi_native_patch('StringHandle')
+    @ittapi_native_patch('task_begin')
+    @ittapi_native_patch('task_end')
     def test_task_for_callable_object(self, domain_mock, id_mock, string_handle_mock, task_begin_mock, task_end_mock):
         domain_mock.return_value = 'domain_handle'
         string_handle_mock.return_value = 'string_handle'
@@ -302,11 +302,11 @@ class TaskExecutionTests(TestCase):
 
         self.assertEqual(str(context.exception), 'Callable object is expected as a first argument.')
 
-    @pyitt_native_patch('Domain')
-    @pyitt_native_patch('Id')
-    @pyitt_native_patch('StringHandle')
-    @pyitt_native_patch('task_begin')
-    @pyitt_native_patch('task_end')
+    @ittapi_native_patch('Domain')
+    @ittapi_native_patch('Id')
+    @ittapi_native_patch('StringHandle')
+    @ittapi_native_patch('task_begin')
+    @ittapi_native_patch('task_end')
     def test_task_for_method(self, domain_mock, id_mock, string_handle_mock, task_begin_mock, task_end_mock):
         domain_mock.return_value = 'domain_handle'
         string_handle_mock.side_effect = lambda x: x
@@ -326,11 +326,11 @@ class TaskExecutionTests(TestCase):
                                                 id_mock.return_value, None)
         task_end_mock.assert_called_once_with(domain_mock.return_value)
 
-    @pyitt_native_patch('Domain')
-    @pyitt_native_patch('Id')
-    @pyitt_native_patch('StringHandle')
-    @pyitt_native_patch('task_begin')
-    @pyitt_native_patch('task_end')
+    @ittapi_native_patch('Domain')
+    @ittapi_native_patch('Id')
+    @ittapi_native_patch('StringHandle')
+    @ittapi_native_patch('task_begin')
+    @ittapi_native_patch('task_end')
     def test_task_for_class_method(self, domain_mock, id_mock, string_handle_mock, task_begin_mock, task_end_mock):
         domain_mock.return_value = 'domain_handle'
         string_handle_mock.side_effect = lambda x: x
@@ -350,11 +350,11 @@ class TaskExecutionTests(TestCase):
                                                 id_mock.return_value, None)
         task_end_mock.assert_called_once_with(domain_mock.return_value)
 
-    @pyitt_native_patch('Domain')
-    @pyitt_native_patch('Id')
-    @pyitt_native_patch('StringHandle')
-    @pyitt_native_patch('task_begin')
-    @pyitt_native_patch('task_end')
+    @ittapi_native_patch('Domain')
+    @ittapi_native_patch('Id')
+    @ittapi_native_patch('StringHandle')
+    @ittapi_native_patch('task_begin')
+    @ittapi_native_patch('task_end')
     def test_task_for_static_method(self, domain_mock, id_mock, string_handle_mock, task_begin_mock, task_end_mock):
         domain_mock.return_value = 'domain_handle'
         string_handle_mock.side_effect = lambda x: x
@@ -383,11 +383,11 @@ class TaskExecutionTests(TestCase):
                                                 id_mock.return_value, None)
         task_end_mock.assert_called_once_with(domain_mock.return_value)
 
-    @pyitt_native_patch('Domain')
-    @pyitt_native_patch('Id')
-    @pyitt_native_patch('StringHandle')
-    @pyitt_native_patch('task_begin')
-    @pyitt_native_patch('task_end')
+    @ittapi_native_patch('Domain')
+    @ittapi_native_patch('Id')
+    @ittapi_native_patch('StringHandle')
+    @ittapi_native_patch('task_begin')
+    @ittapi_native_patch('task_end')
     def test_task_for_static_method_with_wrong_order_of_decorators(self, domain_mock, id_mock, string_handle_mock,
                                                                    task_begin_mock, task_end_mock):
         domain_mock.return_value = 'domain_handle'
@@ -448,11 +448,11 @@ class TaskExecutionTests(TestCase):
 
         self.assertEqual(str(context.exception), 'Callable object is expected to be passed.')
 
-    @pyitt_native_patch('Domain')
-    @pyitt_native_patch('Id')
-    @pyitt_native_patch('StringHandle')
-    @pyitt_native_patch('task_begin')
-    @pyitt_native_patch('task_end')
+    @ittapi_native_patch('Domain')
+    @ittapi_native_patch('Id')
+    @ittapi_native_patch('StringHandle')
+    @ittapi_native_patch('task_begin')
+    @ittapi_native_patch('task_end')
     def test_task_for_function_raised_exception(self, domain_mock, id_mock, string_handle_mock,
                                                 task_begin_mock, task_end_mock):
         domain_mock.return_value = 'domain_handle'
@@ -478,11 +478,11 @@ class TaskExecutionTests(TestCase):
                                                 id_mock.return_value, None)
         task_end_mock.assert_called_once_with(domain_mock.return_value)
 
-    @pyitt_native_patch('Domain')
-    @pyitt_native_patch('Id')
-    @pyitt_native_patch('StringHandle')
-    @pyitt_native_patch('task_begin')
-    @pyitt_native_patch('task_end')
+    @ittapi_native_patch('Domain')
+    @ittapi_native_patch('Id')
+    @ittapi_native_patch('StringHandle')
+    @ittapi_native_patch('task_begin')
+    @ittapi_native_patch('task_end')
     def test_task_for_method_raised_exception(self, domain_mock, id_mock, string_handle_mock,
                                               task_begin_mock, task_end_mock):
         domain_mock.return_value = 'domain_handle'
@@ -507,11 +507,11 @@ class TaskExecutionTests(TestCase):
                                                 id_mock.return_value, None)
         task_end_mock.assert_called_once_with(domain_mock.return_value)
 
-    @pyitt_native_patch('Domain')
-    @pyitt_native_patch('Id')
-    @pyitt_native_patch('StringHandle')
-    @pyitt_native_patch('task_begin_overlapped')
-    @pyitt_native_patch('task_end_overlapped')
+    @ittapi_native_patch('Domain')
+    @ittapi_native_patch('Id')
+    @ittapi_native_patch('StringHandle')
+    @ittapi_native_patch('task_begin_overlapped')
+    @ittapi_native_patch('task_end_overlapped')
     def test_overlapped_tasks(self, domain_mock, id_mock, string_handle_mock,
                               task_begin_overlapped_mock, task_end_overlapped_mock):
         domain_mock.return_value = 'domain_handle'
@@ -558,8 +558,8 @@ class TaskExecutionTests(TestCase):
 
 
 class NestedTaskCreationTests(TestCase):
-    @pyitt_native_patch('Domain')
-    @pyitt_native_patch('StringHandle')
+    @ittapi_native_patch('Domain')
+    @ittapi_native_patch('StringHandle')
     def test_task_creation_with_default_constructor(self, domain_mock, string_handle_mock):
         ittapi.nested_task()
         caller = stack()[0]
@@ -568,8 +568,8 @@ class NestedTaskCreationTests(TestCase):
 
 
 class OverlappedTaskCreationTests(TestCase):
-    @pyitt_native_patch('Domain')
-    @pyitt_native_patch('StringHandle')
+    @ittapi_native_patch('Domain')
+    @ittapi_native_patch('StringHandle')
     def test_task_creation_with_default_constructor(self, domain_mock, string_handle_mock):
         ittapi.overlapped_task()
         caller = stack()[0]

@@ -8,7 +8,7 @@
 #include "extensions/python.hpp"
 
 
-namespace pyitt
+namespace ittapi
 {
 
 struct Event
@@ -31,4 +31,4 @@ Event* event_obj(PyObject* self)
 	return pyext::pyobject_cast<Event>(self);
 }
 
-} // namespace pyitt
+} // namespace ittapi

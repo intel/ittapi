@@ -1,11 +1,11 @@
 from unittest import main as unittest_main, TestCase
 
-from pyitt_native_mock import patch as pyitt_native_patch
+from ittapi_native_mock import patch as ittapi_native_patch
 import ittapi
 
 
 class ThreadNamingTests(TestCase):
-    @pyitt_native_patch('thread_set_name')
+    @ittapi_native_patch('thread_set_name')
     def test_string_handle_call(self, thread_set_name_mock):
         name = 'my thread'
         ittapi.thread_set_name(name)

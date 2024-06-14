@@ -5,7 +5,7 @@
 #include "string_handle.hpp"
 
 
-namespace pyitt
+namespace ittapi
 {
 
 PyObject* thread_set_name(PyObject* self, PyObject* name)
@@ -42,4 +42,4 @@ PyObject* thread_set_name(PyObject* self, PyObject* name)
     Py_RETURN_NONE;
 }
 
-} // namespace pyitt
+} // namespace ittapi

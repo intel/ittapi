@@ -10,7 +10,7 @@
 #include "thread_naming.hpp"
 
 
-namespace pyitt
+namespace ittapi
 {
 
 /**
@@ -79,4 +79,4 @@ PyMODINIT_FUNC PyInit_native()
     return PyModuleDef_Init(&ittapi_def);
 }
 
-} // namespace pyitt
+} // namespace ittapi

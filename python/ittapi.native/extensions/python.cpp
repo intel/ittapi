@@ -1,7 +1,7 @@
 #include "python.hpp"
 
 
-namespace pyitt
+namespace ittapi
 {
 namespace pyext
 {
@@ -20,4 +20,4 @@ int add_type(PyObject* module, PyTypeObject* type)
 }
 
 } // namespace pyext
-} // namespace pyitt
+} // namespace ittapi

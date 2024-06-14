@@ -6,7 +6,7 @@
 #include "extensions/string.hpp"
 
 
-namespace pyitt
+namespace ittapi
 {
 
 template<typename T>
@@ -232,4 +232,4 @@ int exec_domain(PyObject* module)
     return pyext::add_type(module, &DomainType);
 }
 
-} // namespace pyitt
+} // namespace ittapi

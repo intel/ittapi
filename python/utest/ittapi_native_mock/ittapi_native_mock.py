@@ -1,12 +1,12 @@
 from types import ModuleType as _ModuleType
 from unittest.mock import MagicMock as _MagicMock
 
-PYITT_NATIVE_MODULE_NAME = 'ittapi.native'
+ITTAPI_NATIVE_MODULE_NAME = 'ittapi.native'
 
 
-class PyittNativeMock(_ModuleType):
+class IttapiNativeMock(_ModuleType):
     def __init__(self):
-        super().__init__(PYITT_NATIVE_MODULE_NAME)
+        super().__init__(ITTAPI_NATIVE_MODULE_NAME)
         self.attrs = {
             'detach': _MagicMock(),
             'pause': _MagicMock(),

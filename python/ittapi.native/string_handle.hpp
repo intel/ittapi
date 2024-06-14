@@ -8,7 +8,7 @@
 #include "extensions/python.hpp"
 
 
-namespace pyitt
+namespace ittapi
 {
 
 struct StringHandle
@@ -31,4 +31,4 @@ StringHandle* string_handle_obj(PyObject* self)
 	return pyext::pyobject_cast<StringHandle>(self);
 }
 
-} // namespace pyitt
+} // namespace ittapi

@@ -3,7 +3,7 @@
 #include <ittnotify.h>
 
 
-namespace pyitt
+namespace ittapi
 {
 
 PyObject* pause(PyObject* self, PyObject* Py_UNUSED(args))
@@ -30,4 +30,4 @@ PyObject* detach(PyObject* self, PyObject* Py_UNUSED(args))
     Py_RETURN_NONE;
 }
 
-} // namespace pyitt
+} // namespace ittapi

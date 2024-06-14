@@ -4,7 +4,7 @@
 #include <Python.h>
 
 
-namespace pyitt
+namespace ittapi
 {
 namespace pyext
 {
@@ -35,4 +35,4 @@ PyObject* xnew_ref(PyObject* obj)
 }
 
 } // namespace pyext
-} // namespace pyitt
+} // namespace ittapi

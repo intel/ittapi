@@ -4,13 +4,13 @@ from sys import version_info
 from unittest import main as unittest_main, TestCase
 from unittest.mock import call
 
-from pyitt_native_mock import patch as pyitt_native_patch
+from ittapi_native_mock import patch as ittapi_native_patch
 import ittapi
 
 
 class EventCreationTests(TestCase):
-    @pyitt_native_patch('Event')
-    @pyitt_native_patch('StringHandle')
+    @ittapi_native_patch('Event')
+    @ittapi_native_patch('StringHandle')
     def test_event_creation_with_default_constructor(self, event_mock, string_handle_mock):
         string_handle_mock.side_effect = lambda x: x
 
@@ -25,8 +25,8 @@ class EventCreationTests(TestCase):
         event_mock.assert_called_once_with(expected_name)
         self.assertEqual(event.name(), expected_name)
 
-    @pyitt_native_patch('Event')
-    @pyitt_native_patch('StringHandle')
+    @ittapi_native_patch('Event')
+    @ittapi_native_patch('StringHandle')
     def test_event_creation_as_decorator_for_function(self, event_mock, string_handle_mock):
         string_handle_mock.side_effect = lambda x: x
 
@@ -36,8 +36,8 @@ class EventCreationTests(TestCase):
 
         event_mock.assert_called_once_with(my_function.__qualname__)
 
-    @pyitt_native_patch('Event')
-    @pyitt_native_patch('StringHandle')
+    @ittapi_native_patch('Event')
+    @ittapi_native_patch('StringHandle')
     def test_event_creation_as_decorator_with_empty_arguments_for_function(self, event_mock, string_handle_mock):
         string_handle_mock.side_effect = lambda x: x
 
@@ -47,8 +47,8 @@ class EventCreationTests(TestCase):
 
         event_mock.assert_called_with(my_function.__qualname__)
 
-    @pyitt_native_patch('Event')
-    @pyitt_native_patch('StringHandle')
+    @ittapi_native_patch('Event')
+    @ittapi_native_patch('StringHandle')
     def test_event_creation_as_decorator_with_name_for_function(self, event_mock, string_handle_mock):
         string_handle_mock.side_effect = lambda x: x
 
@@ -58,8 +58,8 @@ class EventCreationTests(TestCase):
 
         event_mock.assert_called_once_with('my function')
 
-    @pyitt_native_patch('Event')
-    @pyitt_native_patch('StringHandle')
+    @ittapi_native_patch('Event')
+    @ittapi_native_patch('StringHandle')
     def test_event_creation_as_decorator_with_empty_args_and_name_for_function(self, event_mock, string_handle_mock):
         string_handle_mock.side_effect = lambda x: x
 
@@ -72,8 +72,8 @@ class EventCreationTests(TestCase):
                           call(my_function.__qualname__)]
         event_mock.assert_has_calls(expected_calls)
 
-    @pyitt_native_patch('Event')
-    @pyitt_native_patch('StringHandle')
+    @ittapi_native_patch('Event')
+    @ittapi_native_patch('StringHandle')
     def test_event_creation_with_default_constructor_as_context_manager(self, event_mock, string_handle_mock):
         string_handle_mock.side_effect = lambda x: x
 
@@ -83,8 +83,8 @@ class EventCreationTests(TestCase):
 
         event_mock.assert_called_once_with(f'{basename(caller.filename)}:{caller.lineno+1}')
 
-    @pyitt_native_patch('Event')
-    @pyitt_native_patch('StringHandle')
+    @ittapi_native_patch('Event')
+    @ittapi_native_patch('StringHandle')
     def test_event_creation_with_name_and_domain_as_context_manager(self, event_mock, string_handle_mock):
         string_handle_mock.side_effect = lambda x: x
 
@@ -93,8 +93,8 @@ class EventCreationTests(TestCase):
 
         event_mock.assert_called_once_with('my event')
 
-    @pyitt_native_patch('Event')
-    @pyitt_native_patch('StringHandle')
+    @ittapi_native_patch('Event')
+    @ittapi_native_patch('StringHandle')
     def test_event_creation_for_callable_object(self, event_mock, string_handle_mock):
         string_handle_mock.side_effect = lambda x: x
 
@@ -109,8 +109,8 @@ class EventCreationTests(TestCase):
 
         self.assertEqual(event.name(), expected_name)
 
-    @pyitt_native_patch('Event')
-    @pyitt_native_patch('StringHandle')
+    @ittapi_native_patch('Event')
+    @ittapi_native_patch('StringHandle')
     def test_unnamed_event_creation_for_callable_object(self, event_mock, string_handle_mock):
         string_handle_mock.side_effect = lambda x: x
 
@@ -125,8 +125,8 @@ class EventCreationTests(TestCase):
         event_mock.assert_called_once_with(expected_name)
         self.assertEqual(event.name(), expected_name)
 
-    @pyitt_native_patch('Event')
-    @pyitt_native_patch('StringHandle')
+    @ittapi_native_patch('Event')
+    @ittapi_native_patch('StringHandle')
     def test_event_creation_for_method(self, event_mock, string_handle_mock):
         string_handle_mock.side_effect = lambda x: x
 
@@ -139,8 +139,8 @@ class EventCreationTests(TestCase):
 
 
 class EventPropertiesTest(TestCase):
-    @pyitt_native_patch('Event')
-    @pyitt_native_patch('StringHandle')
+    @ittapi_native_patch('Event')
+    @ittapi_native_patch('StringHandle')
     def test_event_properties(self, event_mock, string_handle_mock):
         string_handle_mock.side_effect = lambda x: x
 
@@ -160,8 +160,8 @@ class EventPropertiesTest(TestCase):
 
 
 class EventExecutionTests(TestCase):
-    @pyitt_native_patch('Event')
-    @pyitt_native_patch('StringHandle')
+    @ittapi_native_patch('Event')
+    @ittapi_native_patch('StringHandle')
     def test_event_for_function(self, event_mock, string_handle_mock):
         string_handle_mock.return_value = 'string_handle'
 
@@ -178,8 +178,8 @@ class EventExecutionTests(TestCase):
                           call().end()]
         event_mock.assert_has_calls(expected_calls)
 
-    @pyitt_native_patch('Event')
-    @pyitt_native_patch('StringHandle')
+    @ittapi_native_patch('Event')
+    @ittapi_native_patch('StringHandle')
     def test_nested_events_for_function(self, event_mock, string_handle_mock):
         string_handle_mock.side_effect = lambda x: x
 
@@ -201,8 +201,8 @@ class EventExecutionTests(TestCase):
                           call().end()]
         event_mock.assert_has_calls(expected_calls)
 
-    @pyitt_native_patch('Event')
-    @pyitt_native_patch('StringHandle')
+    @ittapi_native_patch('Event')
+    @ittapi_native_patch('StringHandle')
     def test_event_as_context_manager(self, event_mock, string_handle_mock):
         string_handle_mock.side_effect = lambda x: x
 
@@ -217,8 +217,8 @@ class EventExecutionTests(TestCase):
                           call().end()]
         event_mock.assert_has_calls(expected_calls)
 
-    @pyitt_native_patch('Event')
-    @pyitt_native_patch('StringHandle')
+    @ittapi_native_patch('Event')
+    @ittapi_native_patch('StringHandle')
     def test_event_for_callable_object(self, event_mock, string_handle_mock):
         string_handle_mock.return_value = 'string_handle'
 
@@ -256,8 +256,8 @@ class EventExecutionTests(TestCase):
 
         self.assertEqual(str(context.exception), 'Callable object is expected as a first argument.')
 
-    @pyitt_native_patch('Event')
-    @pyitt_native_patch('StringHandle')
+    @ittapi_native_patch('Event')
+    @ittapi_native_patch('StringHandle')
     def test_event_for_method(self, event_mock, string_handle_mock):
         string_handle_mock.side_effect = lambda x: x
 
@@ -276,8 +276,8 @@ class EventExecutionTests(TestCase):
                           call().end()]
         event_mock.assert_has_calls(expected_calls)
 
-    @pyitt_native_patch('Event')
-    @pyitt_native_patch('StringHandle')
+    @ittapi_native_patch('Event')
+    @ittapi_native_patch('StringHandle')
     def test_event_for_class_method(self, event_mock, string_handle_mock):
         string_handle_mock.side_effect = lambda x: x
 
@@ -296,8 +296,8 @@ class EventExecutionTests(TestCase):
                           call().end()]
         event_mock.assert_has_calls(expected_calls)
 
-    @pyitt_native_patch('Event')
-    @pyitt_native_patch('StringHandle')
+    @ittapi_native_patch('Event')
+    @ittapi_native_patch('StringHandle')
     def test_event_for_static_method(self, event_mock, string_handle_mock):
         string_handle_mock.side_effect = lambda x: x
 
@@ -319,8 +319,8 @@ class EventExecutionTests(TestCase):
                           call().end()]
         event_mock.assert_has_calls(expected_calls)
 
-    @pyitt_native_patch('Event')
-    @pyitt_native_patch('StringHandle')
+    @ittapi_native_patch('Event')
+    @ittapi_native_patch('StringHandle')
     def test_event_for_static_method_with_wrong_order_of_decorators(self, event_mock, string_handle_mock):
         string_handle_mock.side_effect = lambda x: x
 
@@ -371,8 +371,8 @@ class EventExecutionTests(TestCase):
 
         self.assertEqual(str(context.exception), 'Callable object is expected to be passed.')
 
-    @pyitt_native_patch('Event')
-    @pyitt_native_patch('StringHandle')
+    @ittapi_native_patch('Event')
+    @ittapi_native_patch('StringHandle')
     def test_event_for_function_raised_exception(self, event_mock, string_handle_mock):
         string_handle_mock.return_value = 'string_handle'
 
@@ -394,8 +394,8 @@ class EventExecutionTests(TestCase):
                           call().end()]
         event_mock.assert_has_calls(expected_calls)
 
-    @pyitt_native_patch('Event')
-    @pyitt_native_patch('StringHandle')
+    @ittapi_native_patch('Event')
+    @ittapi_native_patch('StringHandle')
     def test_event_for_method_raised_exception(self, event_mock, string_handle_mock):
         string_handle_mock.side_effect = lambda x: x
 

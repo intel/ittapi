@@ -4,7 +4,7 @@
 #include <Python.h>
 
 
-namespace pyitt
+namespace ittapi
 {
 
 PyObject* task_begin(PyObject* self, PyObject* args);
@@ -12,4 +12,4 @@ PyObject* task_end(PyObject* self, PyObject* args);
 PyObject* task_begin_overlapped(PyObject* self, PyObject* args);
 PyObject* task_end_overlapped(PyObject* self, PyObject* args);
 
-} // namespace pyitt
+} // namespace ittapi

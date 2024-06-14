@@ -8,7 +8,7 @@
 #include "extensions/python.hpp"
 
 
-namespace pyitt
+namespace ittapi
 {
 
 struct Id
@@ -31,4 +31,4 @@ Id* id_obj(PyObject* self)
 	return pyext::pyobject_cast<Id>(self);
 }
 
-} // namespace pyitt
+} // namespace ittapi

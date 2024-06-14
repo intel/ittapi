@@ -4,11 +4,11 @@
 #include <Python.h>
 
 
-namespace pyitt
+namespace ittapi
 {
 
 PyObject* pause(PyObject* self, PyObject* args);
 PyObject* resume(PyObject* self, PyObject* args);
 PyObject* detach(PyObject* self, PyObject* args);
 
-} // namespace pyitt
+} // namespace ittapi

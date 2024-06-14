@@ -6,7 +6,7 @@
 #include "extensions/string.hpp"
 
 
-namespace pyitt
+namespace ittapi
 {
 
 template<typename T>
@@ -205,4 +205,4 @@ int exec_id(PyObject* module)
     return pyext::add_type(module, &IdType);
 }
 
-} // namespace pyitt
+} // namespace ittapi

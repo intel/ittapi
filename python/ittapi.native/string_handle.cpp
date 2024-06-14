@@ -5,7 +5,7 @@
 #include "extensions/string.hpp"
 
 
-namespace pyitt
+namespace ittapi
 {
 
 template<typename T>
@@ -225,4 +225,4 @@ int exec_string_handle(PyObject* module)
     return pyext::add_type(module, &StringHandleType);
 }
 
-}
+} // namespace ittapi

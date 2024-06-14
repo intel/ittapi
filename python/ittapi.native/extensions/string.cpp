@@ -1,7 +1,7 @@
 #include "string.hpp"
 
 
-namespace pyitt
+namespace ittapi
 {
 namespace pyext
 {
@@ -32,5 +32,5 @@ string string::from_unicode(PyObject* str)
 	return string(str_ptr, is_owner);
 }
 
-}
-}
+} // namespace pyext
+} // namespace ittapi

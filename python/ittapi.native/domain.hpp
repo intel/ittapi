@@ -8,7 +8,7 @@
 #include "extensions/python.hpp"
 
 
-namespace pyitt
+namespace ittapi
 {
 
 struct Domain
@@ -31,4 +31,4 @@ Domain* domain_obj(PyObject* self)
 	return pyext::pyobject_cast<Domain>(self);
 }
 
-} // namespace pyitt
+} // namespace ittapi

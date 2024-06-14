@@ -1,11 +1,11 @@
 from unittest import main as unittest_main, TestCase
 
-from pyitt_native_mock import patch as pyitt_native_patch
+from ittapi_native_mock import patch as ittapi_native_patch
 import ittapi
 
 
 class IdTests(TestCase):
-    @pyitt_native_patch('Id')
+    @ittapi_native_patch('Id')
     def test_id_call(self, id_mock):
         domain = 'my domain'
         ittapi.id(domain)

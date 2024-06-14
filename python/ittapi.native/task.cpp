@@ -6,7 +6,7 @@
 #include "id.hpp"
 #include "string_handle.hpp"
 
-namespace pyitt
+namespace ittapi
 {
 
 PyObject* task_begin(PyObject* self, PyObject* args)
@@ -161,4 +161,4 @@ PyObject* task_end_overlapped(PyObject* self, PyObject* args)
     Py_RETURN_NONE;
 }
 
-} // namespace pyitt
+} // namespace ittapi

@@ -4,9 +4,9 @@
 #include <Python.h>
 
 
-namespace pyitt
+namespace ittapi
 {
 
 PyObject* thread_set_name(PyObject* self, PyObject* args);
 
-} // namespace pyitt
+} // namespace ittapi
