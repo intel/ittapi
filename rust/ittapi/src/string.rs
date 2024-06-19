@@ -5,7 +5,7 @@ use std::ffi::CString;
 /// documentation for more information.
 ///
 /// [String Handle API]:
-///     https://www.intel.com/content/www/us/en/develop/documentation/vtune-help/top/api-support/instrumentation-and-tracing-technology-apis/instrumentation-tracing-technology-api-reference/string-handle-api.html
+///     https://www.intel.com/content/www/us/en/docs/vtune-profiler/user-guide/current/string-handle-api.html
 #[derive(PartialEq, Eq, Debug)]
 pub struct StringHandle(*mut ittapi_sys::__itt_string_handle);
 impl StringHandle {
