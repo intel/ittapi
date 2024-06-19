@@ -31,8 +31,8 @@ optional arguments:
   -c, --clean     delete any intermediate and output files
   -v, --verbose   enable verbose output from build process
   -pt, --ptmark   enable anomaly detection support
-  --force_bits    specify bit version for the target
   -ft, --fortran  enable fortran support
+  --force_bits    specify bit version for the target
 ```
 ### License
 

@@ -28,9 +28,11 @@ jobs:
       with:
           compiler: intel
     - name: Build C library
-      # Force to only build the 64-bit version since
-      # ITT API 32-bit support will be discontinued soon
-      run: python buildall.py --force_bits 64 -ft ${{ runner.os != 'macOS' && '-pt' || '' }}
+      # 1. Force to only build the 64-bit version since ITT API 32-bit support will be discontinued soon
+      # 2. Disable PT support for MacOS since we have x86 specific assembly instruction
+      # 3. Switch to use Ninja CMake Generator for Windows since setup-fortran action
+      #    doesn't work in case of cmake + VS (https://github.com/fortran-lang/setup-fortran/issues/45)
+      run: python buildall.py --force_bits 64 -ft ${{ runner.os != 'macOS' && '-pt' || '' }} ${{ runner.os == 'Windows' && '--cmake_gen ninja' || '' }}
 
   rust_format:
     name: Check Rust formatting

@@ -116,12 +116,14 @@ def main():
     parser.add_argument(
         "-pt", "--ptmark", help="enable anomaly detection support", action="store_true")
     parser.add_argument(
-        "--force_bits", choices=["32", "64"], help="specify bit version for the target")
-    parser.add_argument(
         "-ft", "--fortran", help="enable fortran support", action="store_true")
+    parser.add_argument(
+        "--force_bits", choices=["32", "64"], help="specify bit version for the target")
     if sys.platform == 'win32' and vs_versions:
         parser.add_argument(
             "--vs", help="specify visual studio version {default}", choices=vs_versions, default=vs_versions[0])
+        parser.add_argument(
+            "--cmake_gen", choices=["vs", "ninja"], help="specify cmake build generator")
     args = parser.parse_args()
 
     if args.force_bits:
@@ -157,7 +159,7 @@ def main():
             return
 
         if sys.platform == 'win32':
-            if vs_versions:
+            if vs_versions and args.cmake_gen != 'ninja':
                 generator = 'Visual Studio {}'.format(args.vs)
                 generator_args = '-A {}'.format('x64' if bits ==
                                                 '64' else 'Win32')
@@ -177,7 +179,7 @@ def main():
         ])))
 
         if sys.platform == 'win32':
-            target_project = 'ALL_BUILD'
+            target_project = 'ALL_BUILD' if args.cmake_gen != 'ninja' else 'all'
             run_shell('%s --build . --config %s --target %s' %
                       (cmake, ('Debug' if args.debug else 'Release'), target_project))
         else:

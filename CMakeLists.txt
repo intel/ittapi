@@ -97,19 +97,7 @@ else()
 endif()
 
 if(ITT_API_FORTRAN_SUPPORT)
-    # Workaround to find and force to use the Intel Fortran compiler
-    # since enable_language(Fortran) does not always work properly
-    find_program(IFX_FOUND ifx)
-    if(IFX_FOUND)
-        set(CMAKE_Fortran_COMPILER ${IFX_FOUND})
-    else()
-        find_program(IFORT_FOUND ifort)
-        if(IFORT_FOUND)
-            set(CMAKE_Fortran_COMPILER ${IFORT_FOUND})
-        else()
-            message(FATAL_ERROR "Intel Fortran compiler was found")
-        endif()
-    endif()
+    enable_language(Fortran)
 
     set(ITT_FORTRAN_SRC ${CMAKE_CURRENT_SOURCE_DIR}/include/fortran/${PLATFORM_PATH}/ittnotify.f90)
     set(ADVISOR_ANNOTATION_SRC ${CMAKE_CURRENT_SOURCE_DIR}/include/fortran/advisor_annotate.f90)
