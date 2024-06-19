@@ -30,8 +30,7 @@ itt_dir = itt_dir if itt_dir else ITT_DEFAULT_DIR
 assert os.path.exists(itt_dir), 'The specified directory with ITT API source code does not exist.'
 assert itt_dir != ITT_DEFAULT_DIR or len(os.listdir(itt_dir)), \
     (f'The specified directory with ITT API source code ({itt_dir}) is empty.\n'
-     f'Make sure that submodules are checked out as well using following command:\n'
-     f'git submodule update --init --recursive')
+     f'Please make sure you provide a valid path.')
 
 # Check if IPT support is requested
 build_itt_with_ipt_support = get_environment_flag('ITTAPI_BUILD_WITH_ITT_API_IPT_SUPPORT')
