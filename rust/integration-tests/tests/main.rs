@@ -41,7 +41,7 @@ fn run_with_collector() {
 
     // Finally, check that the created report actually contains the measured tasks. It may be
     // interesting to filter by task here: e.g.,
-    // https://www.intel.com/content/www/us/en/develop/documentation/vtune-help/top/command-line-interface/generating-command-line-reports/filtering-and-grouping-reports.html.
+    // https://www.intel.com/content/www/us/en/docs/vtune-profiler/user-guide/current/filtering-and-grouping-reports.html
     let report_stdout = run(&["vtune", "-report", "summary", result_dir_flag]);
     assert!(report_stdout.contains("task#1 "));
     assert!(report_stdout.contains("task#2 "));

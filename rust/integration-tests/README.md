@@ -13,8 +13,9 @@ source vtune-vars.sh
 cargo test
 ```
 
-To install VTune, see the [User
-Guide](https://www.intel.com/content/www/us/en/develop/documentation/vtune-help/top/installation.html).
-The environment setup script (e.g., `vtune-vars.sh`) can be found within the VTune installation;
-e.g., `$HOME/intel/oneapi/vtune/latest` or `/opt/intel/oneapi/vtune/latest` on
-[Linux](https://www.intel.com/content/www/us/en/develop/documentation/get-started-with-vtune/top/linux-os.html).
+To install VTune, see the [User Guide]. The environment setup script (e.g., `vtune-vars.sh`) can be
+found within the VTune installation; e.g., `$HOME/intel/oneapi/vtune/latest` or
+`/opt/intel/oneapi/vtune/latest` on [Linux].
+
+[User Guide]: https://www.intel.com/content/www/us/en/docs/vtune-profiler/user-guide/current/installation.html
+[Linux]: https://www.intel.com/content/www/us/en/docs/vtune-profiler/get-started-guide/current/linux-os.html

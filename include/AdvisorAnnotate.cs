@@ -1,13 +1,5 @@
-// SAMPLE SOURCE CODE - SUBJECT TO THE TERMS OF END-USER LICENSE AGREEMENT
-// FOR INTEL(R) ADVISOR XE 2018.
-//
-// Copyright (c) 2012-2017 Intel Corporation. All rights reserved.
-//
-// THIS FILE IS PROVIDED "AS IS" WITH NO WARRANTIES, EXPRESS OR IMPLIED,
-// INCLUDING BUT NOT LIMITED TO ANY IMPLIED WARRANTY OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT OF INTELLECTUAL
-// PROPERTY RIGHTS.
-//
+// Copyright (C) 2012-2017 Intel Corporation
+// SPDX-License-Identifier: GPL-2.0-only OR BSD-3-Clause
 
 // This file defines functions used by the Intel(R) Advisor XE
 // "Dependencies Modeling" and "Suitability Modeling" analysis, which

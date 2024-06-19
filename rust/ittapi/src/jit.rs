@@ -3,7 +3,7 @@
 //! is a high-level view of a subset of the full functionality available. See the [JIT Profiling
 //! API] for more information.
 //!
-//! [JIT Profiling API]: https://www.intel.com/content/www/us/en/develop/documentation/vtune-help/top/api-support/jit-profiling-api.html
+//! [JIT Profiling API]: https://www.intel.com/content/www/us/en/docs/vtune-profiler/user-guide/current/jit-profiling-api.html
 use anyhow::Context;
 use std::{ffi::CString, os, ptr};
 
