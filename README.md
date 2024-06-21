@@ -21,9 +21,10 @@ a BSD/GPLv2 dual license with every tool supporting ITT API.
 To build the library:
  - On Windows, Linux, FreeBSD and OSX: requires [cmake](https://cmake.org) to be set in `PATH`
  - Windows: requires Visual Studio installed or requires [Ninja](https://github.com/ninja-build/ninja/releases) to be set in `PATH`
+ - To enable fortran support requires [Intel Fortran Compiler](https://www.intel.com/content/www/us/en/docs/fortran-compiler/get-started-guide/current/overview.html) installed
  - To list available build options execute: `python buildall.py -h`
 ```
-usage: buildall.py [-h] [-d] [-c] [-v] [-pt] [--force_bits] [-ft]
+usage: buildall.py [-h] [-d] [-c] [-v] [-pt] [-ft] [--force_bits]
 
 optional arguments:
   -h, --help      show this help message and exit
@@ -33,6 +34,8 @@ optional arguments:
   -pt, --ptmark   enable anomaly detection support
   -ft, --fortran  enable fortran support
   --force_bits    specify bit version for the target
+  --vs            specify visual studio version (Windows only)
+  --cmake_gen     specify cmake build generator (Windows only)
 ```
 ### License
 

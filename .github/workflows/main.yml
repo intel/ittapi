@@ -20,6 +20,13 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
+        include:
+          - os: ubuntu-latest
+            optional_args: "-pt"
+          - os: windows-latest
+            optional_args: "-pt --cmake_gen ninja"
+          - os: macOS-latest
+            optional_args: ""
     steps:
     - name: Checkout sources
       uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
@@ -31,8 +38,8 @@ jobs:
       # 1. Force to only build the 64-bit version since ITT API 32-bit support will be discontinued soon
       # 2. Disable PT support for MacOS since we have x86 specific assembly instruction
       # 3. Switch to use Ninja CMake Generator for Windows since setup-fortran action
-      #    doesn't work in case of cmake + VS (https://github.com/fortran-lang/setup-fortran/issues/45)
-      run: python buildall.py --force_bits 64 -ft ${{ runner.os != 'macOS' && '-pt' || '' }} ${{ runner.os == 'Windows' && '--cmake_gen ninja' || '' }}
+      #    doesn't work in case of CMake + VS (https://github.com/fortran-lang/setup-fortran/issues/45)
+      run: python buildall.py --force_bits 64 -ft ${{ matrix.optional_args }}
 
   rust_format:
     name: Check Rust formatting

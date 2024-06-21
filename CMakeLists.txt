@@ -37,6 +37,7 @@ if(CMAKE_SIZEOF_VOID_P MATCHES "8" AND NOT(FORCE_32))
 endif()
 
 if(FORCE_32 AND ITT_API_FORTRAN_SUPPORT)
+    # ifx dropped 32-bit support
     message(WARNING "Fortran support for 32-bit has been discontinued")
     set(ITT_API_FORTRAN_SUPPORT OFF)
 endif()
@@ -99,12 +100,11 @@ endif()
 if(ITT_API_FORTRAN_SUPPORT)
     enable_language(Fortran)
 
-    set(ITT_FORTRAN_SRC ${CMAKE_CURRENT_SOURCE_DIR}/include/fortran/${PLATFORM_PATH}/ittnotify.f90)
-    set(ADVISOR_ANNOTATION_SRC ${CMAKE_CURRENT_SOURCE_DIR}/include/fortran/advisor_annotate.f90)
-
     set(FORTRAN_BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR}/fortran)
     file(MAKE_DIRECTORY ${FORTRAN_BINARY_DIR})
 
+    set(ITT_FORTRAN_SRC ${CMAKE_CURRENT_SOURCE_DIR}/include/fortran/${PLATFORM_PATH}/ittnotify.f90)
+    set(ADVISOR_ANNOTATION_SRC ${CMAKE_CURRENT_SOURCE_DIR}/include/fortran/advisor_annotate.f90)
     set(ITT_FORTRAN ${FORTRAN_BINARY_DIR}/ittfortran.${PLATFORM_EXT})
     set(ADVISOR_ANNOTATION ${FORTRAN_BINARY_DIR}/advisor_annotate.${PLATFORM_EXT})
 
@@ -118,7 +118,6 @@ if(ITT_API_FORTRAN_SUPPORT)
         set(ADVISOR_ANNOTATION_BUILD_CMD ${FORTRAN_BUILD_CMD} -o ${ADVISOR_ANNOTATION} ${ADVISOR_ANNOTATION_SRC})
     endif()
 
-    # Add custom command to compile fortran sources into object files
     add_custom_command(OUTPUT  ${ITT_FORTRAN}
                        COMMAND ${ITT_FORTRAN_BUILD_CMD}
                        DEPENDS ${ITT_FORTRAN_SRC}
@@ -129,16 +128,8 @@ if(ITT_API_FORTRAN_SUPPORT)
                        DEPENDS ${ADVISOR_ANNOTATION_SRC}
                        COMMENT "Building Advisor Annotation")
 
-    # Add custom targets to ensure the above commands are executed before the libraries are built
-    add_custom_target(ittfortran ALL DEPENDS ${ITT_FORTRAN})
-    add_custom_target(advisor_annotate ALL DEPENDS ${ADVISOR_ANNOTATION})
-
     add_library(ittnotify STATIC ${ITT_SRCS} ${ITT_PUBLIC_HDRS} ${ITT_PT} ${ITT_FORTRAN})
     add_library(advisor STATIC ${ADVISOR_ANNOTATION})
-
-    # Add dependencies to the libraries
-    add_dependencies(ittnotify ittfortran)
-    add_dependencies(advisor advisor_annotate)
 else()
     add_library(ittnotify STATIC ${ITT_SRCS} ${ITT_PUBLIC_HDRS} ${ITT_PT})
 endif()
