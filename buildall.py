@@ -159,7 +159,9 @@ def main():
             return
 
         if sys.platform == 'win32':
-            if vs_versions and args.cmake_gen != 'ninja':
+            # ninja does not support platform bit specification
+            use_ninja = args.cmake_gen == 'ninja' and bits =='64'
+            if vs_versions and not use_ninja:
                 generator = 'Visual Studio {}'.format(args.vs)
                 generator_args = '-A {}'.format('x64' if bits ==
                                                 '64' else 'Win32')
@@ -179,7 +181,7 @@ def main():
         ])))
 
         if sys.platform == 'win32':
-            target_project = 'ALL_BUILD' if args.cmake_gen != 'ninja' else 'all'
+            target_project = 'ALL_BUILD' if not use_ninja else 'all'
             run_shell('%s --build . --config %s --target %s' %
                       (cmake, ('Debug' if args.debug else 'Release'), target_project))
         else:

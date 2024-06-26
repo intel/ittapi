@@ -19,24 +19,22 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
         include:
           - os: ubuntu-latest
-            optional_args: "-pt"
+            optional_args: -pt
           - os: windows-latest
-            optional_args: "-pt --cmake_gen ninja"
-          - os: macOS-latest
-            optional_args: ""
+            optional_args: -pt --cmake_gen ninja
+          - os: macos-latest
     steps:
     - name: Checkout sources
       uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
-    - name: Setup Fortran Compiler
+    - name: Setup Fortran compiler
       uses: fortran-lang/setup-fortran@8821f57b53846d35d62632eb51c60ac6c4bff4ce # v1.6.1
       with:
           compiler: intel
     - name: Build C library
       # 1. Force to only build the 64-bit version since ITT API 32-bit support will be discontinued soon
-      # 2. Disable PT support for MacOS since we have x86 specific assembly instruction
+      # 2. Disable PT support for MacOS since we have x86 specific assembly instructions
       # 3. Switch to use Ninja CMake Generator for Windows since setup-fortran action
       #    doesn't work in case of CMake + VS (https://github.com/fortran-lang/setup-fortran/issues/45)
       run: python buildall.py --force_bits 64 -ft ${{ matrix.optional_args }}
