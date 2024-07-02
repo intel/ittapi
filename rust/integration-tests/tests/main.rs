@@ -31,8 +31,6 @@ fn run_with_collector() {
         "-collect",
         "hotspots",
         result_dir_flag,
-        "-knob",
-        "sampling-mode=hw",
         "cargo",
         "run",
     ]);
