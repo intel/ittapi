@@ -121,7 +121,6 @@ PyTypeObject PT_RegionType =
 
 static PyObject* pt_region_new(PyTypeObject* type, PyObject* args, PyObject* kwargs)
 {
-    cout<<"New PT region"<<endl;
     PT_Region* self = pt_region_obj(type->tp_alloc(type,0));
     if (self == nullptr)
     {
@@ -233,7 +232,6 @@ int exec_pt_region(PyObject* module)
 
 PyObject* pt_region_begin(PyObject* self, PyObject* args)
 {
-    cout<<"Begin the PT region"<<endl;
     PyObject* pt_region = nullptr;
     if (!PyArg_ParseTuple(args, "O", &pt_region))
     {
@@ -253,7 +251,6 @@ PyObject* pt_region_begin(PyObject* self, PyObject* args)
 
 PyObject* pt_region_end(PyObject* self, PyObject* args)
 {
-    cout<<"End the PT region"<<endl;
     PyObject* pt_region = nullptr;
     if (!PyArg_ParseTuple(args, "O", &pt_region))
     {
