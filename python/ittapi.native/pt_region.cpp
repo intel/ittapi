@@ -5,10 +5,6 @@
 #include "string_handle.hpp"
 #include "extensions/string.hpp"
 
-#include <iostream>
-
-using namespace std;
-
 namespace ittapi
 {
 namespace itt_NERSC
@@ -154,7 +150,7 @@ static PyObject* pt_region_new(PyTypeObject* type, PyObject* args, PyObject* kwa
     {
         Py_DecRef(pt_region_cast<PyObject>(self));
 
-        PyErr_SetString(PyExc_TypeError, "The passed string to create string handle is not a valid instance of str.");
+        PyErr_SetString(PyExc_TypeError, "The passed string to create pt_region is not a valid instance of neither str nor StringHandle");
         return nullptr;
     }
 
