@@ -1,13 +1,19 @@
 from ittapi.native import detach as _detach, pause as _pause, resume as _resume
 
 def detach():
-    print("Calling NERSC detach")
+    """
+    Detach collection of profiling data.
+    """
     _detach()
 
 def resume():
-    print("Calling NERSC resume")
+    """
+    Resume collection of profiling data.
+    """
     _resume()
 
 def pause():
-    print("Calling NERSC pause")
+    """
+    Pause collection of profiling data.
+    """
     _pause()

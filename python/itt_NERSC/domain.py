@@ -2,7 +2,9 @@ from ittapi.native import Domain as _Domain
 
 def domain_create(name=None):
     """
-        In NERSC implementation, a capsule was being made in which a pointer for acccessing domain was being stored which can be accessed by name "itt.domain"
+    Creates a domain with the given name.
+    :param name: a name of the domain
+    :return: a handle to the created domain with given name if the `name` is not None,
+    otherwise, returns handle to default domain.
     """
-    print("Calling NERSC domain")
     return _Domain(name)
