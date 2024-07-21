@@ -64,6 +64,7 @@ ittapi_native_sources = ['ittapi.native/extensions/python.cpp',
                         'ittapi.native/string_handle.cpp',
                         'ittapi.native/task.cpp',
                         'ittapi.native/thread_naming.cpp',
+                        'ittapi.native/pt_region.cpp',
                         'ittapi.native/ittapi.cpp']
 
 ittapi_native_compiler_args = ['/std:c++20' if sys.platform == 'win32' else '-std=c++20']
@@ -122,7 +123,7 @@ class NativeBuildExtension(build_ext):  # pylint: disable=R0903
 setup(name='ittapi',
       version='1.1.0',
       description='ITT API bindings for Python',
-      packages=['ittapi'],
+      packages=['ittapi', 'itt_NERSC'],
       ext_modules=[ittapi_native],
       license_files=ittapi_license_files + itt_license_files,
       cmdclass={'build_ext': NativeBuildExtension} if build_itt_with_ipt_support else {},

@@ -1,9 +1,11 @@
 #include "string_handle.hpp"
 
+#include <iostream>
 #include <structmember.h>
 
 #include "extensions/string.hpp"
 
+using namespace std;
 
 namespace ittapi
 {
@@ -14,6 +16,7 @@ T* string_handle_cast(StringHandle* self);
 template<>
 PyObject* string_handle_cast(StringHandle* self)
 {
+    cout<<__func__<<":"<<__LINE__<<endl;
     return reinterpret_cast<PyObject*>(self);
 }
 
@@ -119,6 +122,7 @@ PyTypeObject StringHandleType =
 
 static PyObject* string_handle_new(PyTypeObject* type, PyObject* args, PyObject* kwargs)
 {
+    cout<<__func__<<":"<<__LINE__<<endl;
     StringHandle* self = string_handle_obj(type->tp_alloc(type, 0));
 
     if (self == nullptr)
@@ -130,7 +134,7 @@ static PyObject* string_handle_new(PyTypeObject* type, PyObject* args, PyObject*
     char* kwlist[] = { str_key, nullptr };
 
     PyObject* str = nullptr;
-
+    // https://stackoverflow.com/questions/10625865/how-does-pyarg-parsetupleandkeywords-work
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O", kwlist, &str))
     {
         return nullptr;
@@ -166,6 +170,7 @@ static PyObject* string_handle_new(PyTypeObject* type, PyObject* args, PyObject*
 
 static void string_handle_dealloc(PyObject* self)
 {
+    cout<<__func__<<":"<<__LINE__<<endl;
     if (self == nullptr)
     {
         return;
@@ -177,6 +182,7 @@ static void string_handle_dealloc(PyObject* self)
 
 static PyObject* string_handle_repr(PyObject* self)
 {
+    cout<<__func__<<":"<<__LINE__<<endl;
     StringHandle* obj = string_handle_check(self);
     if (obj == nullptr)
     {
@@ -194,6 +200,7 @@ static PyObject* string_handle_repr(PyObject* self)
 
 static PyObject* string_handle_str(PyObject* self)
 {
+    cout<<__func__<<":"<<__LINE__<<endl;
     StringHandle* obj = string_handle_check(self);
     if (obj == nullptr)
     {
@@ -211,6 +218,7 @@ static PyObject* string_handle_str(PyObject* self)
 
 StringHandle* string_handle_check(PyObject* self)
 {
+    cout<<__func__<<":"<<__LINE__<<endl;
     if (self == nullptr || Py_TYPE(self) != &StringHandleType)
     {
         PyErr_SetString(PyExc_TypeError, "The passed string handle is not a valid instance of StringHandle.");
@@ -222,6 +230,7 @@ StringHandle* string_handle_check(PyObject* self)
 
 int exec_string_handle(PyObject* module)
 {
+    cout<<__func__<<":"<<__LINE__<<endl;
     return pyext::add_type(module, &StringHandleType);
 }
 

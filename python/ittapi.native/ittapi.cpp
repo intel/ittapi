@@ -8,6 +8,7 @@
 #include "string_handle.hpp"
 #include "task.hpp"
 #include "thread_naming.hpp"
+#include "pt_region.hpp"
 
 
 namespace ittapi
@@ -32,6 +33,8 @@ static int exec_ittapi_module(PyObject* module)
         {"task_end",              task_end,              METH_VARARGS, "Marks the end of a task."},
         {"task_begin_overlapped", task_begin_overlapped, METH_VARARGS, "Marks the beginning of an overlapped task."},
         {"task_end_overlapped",   task_end_overlapped,   METH_VARARGS, "Marks the end of an overlapped task."},
+        {"pt_region_begin", itt_NERSC::pt_region_begin, METH_VARARGS, "Marks the begining of a processor trace control region"},
+        {"pt_region_end", itt_NERSC::pt_region_end, METH_VARARGS, "Marks the ending of a processor trace control region"},
         /* marks end of array */
         { nullptr },
     };
@@ -61,6 +64,7 @@ PyMODINIT_FUNC PyInit_native()
         { Py_mod_exec, reinterpret_cast<void*>(exec_event) },
         { Py_mod_exec, reinterpret_cast<void*>(exec_id) },
         { Py_mod_exec, reinterpret_cast<void*>(exec_string_handle) },
+        { Py_mod_exec, reinterpret_cast<void*>(itt_NERSC::exec_pt_region) },
         { 0, nullptr }
     };
 

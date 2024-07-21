@@ -5,6 +5,9 @@
 #include "domain.hpp"
 #include "id.hpp"
 #include "string_handle.hpp"
+#include <iostream>
+
+using namespace std;
 
 namespace ittapi
 {
@@ -26,7 +29,7 @@ PyObject* task_begin(PyObject* self, PyObject* args)
     {
         return nullptr;
     }
-
+    
     StringHandle* name_string_handle_obj = string_handle_check(name_string_handle);
     if (name_string_handle_obj == nullptr)
     {
@@ -36,6 +39,7 @@ PyObject* task_begin(PyObject* self, PyObject* args)
     __itt_id id = __itt_null;
     if (task_id && task_id != Py_None)
     {
+        cout<<__FILE__<<" "<<__func__<<" "<<__LINE__<<": task_id is null"<<endl;
         Id* task_id_obj = id_check(task_id);
         if (task_id_obj == nullptr)
         {
@@ -43,6 +47,9 @@ PyObject* task_begin(PyObject* self, PyObject* args)
         }
 
         id = task_id_obj->id;
+    }
+    else{
+        cout<<__FILE__<<" "<<__func__<<" "<<__LINE__<<": task_id is null"<<endl;
     }
 
     __itt_id p_id = __itt_null;
@@ -55,6 +62,9 @@ PyObject* task_begin(PyObject* self, PyObject* args)
         }
 
         p_id = parent_id_obj->id;
+    }
+    else{
+        cout<<__FILE__<<" "<<__func__<<" "<<__LINE__<<": p_id is null"<<endl;
     }
 
     __itt_task_begin(domain_obj->handle, id, p_id, name_string_handle_obj->handle);

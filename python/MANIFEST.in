@@ -4,6 +4,7 @@ include pyproject.toml
 include setup.py
 recursive-include ittapi *.py
 recursive-include ittapi.native *.cpp *.hpp
+recursive-include itt_NERSC *.py
 recursive-include ../include *.h
 recursive-include ../LICENSES *
 recursive-include ../src *
