@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from ittapi import itt_NERSC
+from ittapi import itt_NERSC as itt
 
 # pylint: disable=C0411
 from argparse import ArgumentParser
@@ -7,31 +7,31 @@ from vtune_tool import run_vtune_hotspot_collection
 from workload import workload
 
 
-domain = itt_NERSC.domain_create("collection_control_sample")
+domain = itt.domain_create("collection_control_sample")
 
 def run_sample():
-    itt_NERSC.resume()
+    itt.resume()
     def run_workload():
-        itt_NERSC.task_begin(domain, "run_workload")
+        itt.task_begin(domain, "run_workload")
         workload()
-        itt_NERSC.task_end(domain)
+        itt.task_end(domain)
 
     run_workload()
 
     for i in range(4):
         if i%2 == 0:
-            itt_NERSC.task_begin(domain, f"for loop iteration {i}")
+            itt.task_begin(domain, f"for loop iteration {i}")
             workload()
-            itt_NERSC.task_end(domain)
+            itt.task_end(domain)
 
-    itt_NERSC.pause()
+    itt.pause()
 
-    itt_NERSC.task_begin(domain, "resumed region")
+    itt.task_begin(domain, "resumed region")
     workload()
-    itt_NERSC.task_end(domain)
+    itt.task_end(domain)
 
 
-    itt_NERSC.resume()
+    itt.resume()
     workload()
 
 

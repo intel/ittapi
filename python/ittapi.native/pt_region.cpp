@@ -7,8 +7,6 @@
 
 namespace ittapi
 {
-namespace itt_NERSC
-{
 
 template<typename T>
 T* pt_region_cast(PT_Region* self);
@@ -268,5 +266,4 @@ PyObject* pt_region_end(PyObject* self, PyObject* args)
     Py_RETURN_NONE;
 }
 
-} // namespace itt_NERSC
 } // namespace ittapi

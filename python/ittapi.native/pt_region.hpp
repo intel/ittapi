@@ -9,8 +9,6 @@
 
 namespace ittapi
 {
-namespace itt_NERSC
-{
 
 struct PT_Region
 {
@@ -34,5 +32,4 @@ PT_Region* pt_region_obj(PyObject* self)
 PyObject* pt_region_begin(PyObject* self, PyObject* args);
 PyObject* pt_region_end(PyObject* self, PyObject* args);
 
-} // namespace itt_NERSC
 } // namespace ittapi
