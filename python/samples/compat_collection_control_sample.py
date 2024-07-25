@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from ittapi import compat as itt
+import ittapi.compat as itt
 
 # pylint: disable=C0411
 from argparse import ArgumentParser

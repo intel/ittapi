@@ -1,6 +1,6 @@
 from unittest import main as unittest_main, TestCase
 from ittapi_native_mock import patch as ittapi_native_patch
-from ittapi import compat
+import ittapi.compat
 import ittapi
 
 class TaskTests(TestCase):
@@ -12,14 +12,14 @@ class TaskTests(TestCase):
         domain_name='my domain'
         task_name_strType='my task'
 
-        domain=compat.domain_create(domain_name)
+        domain=ittapi.compat.domain_create(domain_name)
         domain_mock.assert_called_once_with(domain_name)
         
-        compat.task_begin(domain, task_name_strType)
+        ittapi.compat.task_begin(domain, task_name_strType)
         task_name_mock.assert_called_once_with(task_name_strType)
         task_begin_mock.assert_called_once_with(domain, ittapi.StringHandle(task_name_strType))
                
-        compat.task_end(domain)
+        ittapi.compat.task_end(domain)
         task_end_mock.assert_called_once_with(domain)
 
 
