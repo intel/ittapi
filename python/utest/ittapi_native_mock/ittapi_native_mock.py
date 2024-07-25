@@ -20,7 +20,7 @@ class IttapiNativeMock(_ModuleType):
             'Event': _MagicMock(),
             'Id': _MagicMock(),
             'StringHandle': _MagicMock(),
-            # NERSC
+            # compat
             'PT_Region': _MagicMock(),
             'pt_region_begin': _MagicMock(),
             'pt_region_end': _MagicMock(),

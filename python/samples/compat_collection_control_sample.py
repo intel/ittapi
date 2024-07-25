@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from ittapi import itt_NERSC as itt
+from ittapi import compat as itt
 
 # pylint: disable=C0411
 from argparse import ArgumentParser

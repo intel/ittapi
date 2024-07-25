@@ -1,6 +1,6 @@
 from unittest import main as unittest_main, TestCase
 from ittapi_native_mock import patch as ittapi_native_patch
-from ittapi import itt_NERSC
+from ittapi import compat
 import ittapi
 
 class TaskTests(TestCase):
@@ -12,14 +12,14 @@ class TaskTests(TestCase):
         domain_name='my domain'
         task_name_strType='my task'
 
-        domain=itt_NERSC.domain_create(domain_name)
+        domain=compat.domain_create(domain_name)
         domain_mock.assert_called_once_with(domain_name)
         
-        itt_NERSC.task_begin(domain, task_name_strType)
+        compat.task_begin(domain, task_name_strType)
         task_name_mock.assert_called_once_with(task_name_strType)
         task_begin_mock.assert_called_once_with(domain, ittapi.StringHandle(task_name_strType))
                
-        itt_NERSC.task_end(domain)
+        compat.task_end(domain)
         task_end_mock.assert_called_once_with(domain)
 
 

@@ -15,4 +15,4 @@ from .string_handle import string_handle
 from .task import NestedTask, OverlappedTask, task, nested_task, overlapped_task
 from .thread_naming import thread_set_name
 # adapter for itt-NERSC implementation
-import itt_NERSC
+import compat
