@@ -33,8 +33,8 @@ static int exec_ittapi_module(PyObject* module)
         {"task_end",              task_end,              METH_VARARGS, "Marks the end of a task."},
         {"task_begin_overlapped", task_begin_overlapped, METH_VARARGS, "Marks the beginning of an overlapped task."},
         {"task_end_overlapped",   task_end_overlapped,   METH_VARARGS, "Marks the end of an overlapped task."},
-        {"pt_region_begin", pt_region_begin, METH_VARARGS, "Marks the begining of a processor trace control region"},
-        {"pt_region_end", pt_region_end, METH_VARARGS, "Marks the ending of a processor trace control region"},
+        {"pt_region_begin",       pt_region_begin,       METH_VARARGS, "Marks the begining of a processor trace control region"},
+        {"pt_region_end",         pt_region_end,         METH_VARARGS, "Marks the ending of a processor trace control region"},
         /* marks end of array */
         { nullptr },
     };
