@@ -93,7 +93,7 @@ jobs:
       # state, so we ignore these changes with `--allow-dirty` here.
       run: scripts/verify-publish.sh --allow-dirty
 
-  itt_python_build:
+  itt_python_build_and_test:
     strategy:
       fail-fast: false
       matrix:
@@ -105,26 +105,12 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v1
-      - name: install ittapi
+      - name: Build and Install ittapi
         run: |
           cd python
           python3 -m pip install .
-
-  itt_python_unit_test:
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - os: ubuntu-latest
-          - os: windows-latest
-    runs-on: ['${{matrix.os}}']
-    needs: itt_python_build
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v1
-      - name: run unit-test
+      - name: Run unit-test
         run: |
           cd python
           python3 -m unittest discover -s utest -t utest
-  
+
