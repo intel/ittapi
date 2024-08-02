@@ -59,9 +59,9 @@ for `ittapi.task` in the same way as for the decorator form.
 
 ## Installation
 
-[TODO] intel-ittapi package is available on PyPi and can be installed in the usual way for the supported configurations:
-
-[TODO]    pip install intel-ittapi
+ittapi package is available on PyPi and can be installed in the usual way for the supported configurations:
+       
+       pip install ittapi
 
 ## Build
 
