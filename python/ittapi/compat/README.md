@@ -1,6 +1,6 @@
 # ittapi.compat
 
-The module is a wrapper to an earlier implementation of ITT API: (https://github.com/oleksandr-pavlyk/itt-python/tree/master). The idea is to allow users to effortlessly migrate to this new package without losing any existing functionality. The module is a wrapper to following ITT APIs:
+The module is a wrapper to an earlier implementation of ITT API: (https://github.com/oleksandr-pavlyk/itt-python/tree/master). The idea is to allow users to effortlessly migrate to the `ittapi` package without losing any existing functionality. The module is a wrapper to following ITT APIs:
 
        - Collection Control API
        - Domain API
