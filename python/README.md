@@ -1,19 +1,29 @@
 # ittapi
 
-ittapi is a Python binding to Intel Instrumentation and Tracing Technology (ITT) API. It provides a convenient way
-to mark up the Python code for further performance analysis using performance analyzers from Intel like Intel VTune
-or others.
+ittapi is a Python binding to Intel Instrumentation and Tracing Technology (ITT) API. It provides a convenient way to mark up the Python code for further performance analysis using performance analyzers from Intel like Intel VTune or others.
 
-ittapi supports following ITT APIs:
- - Collection Control API
- - Domain API
- - Event API
- - Id API
- - String Handle API
- - Task API
- - Thread Naming API
+The ittapi package has following modules:
+- ittapi module - The module consists of main ITT APIs and supports following ITT APIs:
+
+       - Collection Control API
+       - Domain API
+       - Event API
+       - Id API
+       - String Handle API
+       - Task API
+       - Thread Naming API
+
+- ittapi.compat module : The module is a wrapper to an earlier implementation of ITT API: (https://github.com/oleksandr-pavlyk/itt-python/tree/master). The idea is to allow users to effortlessly migrate to this new package without losing any existing functionality. The module is a wrapper to following ITT APIs:
+
+       - Collection Control API
+       - Domain API
+       - Task API
+       - Process Trace Region API
+
 
 ## Usage
+
+### ittapi module
 
 The main goal of the project is to provide the ability to instrument a Python code using ITT API in the Pythonic way.
 ittapi provides wrappers that simplify markup of Python code.
@@ -57,10 +67,54 @@ If the task name is not specified, the `ittapi.task` uses call site information 
 the name to the task. A custom name for the task and other task parameters can be specified via arguments
 for `ittapi.task` in the same way as for the decorator form.
 
+### ittapi.compat module
+
+#### Collection Control API
+ 
+The `pause` and `resume` enables to focus the collection on a specific section of code while profiling, and start the application run with collection paused. 
+
+The `detach` detaches the data collection. Application continues to work but no data is collected while profiling. 
+
+       import ittapi.compat as itt
+       # ... uninteresting code
+       itt.resume()
+       # ... very interesting code
+       itt.pause()
+       # ... boring stuff again
+       itt.resume()
+       # ... interesting code
+       itt.detach()
+       # ... uninteresting code like writing output
+
+If the above code snipped is profiled with VTune or others, the execution begins with collection paused and only the interesting part of the code is profiled. 
+
+#### Domain API
+
+A domain enables tagging trace data for different modules or libraries in a program. 
+
+       import ittapi.compat as itt
+
+       domain = itt.domain_create("<Domain Name>")
+
+Above code snippet creates a domain with the given `Domain name` and returns a Domain object created with the given name. If `Domain name` is left empty then default Domain object with name as `ittapi` will be returned.
+
+#### Task API
+
+       import ittapi.compat as itt
+
+       domain = itt.domain_create("ittapi")
+       itt.task_begin(domain, <Task Name>)
+       # ... Task code
+       itt.task_end(domain)
+
+If the above code is profiled with the VTune or others, 
+`task_begin` creates a task instance on a thread with name as `Task Name`. This becomes the current task instance for that thread. A call to `task_end` on the same thread ends the current task instance.
+
+
 ## Installation
 
 ittapi package is available on PyPi and can be installed in the usual way for the supported configurations:
-       
+
        pip install ittapi
 
 ## Build
