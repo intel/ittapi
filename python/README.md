@@ -20,8 +20,6 @@ ittapi supports following ITT APIs:
 The main goal of the project is to provide the ability to instrument a Python code using ITT API in the Pythonic way.
 ittapi provides wrappers that simplify markup of Python code.
 
-
-
 ```python
 import ittapi
 
