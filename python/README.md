@@ -63,7 +63,7 @@ for `ittapi.task` in the same way as for the decorator form.
 
 ittapi package is available on PyPi and can be installed in the usual way for the supported configurations:
        
-       pip install ittapi
+    pip install ittapi
 
 ## Build
 
