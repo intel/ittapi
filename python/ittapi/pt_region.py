@@ -18,7 +18,7 @@ class PT_Region(_NamedRegion):
         """
         super().__init__(region)
 
-        self._region=_PT_Region(self._name)
+        self._region = _PT_Region(self._name)
     
     def __str__(self):
         return (f"{{ region name: '{str(self._name)}' }}")
@@ -43,5 +43,5 @@ def pt_region(pt_region=None):
     :param pt_region: a name of the pt_region or a callable object
     :return: a PT_Region instance
     """
-    region=_CallSite(_CallSite.CallerFrame) if pt_region is None else pt_region
+    region = _CallSite(_CallSite.CallerFrame) if pt_region is None else pt_region
     return PT_Region(region)
