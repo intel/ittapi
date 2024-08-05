@@ -5,7 +5,7 @@ import ittapi
 class PT_RegionTests(TestCase):
     @ittapi_native_patch('PT_Region')
     def test_pt_region_create_call(self, pt_region_mock):
-        s='my region'
+        s = 'my region'
         ittapi.pt_region_create(s)
         pt_region_mock.assert_called_once_with(s)
     
@@ -13,7 +13,7 @@ class PT_RegionTests(TestCase):
     @ittapi_native_patch('pt_region_begin')
     @ittapi_native_patch('pt_region_end')
     def test_pt_region_begin_call(self, pt_region_mock, pt_region_begin_mock, pt_region_end_mock):
-        region_name='my region'
+        region_name = 'my region'
         pt_region=ittapi.pt_region_create(region_name)
         pt_region_mock.assert_called_once_with(region_name)
 
@@ -30,7 +30,7 @@ class PT_RegionTests(TestCase):
     def test_pt_region_context_manager_call(self, string_handle_mock, pt_region_mock, pt_region_begin_mock, pt_region_end_mock):
         string_handle_mock.side_effect = lambda x: x
         
-        region='my region'
+        region = 'my region'
         
         ptRegion=ittapi.pt_region(region)
         with ptRegion:
@@ -47,9 +47,9 @@ class PT_RegionTests(TestCase):
     def test_pt_region_decorator_call(self, string_handle_mock, pt_region_mock, pt_region_begin_mock, pt_region_end_mock):
         string_handle_mock.side_effect = lambda x: x
         
-        region='my region'
+        region = 'my region'
         
-        ptRegion=ittapi.pt_region(region)
+        ptRegion = ittapi.pt_region(region)
 
         @ptRegion
         def func():
