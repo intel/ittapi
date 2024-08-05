@@ -1,6 +1,6 @@
 # ittapi.compat
 
-The module is a wrapper to an earlier version of Python bindings: (https://github.com/oleksandr-pavlyk/itt-python/). The idea is to allow users to effortlessly migrate to the `ittapi` package without losing any existing functionality. The module is a wrapper to following ITT APIs:
+The module is a wrapper to an earlier version of Python bindings: ([itt-python](https://github.com/oleksandr-pavlyk/itt-python/)). The idea is to allow users to effortlessly migrate to the `ittapi` package without losing any existing functionality. The module is a wrapper to following ITT APIs:
  - Collection Control API
  - Domain API
  - Task API
