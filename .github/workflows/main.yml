@@ -95,25 +95,21 @@ jobs:
 
   python_build:
     name: Check Python bindings
+    runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
         include:
           - os: ubuntu-latest
           - os: windows-latest
-    runs-on: ${{ matrix.os }}
-
     defaults:
       run:
         working-directory: python
-
     steps:
       - name: Checkout sources
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
-      - name: Build and Install ittapi
-        run: |
-          python3 -m pip install .
-      - name: Run unit-test
-        run: |
-          python3 -m unittest discover -s utest -t utest
+      - name: Build and install ittapi package
+        run: python -m pip install .
+      - name: Run unit tests
+        run: python -m unittest discover -s utest -t utest
 
