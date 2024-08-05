@@ -7,6 +7,8 @@ analyzers from Intel like Intel VTune or others.
 
 from ittapi.native import Domain, Id, StringHandle
 from ittapi.native import task_begin, task_end, task_begin_overlapped, task_end_overlapped
+from ittapi.native import pt_region_begin, pt_region_end
+from ittapi.compat import pt_region_create
 from .collection_control import detach, pause, resume, active_region, paused_region, ActiveRegion, PausedRegion
 from .event import event, Event
 from .domain import domain
@@ -14,3 +16,4 @@ from .id import id
 from .string_handle import string_handle
 from .task import NestedTask, OverlappedTask, task, nested_task, overlapped_task
 from .thread_naming import thread_set_name
+from .pt_region import pt_region
