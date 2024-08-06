@@ -45,3 +45,11 @@ def pt_region(pt_region=None):
     """
     region = _CallSite(_CallSite.CallerFrame) if pt_region is None else pt_region
     return PT_Region(region)
+
+def pt_region_create(name):
+    """
+    This function saves a region name marked with Intel PT API and returns a handle for the created region with the given name.
+    :param name: a name for the region, this name can't be empty
+    :return: a handle for the created region with the given name
+    """
+    return _PT_Region(name)
