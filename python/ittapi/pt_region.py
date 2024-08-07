@@ -45,4 +45,3 @@ def pt_region(pt_region=None):
     """
     region = _CallSite(_CallSite.CallerFrame) if pt_region is None else pt_region
     return PT_Region(region)
-
