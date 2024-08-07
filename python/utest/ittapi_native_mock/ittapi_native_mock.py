@@ -20,6 +20,10 @@ class IttapiNativeMock(_ModuleType):
             'Event': _MagicMock(),
             'Id': _MagicMock(),
             'StringHandle': _MagicMock(),
+            # ittapi.compat
+            'PT_Region': _MagicMock(),
+            'pt_region_begin': _MagicMock(),
+            'pt_region_end': _MagicMock(),
         }
 
     def __getattr__(self, item):
