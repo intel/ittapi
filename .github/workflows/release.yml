@@ -115,9 +115,9 @@ jobs:
           asset_name: ittapi_build_${{ github.ref_name }}.zip
           asset_content_type: application/zip
   
-  # upload the built wheels to test-pypi
+  # upload the built wheels to pypi
   upload_to_pypi:
-    name: Upload the wheel files to test-pypi
+    name: Upload the wheel files to pypi
     runs-on: ubuntu-latest
     needs: [python_build, create_release]
     steps:
@@ -128,9 +128,9 @@ jobs:
           merge-multiple: true
       - name: List wheel files
         run: find -name *.whl
-      - name: Publish the package to test-pypi
+      - name: Publish the package to pypi
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           password: ${{ secrets.PYPI }}
-          repository-url: https://test.pypi.org/legacy/
+          repository-url: https://upload.pypi.org/legacy/
           packages-dir: python_dist
