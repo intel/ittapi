@@ -119,7 +119,7 @@ jobs:
   upload_to_pypi:
     name: Upload the wheel files to test-pypi
     runs-on: ubuntu-latest
-    needs: python_build
+    needs: [python_build, create_release]
     steps:
       - name: Download artifacts
         uses: actions/download-artifact@6b208ae046db98c579e8a3aa621ab581ff575935 # v4.1.1

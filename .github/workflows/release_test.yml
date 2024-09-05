@@ -2,6 +2,7 @@ name: Test the workflow for testpypi publishing
 on: workflow_dispatch
 permissions:
   contents: read
+
 jobs:
   # build wheels only for cpython versions 3.8-3.12 on linux and windows 64-bits
   python_build:
