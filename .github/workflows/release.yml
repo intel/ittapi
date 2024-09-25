@@ -74,6 +74,8 @@ jobs:
   create_release:
     permissions:
       contents: write  # for actions/create-release to create a release
+      id-token: write     # for actions/attest-build-provenance to attest provenance
+      attestations: write # for actions/attest-build-provenance to attest provenance
     name: Create release
     runs-on: ubuntu-latest
     needs: [build, python_build]
@@ -104,6 +106,10 @@ jobs:
             cd build-artifacts &&
             zip -rg ../ittapi_build_${{ github.ref_name }}.zip build*/**/bin build*/**/fortran python_dist &&
             cd -
+      - name: Generate release provenance
+        uses: actions/attest-build-provenance@1c608d11d69870c2092266b3f9a6f3abbf17002c # v1.4.3
+        with:
+          subject-path: ./ittapi_build_${{ github.ref_name }}.zip
       - name: Upload release asset
         id: upload-release-asset 
         uses: actions/upload-release-asset@e8f9f06c4b078e705bd2ea027f0926603fc9b4d5 # v1.0.2
