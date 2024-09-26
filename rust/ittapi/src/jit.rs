@@ -95,7 +95,7 @@ impl Drop for Jit {
 
 /// Type of event to be dispatched through ittapi's JIT event API.
 pub enum EventType {
-    /// Send this event after a JITted method has been loaded into memory, and possibly JIT
+    /// Send this event after a JIT-compiled method has been loaded into memory, and possibly JIT
     /// compiled, but before the code is executed.
     MethodLoadFinished(MethodLoad),
 
