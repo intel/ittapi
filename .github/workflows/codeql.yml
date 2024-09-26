@@ -92,7 +92,7 @@ jobs:
         uses: cargo-bins/cargo-binstall@v1.10.6
 
       - name: Install dependencies
-        run: cargo binstall clippy-sarif sarif-fmt
+        run: cargo binstall --no-confirm clippy-sarif sarif-fmt
 
       - name: Run clippy
         run: |
