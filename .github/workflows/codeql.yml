@@ -96,6 +96,8 @@ jobs:
 
       - name: Run clippy
         run: |
+          cargo --version
+          cargo clippy --version
           cargo clippy --all-features --message-format=json > clippy.json
           clippy-sarif --input clippy.json --output clippy.sarif
           sarif-fmt --input clippy.sarif
