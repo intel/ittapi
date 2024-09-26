@@ -71,3 +71,38 @@ jobs:
         uses: github/codeql-action/analyze@e8893c57a1f3a2b659b6b55564fdfdbbd2982911 # v3.24.0
         with:
           category: "/language:${{matrix.language}}"
+
+  analyze_rust:
+    name: Analyze (Rust)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: rust
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+
+      - name: Install clippy
+        run: rustup component add clippy
+
+      - name: Install cargo-binstall
+        uses: cargo-bins/cargo-binstall@v1.10.6
+
+      - name: Install dependencies
+        run: cargo binstall --no-confirm clippy-sarif sarif-fmt
+
+      - name: Run clippy
+        run: |
+          cargo clippy --all-features --message-format=json > clippy.json
+          clippy-sarif --input clippy.json --output clippy.sarif
+          sarif-fmt --input clippy.sarif
+        continue-on-error: true
+
+      - name: Upload analysis
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: rust/clippy.sarif
+          wait-for-processing: true
