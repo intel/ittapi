@@ -97,7 +97,9 @@ jobs:
       - name: Run clippy
         run: |
           cargo clippy --all-features --message-format=json > clippy.json
+          sed --in-place 's/"file_name":"itt/"file_name":"rust\/itt/g' clippy.json
           clippy-sarif --input clippy.json --output clippy.sarif
+          cd ..
           sarif-fmt --input clippy.sarif
         continue-on-error: true
 
