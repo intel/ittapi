@@ -96,9 +96,9 @@ jobs:
 
       - name: Run clippy
         run: |
-          touch clippy.sarif
           cargo clippy --message-format=json > clippy.json
-          cat clippy.json
+          clippy-sarif --input clippy.json --output clippy.sarif
+          sarif-fmt --input clippy.sarif
         continue-on-error: true
 
       - name: Upload analysis
