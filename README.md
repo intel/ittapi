@@ -47,6 +47,10 @@ optional arguments:
 
 All code in the repo is dual licensed under GPLv2 and 3-Clause BSD licenses
 
+### Contributing
+
+To contribute, please see our [contributing guide](CONTRIBUTING.md)
+
 ### Security
 
 Please refer to the [security policy](SECURITY.md) for reporting vulnerabilties.
