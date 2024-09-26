@@ -1,6 +1,13 @@
 Intel® Instrumentation and Tracing Technology (ITT) and Just-In-Time (JIT) API
 ==================================================================================
 
+[![Build Status](https://github.com/intel/ittapi/actions/workflows/main.yml/badge.svg?branch=master&event=push)](https://github.com/intel/ittapi/actions)
+[![CodeQL](https://github.com/intel/ittapi/actions/workflows/codeql.yml/badge.svg?branch=master)](https://github.com/intel/ittapi/security/code-scanning/tools/CodeQL/status)
+[![Package on conda-forge](https://img.shields.io/conda/vn/conda-forge/ittapi.svg)](https://anaconda.org/conda-forge/ittapi)
+[![Package on PyPI](https://img.shields.io/pypi/v/ittapi)](https://pypi.org/project/ittapi)
+[![Package on crates.io](https://img.shields.io/crates/v/ittapi.svg)](https://crates.io/crates/ittapi)
+[![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/intel/ittapi/badge)](https://securityscorecards.dev/viewer/?uri=github.com/intel/ittapi)
+
 This ITT/JIT open source profiling API includes:
 
   - Instrumentation and Tracing Technology (ITT) API
@@ -40,6 +47,11 @@ optional arguments:
 ### License
 
 All code in the repo is dual licensed under GPLv2 and 3-Clause BSD licenses
+
+### Contributing
+
+To contribute, please see our [contributing guide](CONTRIBUTING.md)  
+To report bugs or request enhancements, please use the "Issues" page on GitHub
 
 ### Security
 
