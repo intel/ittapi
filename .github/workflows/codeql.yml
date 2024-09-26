@@ -96,11 +96,13 @@ jobs:
 
       - name: Run clippy
         run: |
-          cargo clippy --all-features --message-format=json | clippy-sarif | tee rust-clippy-results.sarif | sarif-fmt
+          cargo clippy --all-features --message-format=json > clippy.json
+          clippy-sarif --input clippy.json --output clippy.sarif
+          sarif-fmt --input clippy.sarif
         continue-on-error: true
 
       - name: Upload analysis
         uses: github/codeql-action/upload-sarif@v3
         with:
-          sarif_file: rust-clippy-results.sarif
+          sarif_file: clippy.sarif
           wait-for-processing: true
