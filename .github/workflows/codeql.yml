@@ -75,9 +75,6 @@ jobs:
   analyze_rust:
     name: Analyze (Rust)
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: rust
     permissions:
       contents: read
       security-events: write
@@ -95,11 +92,15 @@ jobs:
         run: cargo binstall --no-confirm clippy-sarif sarif-fmt
 
       - name: Run clippy
+        working-directory: rust
         run: |
           cargo clippy --all-features --message-format=json > clippy.json
+          sed --in-place 's/"file_name":"itt/"file_name":"rust\/itt/g' clippy.json
           clippy-sarif --input clippy.json --output clippy.sarif
-          sarif-fmt --input clippy.sarif
         continue-on-error: true
+
+      - name: Print SARIF
+        run: sarif-fmt --input rust/clippy.sarif
 
       - name: Upload analysis
         uses: github/codeql-action/upload-sarif@v3
