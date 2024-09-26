@@ -96,7 +96,7 @@ jobs:
 
       - name: Run clippy
         run: |
-          cargo clippy --message-format=json > clippy.json
+          cargo clippy --all-features --message-format=json > clippy.json
           clippy-sarif --input clippy.json --output clippy.sarif
           sarif-fmt --input clippy.sarif
         continue-on-error: true
