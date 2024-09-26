@@ -5,6 +5,7 @@ Intel® Instrumentation and Tracing Technology (ITT) and Just-In-Time (JIT) API
 [![CodeQL](https://github.com/intel/ittapi/actions/workflows/codeql.yml/badge.svg?branch=master)](https://github.com/intel/ittapi/security/code-scanning/tools/CodeQL/status)
 [![Package on conda-forge](https://img.shields.io/conda/vn/conda-forge/ittapi.svg)](https://anaconda.org/conda-forge/ittapi)
 [![Package on PyPI](https://img.shields.io/pypi/v/ittapi)](https://pypi.org/project/ittapi)
+[![Package on crates.io](https://img.shields.io/crates/v/ittapi.svg)](https://crates.io/crates/ittapi)
 [![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/intel/ittapi/badge)](https://securityscorecards.dev/viewer/?uri=github.com/intel/ittapi)
 
 This ITT/JIT open source profiling API includes:
