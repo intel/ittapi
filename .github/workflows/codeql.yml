@@ -88,7 +88,7 @@ jobs:
       - name: Install dependencies
         run: |
           rustup component add clippy
-          cargo binstall clippy-sarif sarif-fmt
+          cargo install clippy-sarif sarif-fmt
 
       - name: Run clippy
         run: cargo clippy --all-features --message-format=json | clippy-sarif | tee rust-clippy-results.sarif | sarif-fmt
