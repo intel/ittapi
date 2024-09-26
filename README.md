@@ -49,7 +49,8 @@ All code in the repo is dual licensed under GPLv2 and 3-Clause BSD licenses
 
 ### Contributing
 
-To contribute, please see our [contributing guide](CONTRIBUTING.md)
+To contribute, please see our [contributing guide](CONTRIBUTING.md)  
+To report bugs or request enhancements, please use the "Issues" page on GitHub
 
 ### Security
 
