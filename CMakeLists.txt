@@ -128,14 +128,14 @@ if(ITT_API_FORTRAN_SUPPORT)
                        DEPENDS ${ADVISOR_ANNOTATION_SRC}
                        COMMENT "Building Advisor Annotation")
 
-    add_library(ittnotify STATIC ${ITT_SRCS} ${ITT_PUBLIC_HDRS} ${ITT_PT} ${ITT_FORTRAN})
-    add_library(advisor STATIC ${ADVISOR_ANNOTATION})
+	       add_library(ittnotify SHARED ${ITT_SRCS} ${ITT_PUBLIC_HDRS} ${ITT_PT} ${ITT_FORTRAN})
+	       add_library(advisor SHARED ${ADVISOR_ANNOTATION})
 else()
-    add_library(ittnotify STATIC ${ITT_SRCS} ${ITT_PUBLIC_HDRS} ${ITT_PT})
+	add_library(ittnotify SHARED ${ITT_SRCS} ${ITT_PUBLIC_HDRS} ${ITT_PT})
 endif()
 
 set(JITPROFILING_SRC "src/ittnotify/jitprofiling.c")
-add_library(jitprofiling STATIC ${JITPROFILING_SRC})
+add_library(jitprofiling SHARED ${JITPROFILING_SRC})
 
 if(WIN32)
     set_target_properties(ittnotify PROPERTIES OUTPUT_NAME libittnotify)
@@ -166,6 +166,13 @@ target_include_directories(ittnotify
 target_include_directories(jitprofiling
     PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     PRIVATE src/ittnotify
+)
+
+# version
+set_target_properties(ittnotify PROPERTIES
+	VERSION 3.25.3
+	SOVERSION 3
+	OUTPUT_NAME "ittnotify"
 )
 
 # install
