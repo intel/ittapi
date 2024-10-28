@@ -2454,8 +2454,58 @@ typedef enum {
     __itt_metadata_u16,     /**< Unsigned 16-bit integer */
     __itt_metadata_s16,     /**< Signed 16-bit integer */
     __itt_metadata_float,   /**< Signed 32-bit floating-point */
-    __itt_metadata_double   /**< SIgned 64-bit floating-point */
+    __itt_metadata_double,  /**< Signed 64-bit floating-point */
+    __itt_metadata_string   /**< String*/
 } __itt_metadata_type;
+
+/**
+ * @ingroup parameters
+ * @brief Add metadata to an instance of a named entity.
+ * @param[in] domain The domain controlling the call
+ * @param[in] format The format of the metadata
+ * @param[in] ... The metadata itself as multiple arguments
+ */
+void ITTAPI __itt_formatted_metadata_add(const __itt_domain *domain, __itt_string_handle *format, ...);
+
+/** @cond exclude_from_documentation */
+#ifndef INTEL_NO_MACRO_BODY
+#ifndef INTEL_NO_ITTNOTIFY_API
+ITT_STUBV(ITTAPI, void, formatted_metadata_add, (const __itt_domain *domain, __itt_string_handle *format, ...))
+#define __itt_formatted_metadata_add     ITTNOTIFY_VOID(formatted_metadata_add)
+#define __itt_formatted_metadata_add_ptr ITTNOTIFY_NAME(formatted_metadata_add)
+#else  /* INTEL_NO_ITTNOTIFY_API */
+#define __itt_formatted_metadata_add(domain, format, metadata)
+#define __itt_formatted_metadata_add_ptr 0
+#endif /* INTEL_NO_ITTNOTIFY_API */
+#else  /* INTEL_NO_MACRO_BODY */
+#define __itt_formatted_metadata_add_ptr 0
+#endif /* INTEL_NO_MACRO_BODY */
+/** @endcond */
+
+/**
+ * @ingroup parameters
+ * @brief Add metadata to an instance of a named entity.
+ * @param[in] domain The domain controlling the call
+ * @param[in] taskid The identifier for this task instance, *cannot* be __itt_null.
+ * @param[in] format The format of the metadata
+ * @param[in] ... The metadata itself as multiple arguments
+ */
+void ITTAPI __itt_formatted_metadata_add_overlapped(const __itt_domain *domain, __itt_id taskid, __itt_string_handle *format, ...);
+
+/** @cond exclude_from_documentation */
+#ifndef INTEL_NO_MACRO_BODY
+#ifndef INTEL_NO_ITTNOTIFY_API
+ITT_STUBV(ITTAPI, void, formatted_metadata_add_overlapped, (const __itt_domain *domain, __itt_id taskid, __itt_string_handle *format, ...))
+#define __itt_formatted_metadata_add_overlapped     ITTNOTIFY_VOID(formatted_metadata_add_overlapped)
+#define __itt_formatted_metadata_add_ptr_overlapped ITTNOTIFY_NAME(formatted_metadata_add_overlapped)
+#else  /* INTEL_NO_ITTNOTIFY_API */
+#define __itt_formatted_metadata_add_overlapped(domain, taskid, format, metadata)
+#define __itt_formatted_metadata_add_ptr_overlapped 0
+#endif /* INTEL_NO_ITTNOTIFY_API */
+#else  /* INTEL_NO_MACRO_BODY */
+#define __itt_formatted_metadata_add_ptr_overlapped 0
+#endif /* INTEL_NO_MACRO_BODY */
+/** @endcond */
 
 /**
  * @ingroup parameters
