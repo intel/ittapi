@@ -4201,17 +4201,6 @@ typedef struct ___itt_counter_metadata
     struct ___itt_counter_metadata* next;
 }  __itt_counter_metadata;
 
-typedef struct ___itt_formatted_metadata
-{
-    __itt_string_handle* name;         /*!< context metadata itt_task*/
-    __itt_string_handle* format;       /*!< context metadata format*/
-    __itt_metadata_type* formatted_metadata_array;         /*!< Pointer to the metadata type array*/
-    int formatted_metadata_count;                     /*!< Size of the metadata type array*/
-    int   extra1;                        /*!< Reserved to the runtime */
-    void* extra2;                      /*!< Reserved to the runtime */
-    struct ___itt_formatted_metadata* next;
-} __itt_formatted_metadata;
-
 #pragma pack(pop)
 /** @endcond */
 
