@@ -2455,7 +2455,8 @@ typedef enum {
     __itt_metadata_s16,     /**< Signed 16-bit integer */
     __itt_metadata_float,   /**< Signed 32-bit floating-point */
     __itt_metadata_double,  /**< Signed 64-bit floating-point */
-    __itt_metadata_string   /**< String*/
+    __itt_metadata_string,   /**< String*/
+    __itt_metadata_formatted /**< Identifier of formatted metadata>*/
 } __itt_metadata_type;
 
 /**
@@ -2467,12 +2468,12 @@ typedef enum {
  * @param[in] format The format of the metadata
  * @param[in] ... The metadata itself as multiple arguments
  */
-void ITTAPI __itt_formatted_metadata_add(const __itt_domain *domain, __itt_id id, __itt_string_handle *key, __itt_string_handle *format, ...);
+void ITTAPI __itt_formatted_metadata_add(const __itt_domain *domain, __itt_id id, __itt_string_handle *format, ...);
 
 /** @cond exclude_from_documentation */
 #ifndef INTEL_NO_MACRO_BODY
 #ifndef INTEL_NO_ITTNOTIFY_API
-ITT_STUBV(ITTAPI, void, formatted_metadata_add, (const __itt_domain *domain, __itt_id id, __itt_string_handle *key, __itt_string_handle *format, ...))
+ITT_STUBV(ITTAPI, void, formatted_metadata_add, (const __itt_domain *domain, __itt_id id, __itt_string_handle *format, ...))
 #define __itt_formatted_metadata_add     ITTNOTIFY_VOID(formatted_metadata_add)
 #define __itt_formatted_metadata_add_ptr ITTNOTIFY_NAME(formatted_metadata_add)
 #else  /* INTEL_NO_ITTNOTIFY_API */
