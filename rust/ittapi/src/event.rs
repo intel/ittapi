@@ -72,7 +72,7 @@ impl StartedEvent<'_> {
     }
 }
 
-impl<'a> Drop for StartedEvent<'a> {
+impl Drop for StartedEvent<'_> {
     fn drop(&mut self) {
         if let Some(end_fn) = unsafe { ittapi_sys::__itt_event_end_ptr__3_0 } {
             let result = unsafe { end_fn(self.event) };

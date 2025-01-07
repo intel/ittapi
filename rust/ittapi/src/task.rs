@@ -43,7 +43,7 @@ impl<'a> Task<'a> {
     }
 }
 
-impl<'a> Drop for Task<'a> {
+impl Drop for Task<'_> {
     fn drop(&mut self) {
         // If `ittnotify` has not been initialized, this function may not be wired up.
         if let Some(end_fn) = unsafe { ittapi_sys::__itt_task_end_ptr__3_0 } {

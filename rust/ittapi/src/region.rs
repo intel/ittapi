@@ -57,7 +57,7 @@ impl Region {
 /// A [`MarkedRegion`] is a Rust helper structure for ergonomically ending a marked region using
 /// `__itt_mark_pt_region_end`. See [`Region::mark`] for more details.
 pub struct MarkedRegion<'a>(&'a Region);
-impl<'a> MarkedRegion<'a> {
+impl MarkedRegion<'_> {
     /// End the marked region.
     #[inline]
     pub fn end(self) {
