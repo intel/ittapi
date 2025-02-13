@@ -1,10 +1,10 @@
-name: CodeQL
+name: "CodeQL"
 
 on:
   push:
-    branches: [ master, ghactions]
+    branches: ["master"]
   pull_request:
-    branches: [ master ]
+    branches: ["master"]
   schedule:
     # Run every Monday at midnight
     - cron: "0 0 * * 1"
