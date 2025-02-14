@@ -1672,7 +1672,7 @@ ITT_EXTERN_C __itt_collection_state (_N_(get_collection_state))(void)
 
 /* !!! should be called from the library destructor !!!
  * this function destroys the mutex and frees resources
- * allocated by ITT API static part
+ * allocated by static library
  */
 ITT_EXTERN_C void (_N_(release_resources))(void)
 {
