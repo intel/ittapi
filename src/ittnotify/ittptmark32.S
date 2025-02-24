@@ -762,3 +762,5 @@ __itt_pt_write:
 //        ptwrite dword ptr [esp + 4]
         .byte   0xF3, 0x0F, 0xAE, 0x64, 0x24, 0x04
         ret
+
+.section .note.GNU-stack,"",@progbits

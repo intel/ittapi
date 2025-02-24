@@ -764,3 +764,5 @@ __itt_pt_write:
 //        ptwrite rcx
         .byte   0xF3, 0x48, 0x0F, 0xAE, 0xE1
         ret
+
+.section .note.GNU-stack,"",@progbits
