@@ -5,7 +5,9 @@
 */
 
 
-// Intel Processor Trace Marker Functionality
+// /////////////////////////////////////////////////////////////////////////
+////// Intel Processor Trace Marker Functionality
+////////////////////////////////////////////////////////////////////////////
 
         .text
         .align  16
@@ -16,7 +18,7 @@
         .globl  __itt_pt_byte
         .globl  __itt_pt_write
 
-// void __itt_pt_mark(unsigned char index);
+/// void __itt_pt_mark(unsigned char index);
 __itt_pt_mark:
 __itt_pt_mark_int:
         and     $0xff, %rdi
