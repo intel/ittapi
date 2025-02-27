@@ -715,4 +715,6 @@ __itt_pt_write:
         ret
 
 // Ensure the stack is non-executable
+#if defined(__ELF__)
 .section .note.GNU-stack,"",@progbits
+#endif
