@@ -2462,17 +2462,15 @@ typedef enum {
  * @ingroup parameters
  * @brief Add metadata to an instance of a named entity.
  * @param[in] domain The domain controlling the call
- * @param[in] id The identifier of the instance to which the metadata is to be added, or __itt_null to add to the current task
- * @param[in] key The name of the metadata
  * @param[in] format The format of the metadata
  * @param[in] ... The metadata itself as multiple arguments
  */
-void ITTAPI __itt_formatted_metadata_add(const __itt_domain *domain, __itt_id id, __itt_string_handle *format, ...);
+void ITTAPI __itt_formatted_metadata_add(const __itt_domain *domain, __itt_string_handle *format, ...);
 
 /** @cond exclude_from_documentation */
 #ifndef INTEL_NO_MACRO_BODY
 #ifndef INTEL_NO_ITTNOTIFY_API
-ITT_STUBV(ITTAPI, void, formatted_metadata_add, (const __itt_domain *domain, __itt_id id, __itt_string_handle *format, ...))
+ITT_STUBV(ITTAPI, void, formatted_metadata_add, (const __itt_domain *domain, __itt_string_handle *format, ...))
 #define __itt_formatted_metadata_add     ITTNOTIFY_VOID(formatted_metadata_add)
 #define __itt_formatted_metadata_add_ptr ITTNOTIFY_NAME(formatted_metadata_add)
 #else  /* INTEL_NO_ITTNOTIFY_API */
