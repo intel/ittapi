@@ -2496,8 +2496,8 @@ void ITTAPI __itt_formatted_metadata_add_overlapped(const __itt_domain *domain, 
 #ifndef INTEL_NO_MACRO_BODY
 #ifndef INTEL_NO_ITTNOTIFY_API
 ITT_STUBV(ITTAPI, void, formatted_metadata_add_overlapped, (const __itt_domain *domain, __itt_id taskid, __itt_string_handle *format, ...))
-#define __itt_formatted_metadata_add_overlapped     ITTNOTIFY_VOID(formatted_metadata_add)
-#define __itt_formatted_metadata_add_ptr_overlapped ITTNOTIFY_NAME(formatted_metadata_add)
+#define __itt_formatted_metadata_add_overlapped     ITTNOTIFY_VOID(formatted_metadata_add_overlapped)
+#define __itt_formatted_metadata_add_ptr_overlapped ITTNOTIFY_NAME(formatted_metadata_add_overlapped)
 #else  /* INTEL_NO_ITTNOTIFY_API */
 #define __itt_formatted_metadata_add_overlapped(domain, taskid, format, metadata)
 #define __itt_formatted_metadata_add_ptr_overlapped 0
