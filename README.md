@@ -27,8 +27,11 @@ a BSD/GPLv2 dual license with every tool supporting ITT API.
 
 To build the library:
  - On Windows, Linux, FreeBSD and OSX: requires [cmake](https://cmake.org) to be set in `PATH`
- - Windows: requires Visual Studio installed or requires [Ninja](https://github.com/ninja-build/ninja/releases) to be set in `PATH`
- - To enable fortran support requires [Intel Fortran Compiler](https://www.intel.com/content/www/us/en/docs/fortran-compiler/get-started-guide/current/overview.html) installed
+ - Windows: requires Visual Studio installed or requires
+   [Ninja](https://github.com/ninja-build/ninja/releases) to be set in `PATH`
+ - To enable fortran support requires
+   [Intel Fortran Compiler](https://www.intel.com/content/www/us/en/docs/fortran-compiler/get-started-guide/current/overview.html)
+   installed
  - To list available build options execute: `python buildall.py -h`
 ```
 usage: buildall.py [-h] [-d] [-c] [-v] [-pt] [-ft] [--force_bits]
@@ -44,15 +47,21 @@ optional arguments:
   --vs            specify visual studio version (Windows only)
   --cmake_gen     specify cmake build generator (Windows only)
 ```
+
+### Documentation
+
+For detailed documentation, please visit the
+[ITT/JIT API Documentation Page](https://intel.github.io/ittapi)
+
 ### License
 
 All code in the repo is dual licensed under GPLv2 and 3-Clause BSD licenses
 
 ### Contributing
 
-To contribute, please see our [contributing guide](CONTRIBUTING.md)  
+To contribute, please see our [contributing guide](CONTRIBUTING.md)
 To report bugs or request enhancements, please use the "Issues" page on GitHub
 
 ### Security
 
-Please refer to the [security policy](SECURITY.md) for reporting vulnerabilties.
+Please refer to the [security policy](SECURITY.md) for reporting vulnerabilties

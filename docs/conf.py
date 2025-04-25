@@ -32,6 +32,8 @@ import sphinx_rtd_theme
 
 html_theme = 'sphinx_rtd_theme'
 html_theme_options = {
-    'style_external_links': True,  # Ensure external links are styled correctly
+    'style_external_links': True,
 }
+# TODO: change before merge to the main repo
+# html_baseurl = 'https://intel.github.io/ittapi/'
 html_baseurl = 'https://eparshut.github.io/ittapi/'
