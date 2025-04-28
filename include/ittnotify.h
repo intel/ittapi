@@ -2463,7 +2463,7 @@ typedef enum {
  * @ingroup parameters
  * @brief Add metadata to an instance of a named entity.
  * @param[in] domain The domain controlling the call
- * @param[in] format The format of the metadata
+ * @param[in] format The printf-style format of the metadata
  * @param[in] ... The metadata itself as multiple arguments
  */
 void ITTAPI __itt_formatted_metadata_add(const __itt_domain *domain, __itt_string_handle *format, ...);
@@ -2488,7 +2488,7 @@ ITT_STUBV(ITTAPI, void, formatted_metadata_add, (const __itt_domain *domain, __i
  * @brief Add metadata to an instance of a named entity.
  * @param[in] domain The domain controlling the call
  * @param[in] taskid The identifier for this task instance, *cannot* be __itt_null.
- * @param[in] format The format of the metadata
+ * @param[in] format The printf-style format of the metadata
  * @param[in] ... The metadata itself as multiple arguments
  */
 void ITTAPI __itt_formatted_metadata_add_overlapped(const __itt_domain *domain, __itt_id taskid, __itt_string_handle *format, ...);
