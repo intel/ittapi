@@ -2455,7 +2455,8 @@ typedef enum {
     __itt_metadata_s16,     /**< Signed 16-bit integer */
     __itt_metadata_float,   /**< Signed 32-bit floating-point */
     __itt_metadata_double,  /**< Signed 64-bit floating-point */
-    __itt_metadata_string   /**< String*/
+    __itt_metadata_string,  /**< String */
+    __itt_metadata_wstring  /**< Wide string */
 } __itt_metadata_type;
 
 /**
