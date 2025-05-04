@@ -136,7 +136,8 @@ void log_func_call(uint8_t log_level, const char* function_name, const char* mes
 #define LOG_FUNC_CALL_FATAL(...) log_func_call(LOG_LVL_FATAL, __FUNCTION__, __VA_ARGS__)
 
 /* ------------------------------------------------------------------------------ */
-/* The code below is a reference implementation of the ITT API dynamic collector. */
+/* The code below is a reference implementation of the
+/* Instrumentation and Tracing Technology API (ITT API) dynamic collector.
 /* This implementation is designed to log ITTAPI functions calls.*/
 /* ------------------------------------------------------------------------------ */
 
