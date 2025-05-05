@@ -334,6 +334,26 @@ ITT_EXTERN_C void __itt_metadata_add(const __itt_domain *domain, __itt_id id,
     }
 }
 
+ITT_EXTERN_C void __itt_formatted_metadata_add(const __itt_domain *domain, __itt_string_handle *format, ...)
+{
+    if (domain == NULL || format == NULL)
+    {
+        LOG_FUNC_CALL_WARN("Incorrect function call");
+        return;
+    }
+
+    va_list args;
+    va_start(args, format);
+
+    char formatted_metadata[LOG_BUFFER_MAX_SIZE];
+    vsnprintf(formatted_metadata, LOG_BUFFER_MAX_SIZE, format->strA, args);
+
+    LOG_FUNC_CALL_INFO("functions args: domain=%s formatted_metadata=%s",
+                        domain->nameA, formatted_metadata);
+
+    va_end(args);
+}
+
 ITT_EXTERN_C void __itt_histogram_submit(__itt_histogram* hist, size_t length, void* x_data, void* y_data)
 {
     if (hist == NULL)

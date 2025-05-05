@@ -855,10 +855,28 @@ pub const __itt_metadata_type___itt_metadata_u16: __itt_metadata_type = 5;
 pub const __itt_metadata_type___itt_metadata_s16: __itt_metadata_type = 6;
 #[doc = "< Signed 32-bit floating-point"]
 pub const __itt_metadata_type___itt_metadata_float: __itt_metadata_type = 7;
-#[doc = "< SIgned 64-bit floating-point"]
+#[doc = "< Signed 64-bit floating-point"]
 pub const __itt_metadata_type___itt_metadata_double: __itt_metadata_type = 8;
 #[doc = " @ingroup parameters\n @brief describes the type of metadata"]
 pub type __itt_metadata_type = ::std::os::raw::c_int;
+pub type __itt_formatted_metadata_add_ptr__3_0_t = ::std::option::Option<
+    unsafe extern "C" fn(domain: *const __itt_domain, format: *mut __itt_string_handle, ...),
+>;
+extern "C" {
+    pub static mut __itt_formatted_metadata_add_ptr__3_0: __itt_formatted_metadata_add_ptr__3_0_t;
+}
+pub type __itt_formatted_metadata_add_overlapped_ptr__3_0_t = ::std::option::Option<
+    unsafe extern "C" fn(
+        domain: *const __itt_domain,
+        taskid: __itt_id,
+        format: *mut __itt_string_handle,
+        ...
+    ),
+>;
+extern "C" {
+    pub static mut __itt_formatted_metadata_add_overlapped_ptr__3_0:
+        __itt_formatted_metadata_add_overlapped_ptr__3_0_t;
+}
 pub type __itt_metadata_add_ptr__3_0_t = ::std::option::Option<
     unsafe extern "C" fn(
         domain: *const __itt_domain,
