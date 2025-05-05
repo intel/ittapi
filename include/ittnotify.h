@@ -262,6 +262,8 @@ The same ID may not be reused for different instances, unless a previous
 #define ITTNOTIFY_VOID_D4(n,d,x,y,z,a)     (d == NULL) ? (void)0 : (!(d)->flags) ? (void)0 : (!ITTNOTIFY_NAME(n)) ? (void)0 : ITTNOTIFY_NAME(n)(d,x,y,z,a)
 #define ITTNOTIFY_VOID_D5(n,d,x,y,z,a,b)   (d == NULL) ? (void)0 : (!(d)->flags) ? (void)0 : (!ITTNOTIFY_NAME(n)) ? (void)0 : ITTNOTIFY_NAME(n)(d,x,y,z,a,b)
 #define ITTNOTIFY_VOID_D6(n,d,x,y,z,a,b,c) (d == NULL) ? (void)0 : (!(d)->flags) ? (void)0 : (!ITTNOTIFY_NAME(n)) ? (void)0 : ITTNOTIFY_NAME(n)(d,x,y,z,a,b,c)
+#define ITTNOTIFY_VOID_D2_VA(n,d,x,...)    (d == NULL) ? (void)0 : (!(d)->flags) ? (void)0 : (!ITTNOTIFY_NAME(n)) ? (void)0 : ITTNOTIFY_NAME(n)(d,x,__VA_ARGS__)
+#define ITTNOTIFY_VOID_D3_VA(n,d,x,y,...)  (d == NULL) ? (void)0 : (!(d)->flags) ? (void)0 : (!ITTNOTIFY_NAME(n)) ? (void)0 : ITTNOTIFY_NAME(n)(d,x,y,__VA_ARGS__)
 #define ITTNOTIFY_DATA_D0(n,d)       (d == NULL) ? 0 : (!(d)->flags) ?       0 : (!ITTNOTIFY_NAME(n)) ?       0 : ITTNOTIFY_NAME(n)(d)
 #define ITTNOTIFY_DATA_D1(n,d,x)     (d == NULL) ? 0 : (!(d)->flags) ?       0 : (!ITTNOTIFY_NAME(n)) ?       0 : ITTNOTIFY_NAME(n)(d,x)
 #define ITTNOTIFY_DATA_D2(n,d,x,y)   (d == NULL) ? 0 : (!(d)->flags) ?       0 : (!ITTNOTIFY_NAME(n)) ?       0 : ITTNOTIFY_NAME(n)(d,x,y)
@@ -2470,7 +2472,7 @@ void ITTAPI __itt_formatted_metadata_add(const __itt_domain *domain, __itt_strin
 #ifndef INTEL_NO_MACRO_BODY
 #ifndef INTEL_NO_ITTNOTIFY_API
 ITT_STUBV(ITTAPI, void, formatted_metadata_add, (const __itt_domain *domain, __itt_string_handle *format, ...))
-#define __itt_formatted_metadata_add     ITTNOTIFY_VOID(formatted_metadata_add)
+#define __itt_formatted_metadata_add(d,x, ...) ITTNOTIFY_VOID_D2_VA(formatted_metadata_add,d,x,__VA_ARGS__)
 #define __itt_formatted_metadata_add_ptr ITTNOTIFY_NAME(formatted_metadata_add)
 #else  /* INTEL_NO_ITTNOTIFY_API */
 #define __itt_formatted_metadata_add(domain, format, metadata)
@@ -2495,14 +2497,14 @@ void ITTAPI __itt_formatted_metadata_add_overlapped(const __itt_domain *domain, 
 #ifndef INTEL_NO_MACRO_BODY
 #ifndef INTEL_NO_ITTNOTIFY_API
 ITT_STUBV(ITTAPI, void, formatted_metadata_add_overlapped, (const __itt_domain *domain, __itt_id taskid, __itt_string_handle *format, ...))
-#define __itt_formatted_metadata_add_overlapped     ITTNOTIFY_VOID(formatted_metadata_add_overlapped)
-#define __itt_formatted_metadata_add_ptr_overlapped ITTNOTIFY_NAME(formatted_metadata_add_overlapped)
+#define __itt_formatted_metadata_add_overlapped(d,x,y, ...) ITTNOTIFY_VOID_D3_VA(formatted_metadata_add_overlapped,d,x,y,__VA_ARGS__)
+#define __itt_formatted_metadata_add_overlapped_ptr ITTNOTIFY_NAME(formatted_metadata_add_overlapped)
 #else  /* INTEL_NO_ITTNOTIFY_API */
 #define __itt_formatted_metadata_add_overlapped(domain, taskid, format, metadata)
-#define __itt_formatted_metadata_add_ptr_overlapped 0
+#define __itt_formatted_metadata_add_overlapped_ptr 0
 #endif /* INTEL_NO_ITTNOTIFY_API */
 #else  /* INTEL_NO_MACRO_BODY */
-#define __itt_formatted_metadata_add_ptr_overlapped 0
+#define __itt_formatted_metadata_add_overlapped_ptr 0
 #endif /* INTEL_NO_MACRO_BODY */
 /** @endcond */
 
