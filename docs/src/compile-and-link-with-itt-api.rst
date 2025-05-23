@@ -4,162 +4,162 @@ Compile and Link with ITT API
 =============================
 
 
-Before instrumenting your application, configure your build system to be
-able to reach the API headers and libraries:
+Step 1: Configure Your Build System
+-----------------------------------
 
 
--  Add ``<ittapi_dir>\sdk\include`` to your ``INCLUDE`` path
+Before instrumenting your application with ITT API, configure your build
+system to establish access to the headers and libraries of the API:
+
+
+-  Add ``<ittapi_dir>\include`` to your ``INCLUDE`` path
 -  Add ``<ittapi_dir>\build_<target_platform>\<target_bits>\bin``
    to your ``LIBRARIES`` path
 
 
-Include the ITT API Header or Module in Your Application
---------------------------------------------------------
+Step 2: Include the ITT API Header/Module in Your Application
+-------------------------------------------------------------
 
 
-**For C/C++ Applications**
+**C/C++ Applications**
 
 
-Add the following ``#include`` statements to every source file that you
-want to instrument:
+For every source file that you want to instrument, add the following
+``#include`` statements:
 
 
-.. code:: cpp
+.. code-block:: cpp
 
 
    #include <ittnotify.h>
 
 
-The ``ittnotify.h`` header contains definitions of ITT API routines and
-important macros which provide the correct logic of API invocation from
-a user application.
+The ``ittnotify.h`` header contains definitions for ITT API routines
+and important macros that provide the correct logic to invoke the API
+from your application.
 
 
-The ITT API is designed to incur almost zero overhead when tracing is
-disabled. But if you need fully zero overhead, you can compile out all
-ITT API calls from your application by defining the
-``INTEL_NO_ITTNOTIFY_API`` macro in your project at compile time, either
-on the compiler command line, or in your source file, prior to including
-the ``ittnotify.h`` file.
+When tracing is disabled, The ITT API incur almost zero overhead. To achieve
+completely zero overhead, you can compile out all ITT API calls from your
+application. To do this, prior to including the ``ittnotify.h`` file, define
+the ``INTEL_NO_ITTNOTIFY_API`` macro in your project at compile time. You can
+do this from the compiler command line or in your source file.
 
 
-**For Fortran Applications**
+**Fortran Applications**
 
 
-Add the ``ITTNOTIFY`` module to your source files with the following
+Add the ``ITTNOTIFY`` module to your source files. Use the following
 source line:
 
 
-.. code:: cpp
+.. code-block:: cpp
 
 
    USE ITTNOTIFY
 
 
-Insert ITT Notifications in Your Application
---------------------------------------------
+Step 3: Insert ITT Notifications in Your Application
+----------------------------------------------------
 
 
-Insert ``__itt_*`` (C/C++) or ``ITT_*`` (Fortran) notifications in your
-source code.
+To insert ITT notifications in your application, use:
+
++-----------+-------------------+-----------------------------+
+| Language  | Notification      | Example                     |
++===========+===================+=============================+
+| C/C++     | .. code:: cpp     | .. code:: cpp               |
+|           |                   |                             |
+|           |    __itt_*        |    __itt_pause();           |
++-----------+-------------------+-----------------------------+
+| Fortran   | .. code:: cpp     | .. code:: cpp               |
+|           |                   |                             |
+|           |    ITT_*          |    CALL ITT_PAUSE()         |
++-----------+-------------------+-----------------------------+
 
 
-C/C++ example:
+To learn more, open:
 
 
-.. code:: cpp
+-  `Instrumenting Your Application <instrument-your-application.html>`__
+-  `ITT API Reference <itt-api-reference.html>`__
 
 
-   __itt_pause();
+Step 4: Link the libittnotify Static Library to Your Application
+----------------------------------------------------------------
 
 
-Fortran example:
+Once you finish inserting ITT notifications in your application, the next step
+is to link the libittnotify static library. This library is ``libittnotify.a``
+in Linux* and FreeBSD* systems and ``libittnotify.lib`` in Windows* systems.
+
+If you have enabled tracing, the static library loads the dynamic collector of
+the ITT API data and forwards to the collector instrumentation data from the ITT API.
+
+If you have disabled tracing, the static library ignores ITT API calls, resulting in
+near-zero instrumentation overhead.
 
 
-.. code:: cpp
+Step 5: Load the Dynamic Library
+--------------------------------
 
 
-   CALL ITT_PAUSE()
+After you instrument your application and link the static library, you must
+load the dynamic library of the ITT API to your application. To do this,
+depending on your system architecture, set the ``INTEL_LIBITTNOTIFY32`` or
+the ``INTEL_LIBITTNOTIFY64`` environment variable.
 
 
-For more information, see `Instrumenting Your Application
-<instrument-your-application.html>`__ and `ITT API Reference
-<itt-api-reference.html>`__.
+**Windows OS:**
 
 
-Link the libittnotify Static Library to Your Application
---------------------------------------------------------
-
-
-You need to link the static library, ``libittnotify.a`` (Linux*, FreeBSD*) or
-``libittnotify.lib`` (Windows*), to your application. If tracing is enabled,
-this static library loads the ITT API data dynamic collector and forwards ITT
-API instrumentation data to it. If tracing is disabled, the static library
-ignores ITT API calls, providing nearly zero instrumentation overhead.
-
-
-Set the INTEL_LIBITTNOTIFY environment variables to enable data collection
---------------------------------------------------------------------------
-
-
-After you instrument your application by adding ITT API calls to your code and
-link the ``libittnotify.a/libittnotify.lib`` static library, your application
-will check the ``INTEL_LIBITTNOTIFY32`` or the ``INTEL_LIBITTNOTIFY64``
-environment variable depending on your application's architecture to load the
-**dynamic** part of the library. If that variable is set, it will load the
-libraries defined in the variable.
-
-
-Make sure to set these environment variables to enable data collection:
-
-
-**On Windows**
-
-
-.. code-block:: console
+.. code-block:: bash
    
    
    set INTEL_LIBITTNOTIFY32=<install-dir>\bin32\runtime\ittnotify_collector.dll
    set INTEL_LIBITTNOTIFY64=<install-dir>\bin64\runtime\ittnotify_collector.dll
 
 
-**On Linux**
+**Linux OS:**
 
 
-.. code-block:: console
+.. code-block:: bash
 
 
    export INTEL_LIBITTNOTIFY32=<install-dir>/lib32/runtime/libittnotify_collector.so
    export INTEL_LIBITTNOTIFY64=<install-dir>/lib64/runtime/libittnotify_collector.so
 
 
-**On FreeBSD**
+**FreeBSD OS:**
 
 
-.. code-block:: console
+.. code-block:: bash
    
    
    setenv INTEL_LIBITTNOTIFY64=<target-package>/lib64/runtime/libittnotify_collector.so
 
 
-Unicode Support
----------------
+Additional Information: Unicode Support
+---------------------------------------
 
 
 All API functions that take parameters of type ``__itt_char`` follow the
-Windows OS unicode convention. If UNICODE is defined when compiling on a
-Windows OS, ``__itt_char`` is ``wchar_t``, otherwise it is ``char``. The
-actual function names are suffixed with ``A`` for the ASCII APIs and
-``W`` for the unicode APIs. Both types of functions are defined in the
+Windows OS Unicode convention.
+
+When compilation happens on a Windows system, if the ``UNICODE`` macro is
+defined, ``__itt_char`` is set to ``wchar_t``. If the ``UNICODE`` macro is
+not defined, ``__itt_char`` is set to ``char``.
+
+The actual function names are suffixed with ``A`` for the ASCII APIs and
+``W`` for the Unicode APIs. Both types of functions are defined in the
 DLL that implements the API.
 
-
-Strings that are all ASCII characters are internally equivalent for both
-the unicode and the ASCII API versions. For example, the following
+Strings that contain only ASCII characters are internally equivalent for both
+the Unicode and ASCII API versions. For example, the following
 strings are equivalent:
 
 
-.. code:: cpp
+.. code-block:: cpp
 
 
    __itt_sync_createA( addr, "OpenMP Scheduler", "Critical Section", 0); 

@@ -1,13 +1,11 @@
 .. _index:
 
-Intel® Instrumentation and Tracing Technology (ITT) and Just-In-Time (JIT) API Documentation
-============================================================================================
+The Intel® Instrumentation and Tracing Technology (ITT) and Just-In-Time (JIT) APIs
+===================================================================================
 
-.. note::
-
-    The ITT/JIT API Documentation from the Intel® VTune Profiler and Intel® Graphics
-    Performance Analyzers User Guides has been consolidated into this repository,
-    providing a single, unified source of information.
+The ITT/JIT API Documentation from the Intel® VTune Profiler and Intel® Graphics
+Performance Analyzers User Guides has been consolidated into this repository,
+providing a single, unified source of information.
 
 
 .. toctree::

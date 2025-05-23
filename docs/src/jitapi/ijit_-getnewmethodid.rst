@@ -1,7 +1,7 @@
 .. _ijit_-getnewmethodid:
 
-iJIT\_ GetNewMethodID
-=====================
+iJIT GetNewMethodID
+===================
 
 
 Generates a new unique method ID.
@@ -10,20 +10,19 @@ Generates a new unique method ID.
 Syntax
 ------
 
-.. code:: cpp
+.. code-block:: cpp
 
 
-    unsigned int iJIT_GetNewMethodID(void);
+   unsigned int iJIT_GetNewMethodID(void);
 
 
 Description
 -----------
 
 
-The\ ``iJIT_GetNewMethodID`` function generates new method ID upon each
-call. Use this API to obtain unique and valid method IDs for methods or
-traces reported to the agent if you do not have your own mechanism to
-generate unique method IDs.
+Upon each call, the ``iJIT_GetNewMethodID`` function generates new method ID.
+Use this API to obtain unique and valid method IDs for methods or traces reported
+to the agent if you do not have your own mechanism to generate unique method IDs.
 
 
 Input Parameters

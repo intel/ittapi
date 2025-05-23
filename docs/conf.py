@@ -11,7 +11,7 @@
 
 # -- Project information -----------------------------------------------------
 
-project = 'ITT/JIT API Documentation'
+project = 'ITT/JIT APIs Documentation'
 copyright = '2025 Intel Corporation'
 author = 'Intel Corporation'
 

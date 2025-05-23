@@ -4,82 +4,74 @@ Collection Control API
 ======================
 
 
-You can use the collection control APIs in your code to control the way
-the Intel® VTune™ Profiler collects data for applications.
+Use Collection Control APIs in your code to manage how and when Intel® VTune™
+Profiler collects data for your applications. By calling these APIs, you can
+pause, resume, or detach data collection to focus analysis on specific code
+regions, reduce profiling overhead, or exclude unimportant sections from your
+performance results.
 
 
-.. list-table:: 
-   :header-rows: 0
-
-   * -     Use This Primitive    
-     -     To Do This    
-   * -     \ ``void                   __itt_pause (void)``\    
-     -      Run the application without collecting data. VTune Profiler reduces the overhead of collection, by collecting only critical information, such as thread and process creation.    
-   * -     \ ``void                   __itt_resume (void)``\    
-     -     Resume data collection. VTune Profiler resumes collecting all data.    
-   * -     \ ``void                   __itt_detach (void)``\    
-     -     Detach data collection. VTune Profiler detaches all collectors from all processes. Your application continues to work but no data is collected for the running collection.    
-
-
-
-
-Pausing the data collection has the following effects:
-
-
--  Data collection is paused for the whole program, not only within the
-   current thread.
++-------------------------------+----------------------------------------------+
+| Use This Primitive            | To Do This                                   |
++===============================+==============================================+
+| .. code:: cpp                 | Run the application without collecting data. |
+|                               | VTune Profiler reduces the overhead of       |
+|    void __itt_pause(void)     | collection by collecting only critical       |
+|                               | information, like thread and process         |
+|                               | creation.                                    |
++-------------------------------+----------------------------------------------+
+| .. code:: cpp                 | Resume data collection.                      |
+|                               |                                              |
+|    void __itt_resume(void)    |                                              |
++-------------------------------+----------------------------------------------+
+| .. code:: cpp                 | Detach data collection. VTune Profiler       |
+|                               | detaches all collectors from all processes.  |
+|    void __itt_detach(void)    | Your application continues to work but no    |
+|                               | data is collected for the running collection.|
++-------------------------------+----------------------------------------------+
 
 
--  Some runtime analysis overhead reduction.
+Pause data collection
+---------------------
 
 
--  The following APIs are not affected by pausing the data collection:
+When you pause the data collection in any thread, you pause the collection for
+the entire program and not just the active thread. Also, pausing a data collection
+can reduce the overhead from runtime analysis.
 
+
+Unaffected APIs:
 
    -  Domain API
-
-
    -  String Handle API
-
-
    -  Thread Naming API
 
 
--  The following APIs are affected by pausing the data collection. Data
-   is not collected for these APIs while in paused state:
-
+Affected APIs (No Data Collection in Paused State):
 
    -  Task API
-
-
    -  Frame API
-
-
    -  Event API
-
-
    -  User-Defined Synchronization API
 
 
 .. note::
 
 
-   The Pause/Resume API call frequency is about 1Hz for a reasonable
-   rate. Since this operation pauses and resumes data collection in all
-   processes in the analysis run with the corresponding collection state
-   notification to GUI, you are not recommended to call it on frequent
-   basis for small workloads. For small workloads, consider using the
-   `Frame
-   APIs <frame-api.html>`__.
+   The Pause/Resume API call frequency is about 1Hz for a reasonable rate.
+   Since this operation pauses and resumes data collection in all processes
+   in the analysis run with the corresponding collection state notification
+   sent to the GUI, for small workloads, do not call this operation on a
+   frequent basis. Use `Frame APIs <frame-api.html>`__ instead.
 
 
-Usage Example: Focus on Specific Code Section
----------------------------------------------
+Usage Example: Focus on a Specific Code Section
+-----------------------------------------------
 
 
-The pause/resume calls shown in the following code snippet enable you to
-focus the collection on a specific section of code, and start the
-application run with collection paused.
+In this code example, the pause/resume calls help to focus data collection
+from a specific section of code. The application run begins when the collection
+is paused.
 
 
 .. code:: cpp
@@ -100,8 +92,8 @@ Usage Example: Hide Sections of Code
 ------------------------------------
 
 
-The pause/resume calls shown in the following code snippet enable you to
-hide some intensive work that you are not currently focusing on:
+This example shows how you use pause/resume calls to hide intensive work that
+may not need attention for a brief period.
 
 
 .. code:: cpp

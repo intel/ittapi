@@ -4,39 +4,19 @@ Context Metadata API
 ====================
 
 
-Use context metadata to collect counter-based metrics and attribute them
-to hardware topology like:
+Use the Context Metadata API to define custom counters in your code with
+special attributes. You can also get a set of metrics for the collected data
+in any classical form of data representation (bandwidth/latency/utilization
+metrics) in Intel® VTune™ Profiler.
 
+
+You can use Context Metadata API to collect counter-based metrics and
+attribute these metrics to hardware topology like:
 
 -  PCIe devices
 -  Block devices
 -  CPU cores
 -  Threads
-
-
-With the Context Metadata API, you can define custom counters in your
-code with special attributes. You can also get a set of metrics for the
-collected data in any classical form of data representation in Intel®
-VTune™ Profiler.
-
-
-**Availability:**
-
-
-By default, the Context Metadata API for data collection and
-visualization is available in the `Input and Output
-analysis <input-and-output-analysis.html>`__ only.
-
-
-To see this data when running other analysis types,
-
-
-#. `Create a custom
-   analysis <custom-analysis.html>`__ based on
-   the predefined analysis type of your interest.
-#. In `custom analysis
-   options <custom-analysis-options.html>`__, enable
-   the **Analyze all ITT API user data** checkbox.
 
 
 **Define and create a counter object**
@@ -58,42 +38,53 @@ Use this structure to store context metadata:
 The structure accepts the following types of context metadata:
 
 
-.. list-table:: 
-   :header-rows: 0
++-------------------------------+------------------------------------+-----------------------------------------------+
+| __itt_context_type            | Value                              | Description                                   |
++===============================+====================================+===============================================+
+| .. code-block:: cpp           | ASCII string char* /               | The name of the counter-based metric.         |
+|                               | Unicode string wchar_t*            | This value is required.                       |
+|   __itt_context_name          |                                    |                                               |
+|                               |                                    |                                               |
++-------------------------------+------------------------------------+-----------------------------------------------+
+| .. code-block:: cpp           | ASCII string char* /               | Statistics subdomain to break down the        |
+|                               | Unicode string wchar_t*            | counter samples (for example, network port    |
+|   __itt_context_device        |                                    | ID, disk partition, etc.)                     |
+|                               |                                    |                                               |
++-------------------------------+------------------------------------+-----------------------------------------------+
+| .. code-block:: cpp           | ASCII string char* /               | Units of measurement. For measurement of      |
+|                               | Unicode string wchar_t*            | time, use the ns/us/ms/s units to correct     |
+|   __itt_context_units         |                                    | data representation in VTune Profiler.        |
+|                               |                                    |                                               |
++-------------------------------+------------------------------------+-----------------------------------------------+
+| .. code-block:: cpp           | ASCII string char* /               | PCI address of device to associate with       |
+|                               | Unicode string wchar_t*            | the counter.                                  |
+|   __itt_context_pci_addr      |                                    |                                               |
+|                               |                                    |                                               |
++-------------------------------+------------------------------------+-----------------------------------------------+
+| .. code-block:: cpp           | Unsigned 64-bit integer type       |                                               |
+|                               |                                    | Thread ID to associate with the counter.      |
+|   __itt_context_tid           |                                    |                                               |
+|                               |                                    |                                               |
++-------------------------------+------------------------------------+-----------------------------------------------+
+| .. code-block:: cpp           | Unsigned 64-bit integer type (0,1) | If this flag is set to 1, calculate latency   |
+|                               |                                    | histogram and counter/sec timeline            |
+|   __itt_context_bandwidth_flag|                                    | distribution.                                 |
+|                               |                                    |                                               |
++-------------------------------+------------------------------------+-----------------------------------------------+
+| .. code-block:: cpp           | Unsigned 64-bit integer type (0,1) | If this flag is set to 1, calculate the       |
+|                               |                                    | throughput histogram and counter/sec          |
+|   __itt_context_latency_flag  |                                    | timeline distribution.                        |
+|                               |                                    |                                               |
++-------------------------------+------------------------------------+-----------------------------------------------+
+| .. code-block:: cpp           | Unsigned 64-bit integer type (0,1) | If this flag is set to 1, show the counter    |
+|                               |                                    | on top of the Thread graph as percentage      |
+|   __itt_context_on_thread_flag|                                    | of the CPU Time distribution.                 |
+|                               |                                    |                                               |
++-------------------------------+------------------------------------+-----------------------------------------------+
 
-   * -      \__itt_context_type    
-     -     Value    
-     -     Description    
-   * -  \__itt_context_name
-     -  ASCII string char*/ Unicode string wchar_t\* type
-     -  The name of the counter-based metric. This value is required.
-   * -  \__itt_context_device
-     -  ASCII string char*/ Unicode string wchar_t\* type
-     -  Statistics subdomain to break down the counter samples (for example, network port ID, disk partition, etc.)
-   * -  \__itt_context_units
-     -  ASCII string char*/ Unicode string wchar_t\* type
-     -  Units of measurement. For measurement of time, use the ns/us/ms/s units to correct data representation in VTune Profiler.
-   * -  \__itt_context_pci_addr
-     -  ASCII string char*/ Unicode string wchar_t\* type
-     -  PCI address of device to associate with the counter.
-   * -  \__itt_context_tid
-     -  Unsigned 64-bit integer type
-     -  Thread ID to associate with the counter.
-   * -  \__itt_context_bandwidth_flag
-     -  Unsigned 64-bit integer type (0,1)
-     -  If this flag is set to 1, calculate latency histogram and counter/sec timeline distribution.
-   * -  \__itt_context_latency_flag
-     -  Unsigned 64-bit integer type (0,1)
-     -  If this flag is set to 1,calculate the throughput histogram and counter/sec timeline distribution.
-   * -  \__itt_context_on_thread_flag
-     -  Unsigned 64-bit integer type (0,1)
-     -  If this flag is set to 1, show the counter on top of the Thread graph as percentage of the CPU Time distribution.
 
-
-
-
-Before you associate context metadata with a counter, you should create
-an ITT API Domain and ITT API Counter Instances.
+Before you associate context metadata with a counter, make sure to create
+an ITT API Domain and ITT API Counter Instances first.
 
 
 The domain name provides a heading for the section of metrics for the
@@ -113,29 +104,32 @@ Once you have created all objects, you can add context information for
 the selected counters. Use these primitives:
 
 
-``__itt_bind_context_metadata_to_counter(__itt_counter counter, size_t length, __itt_context_metadata* metadata);``
+.. code-block:: cpp
+
+
+   __itt_bind_context_metadata_to_counter(
+        __itt_counter counter, size_t length, __itt_context_metadata* metadata);
 
 
 **Parameters of the primitive:**
 
 
-.. list-table:: 
-   :header-rows: 0
-
-   * -  Type
-     -  Parameter
-     -  Description
-   * -     [in]    
-     -     \ ``__itt_counter counter``\    
-     -      Pointer to the counter instance associated with the context metadata    
-   * -     [in]    
-     -     \ ``size_t length``\    
-     -     Number of elements in the array of context metadata    
-   * -     [in]    
-     -     \ ``__itt_context_metadata* metadata``\    
-     -      Pointer to the array of context metadata    
-
-
++--------+-------------------------------+-----------------------------------------------------+
+| Type   | Parameter                     | Description                                         |
++========+===============================+=====================================================+
+| [in]   | .. code-block:: cpp           | Pointer to the counter instance associated with the |
+|        |                               |                                                     |
+|        |    __itt_counter counter      | context metadata                                    |
++--------+-------------------------------+-----------------------------------------------------+
+| [in]   | .. code-block:: cpp           | Number of elements in the array of context metadata |
+|        |                               |                                                     |
+|        |    size_t length              |                                                     |
++--------+-------------------------------+-----------------------------------------------------+
+| [in]   | .. code-block:: cpp           | Pointer to the array of context metadata            |
+|        |                               |                                                     |
+|        |    __itt_context_metadata*    |                                                     |
+|        |    metadata                   |                                                     |
++--------+-------------------------------+-----------------------------------------------------+
 
 
 To create counter instances and submit counter data, use:
@@ -144,7 +138,7 @@ To create counter instances and submit counter data, use:
 .. code-block:: cpp
 
 
-    __itt_counter_create_v3(__itt_domain* domain, const char* name, __itt_metadata_type type);
+   __itt_counter_create_v3(__itt_domain* domain, const char* name, __itt_metadata_type type);
    __itt_counter_set_value_v3(__itt_counter counter, void *value_ptr);
 
 
@@ -164,10 +158,14 @@ read operation metrics for an SSD NVMe device:
 
 
    // Create domain and counters:
-   __itt_domain* domain = __itt_domain_create("ITT API collected data");
-   __itt_counter counter_read_op = __itt_counter_create_v3(domain, "Read Operations", __itt_metadata_u64);
-   __itt_counter counter_read_mb = __itt_counter_create_v3(domain, "Read Megabytes", __itt_metadata_u64);
-   __itt_counter counter_spin_time = __itt_counter_create_v3(domain, "Spin Time", __itt_metadata_u64);
+   __itt_domain* domain =
+    __itt_domain_create("ITT API collected data");
+   __itt_counter counter_read_op =
+    __itt_counter_create_v3(domain, "Read Operations", __itt_metadata_u64);
+   __itt_counter counter_read_mb =
+    __itt_counter_create_v3(domain, "Read Megabytes", __itt_metadata_u64);
+   __itt_counter counter_spin_time =
+    __itt_counter_create_v3(domain, "Spin Time", __itt_metadata_u64);
 
 
    // Create context metadata:

@@ -8,7 +8,7 @@ This is a reference implementation of the ITT API **dynamic** part that
 performs tracing data from ITT API function calls to log files.
 
 
-To use this solution, it is required to build it as a shared library and the
+To use this solution, build the collector as a shared library and point the
 full library path to the ``INTEL_LIBITTNOTIFY64`` or ``INTEL_LIBITTNOTIFY32``
 environment variable:
 
@@ -16,7 +16,7 @@ environment variable:
 **On Linux**
 
 
-.. code-block:: console
+.. code-block:: bash
 
     make
     export INTEL_LIBITTNOTIFY64=<build_dir>/libittnotify_refcol.so
@@ -25,20 +25,20 @@ environment variable:
 **On FreeBSD**
 
 
-.. code-block:: console
+.. code-block:: bash
 
     make
     setenv INTEL_LIBITTNOTIFY64 <build_dir>/libittnotify_refcol.so
 
 
-Temp directory is used by default to save log files. To change the log directory,
+By default, log files save in the Temp directory. To change the location,
 use the ``INTEL_LIBITTNOTIFY_LOG_DIR`` environment variable:
 
 
 **On Linux**
 
 
-.. code-block:: console
+.. code-block:: bash
 
 
     export INTEL_LIBITTNOTIFY_LOG_DIR=<log_dir>
@@ -47,7 +47,7 @@ use the ``INTEL_LIBITTNOTIFY_LOG_DIR`` environment variable:
 **On FreeBSD**
 
 
-.. code-block:: console
+.. code-block:: bash
 
 
     setenv INTEL_LIBITTNOTIFY_LOG_DIR <log_dir>
@@ -58,7 +58,7 @@ logging of other ITT API function calls is welcome. The solution provides 4
 functions with different log levels that take ``printf`` format for logging:
 
 
-.. code-block:: c
+.. code-block:: cpp
 
     LOG_FUNC_CALL_INFO(const char *msg_format, ...);
     LOG_FUNC_CALL_WARN(const char *msg_format, ...);

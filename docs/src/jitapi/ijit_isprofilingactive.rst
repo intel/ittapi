@@ -10,18 +10,17 @@ Returns the current mode of the agent.
 Syntax
 ------
 
-.. code:: cpp
+.. code-block:: cpp
 
 
-    iJIT_IsProfilingActiveFlags JITAPI iJIT IsProfilingActive ( void );
+   iJIT_IsProfilingActiveFlags JITAPI iJIT IsProfilingActive(void);
 
 
 Description
 -----------
 
 
-The ``iJIT_IsProfilingActive`` function returns the current mode of the
-agent.
+The ``iJIT_IsProfilingActive`` function returns the current mode of the agent.
 
 
 Input Parameters

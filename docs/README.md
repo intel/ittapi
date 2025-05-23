@@ -1,8 +1,8 @@
-# ITT/JIT API Documentation
+# ITT/JIT APIs Documentation
 
 ## Overview
 
-This repository contains the source files for the ITT/JIT API online documentation,
+This repository contains the source files for the ITT/JIT APIs online documentation,
 which is hosted on GitHub Pages. [View the documentation here](link).
 
 ## Build Documentation from Sources

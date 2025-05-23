@@ -4,11 +4,12 @@ Counter API
 ===========
 
 
-A Counter is a user-defined characteristic or metric of hardware or
-software behavior that can be used to collect information about and
-correlate with execution breakdown, such as tasks, events, and markers.
-For example, system on a chip (SoC) development benefits from several
-counters representing different parts of the SoC to count some hardware
+A Counter is a user-defined characteristic or metric of hardware or software
+behavior that you use to collect information about execution breakdown. You can
+also use counters to correlate this information with tasks, events, and markers.
+
+For example, the development of system-on-a-chip (SoC) benefits from several
+counters that represent different parts of the SoC to count some hardware
 characteristics.
 
 
@@ -17,53 +18,46 @@ characteristics.
 
 Use these primitives:
 
-
-``__itt_counter``
-
-
-``__itt_counter_create(const char *name, const char *domain);``
+.. code-block:: cpp
 
 
-``__itt_counter_createA(const char *name, const char *domain);``
+   __itt_counter __itt_counter_create(const char *name, const char *domain);
+
+   __itt_counter __itt_counter_createA(const char *name, const char *domain);
+
+   __itt_counter __itt_counter_createW(const wchar_t *name, const wchar_t *domain);
+
+   __itt_counter __itt_counter_create_typed(const char *name, const char *domain, __itt_metadata_type type);
+
+   __itt_counter __itt_counter_create_typedA(const char *name, const char *domain, __itt_metadata_type type);
+
+   __itt_counter __itt_counter_create_typedW(const wchar_t *name, const wchar_t *domain, __itt_metadata_type type);
+
+   __itt_counter __itt_counter_create_v3(__itt_domain* domain, const char* name,__itt_metadata_type type);
 
 
-``__itt_counter_createW(const wchar_t *name, const wchar_t *domain);``
-
-
-``__itt_counter_create_typed (const char *name, const char *domain, __itt_metadata_type type);``
-
-
-``__itt_counter  __itt_counter_create_typedA __itt_counter_create_typedA(const char *name, const char *domain, __itt_metadata_type type)``
-
-
-``__itt_counter  __itt_counter_create_typedW __itt_counter_create_typedW(const wchar_t *name, const wchar_t *domain, __itt_metadata_type type)``
-
-
-``__itt_counter_create_v3(__itt_domain* domain, const char* name,__itt_metadata_type type);``
-
-
-A counter name and domain name should be specified. To load a
-specialized type of data, specify the counter type. By default the
-unsigned int64 type is used.
+You must specify a counter name and domain name. To load a specialized type of
+data, specify the counter type. The default counter type is ``uint64_t``.
 
 
 **Parameters of the primitives:**
 
 
-.. list-table:: 
-   :header-rows: 0
-
-   * -     [in]    
-     -     \ ``domain``\    
-     -     Counter domain    
-   * -     [in]    
-     -     \ ``name``\    
-     -     Counter name    
-   * -     [in]    
-     -     \ ``type``\    
-     -     Counter type    
-
-
++--------+--------------------------+-------------------+
+| Type   | Parameter                | Description       |
++========+==========================+===================+
+| [in]   | .. code-block:: cpp      | Counter domain    |
+|        |                          |                   |
+|        |    domain                |                   |
++--------+--------------------------+-------------------+
+| [in]   | .. code-block:: cpp      | Counter name      |
+|        |                          |                   |
+|        |    name                  |                   |
++--------+--------------------------+-------------------+
+| [in]   | .. code-block:: cpp      | Counter type      |
+|        |                          |                   |
+|        |    type                  |                   |
++--------+--------------------------+-------------------+
 
 
 **Increment/decrement a counter value**
@@ -72,16 +66,16 @@ unsigned int64 type is used.
 Use these primitives:
 
 
-``__itt_counter_inc (__itt_counter id);``
-
-
-``__itt_counter_inc_delta(__itt_counter id, unsigned long long value);``
-
-
-``__itt_counter_dec(__itt_counter id);``
-
-
-``__itt_counter_dec_delta(__itt_counter id, unsigned long long value);``
+.. code-block:: cpp
+  
+  
+   void __itt_counter_inc (__itt_counter id);
+   
+   void __itt_counter_inc_delta(__itt_counter id, unsigned long long value);
+   
+   void __itt_counter_dec(__itt_counter id);
+   
+   void __itt_counter_dec_delta(__itt_counter id, unsigned long long value);
 
 
 .. note::
@@ -95,27 +89,28 @@ Use these primitives:
 
 Use:
 
-
-``__itt_counter_set_value(__itt_counter id, void *value_ptr);``
-
-
-``__itt_counter_set_value_v3(__itt_counter counter, void *value_ptr);``
+.. code-block:: cpp
+  
+  
+   void __itt_counter_set_value(__itt_counter id, void *value_ptr);
+   
+   void __itt_counter_set_value_v3(__itt_counter counter, void *value_ptr);
 
 
 Parameters of the primitive:
 
 
-.. list-table:: 
-   :header-rows: 0
-
-   * -     [in]    
-     -     \ ``id``\    
-     -     Counter ID    
-   * -     [in]    
-     -     \ ``value_ptr``\    
-     -     Counter value    
-
-
++--------+--------------------------+------------------+
+| Type   | Parameter                | Description      |
++========+==========================+==================+
+| [in]   | .. code-block:: cpp      | Counter ID       |
+|        |                          |                  |
+|        |    id                    |                  |
++--------+--------------------------+------------------+
+| [in]   | .. code-block:: cpp      | Counter value    |
+|        |                          |                  |
+|        |    value_ptr             |                  |
++--------+--------------------------+------------------+
 
 
 **Remove an existing counter**
@@ -123,8 +118,10 @@ Parameters of the primitive:
 
 Use:
 
+.. code-block:: cpp
 
-``__itt_counter_destroy(__itt_counter id);``
+
+   void __itt_counter_destroy(__itt_counter id);
 
 
 Usage Example

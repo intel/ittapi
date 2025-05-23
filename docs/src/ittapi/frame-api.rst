@@ -5,22 +5,20 @@ Frame API
 
 
 Use the frame API to insert calls to the desired places in your code and
-analyze performance per frame, where frame is the time period between
-frame begin and end points. When frames are displayed in Intel® VTune™
-Profiler, they are displayed in a separate track, so they provide a way
-to visually separate this data from normal task data.
+analyze performance per frame. A frame is defined as the time period between
+the frame begin and frame end points. Frames display in Intel® VTune™
+Profiler as a separate track, so they provide a way
+to visually separate this data from typical task data.
+
+The frame API is a per-process function that works in the resumed state. This
+function does not work in the paused state.
 
 
-Frame API is a per-process function that works in resumed state. This
-function does not work in paused state.
-
-
-You can run the frame analysis to:
-
+Run the frame analysis to:
 
 -  Analyze Windows OS game applications that use DirectX\* rendering.
--  Analyze graphical applications performing repeated calculations.
--  Analyze transaction processing on a per transaction basis to discover
+-  Analyze graphical applications that perform repeated calculations.
+-  Analyze transaction processing on a per-transaction basis to discover
    input cases that cause bad performance.
 
 
@@ -30,31 +28,32 @@ ITT APIs that enable analyzing code frames and presenting the analysis
 data.
 
 
-Adding Frame API to Your Code
------------------------------
+Include Frame API to Your Code
+------------------------------
 
 
 Create a domain instance with the ``__itt_domain_create()`` function:
 
 
-.. code:: c
+.. code:: cpp
 
    __itt_domain *ITTAPI__itt_domain_create ( const char *name );
 
 
-For a domain name, the URI naming style is recommended, for example,
-com.my_company.my_application. The set of domains is expected to be
-static over the application's execution time, therefore, there is no
-mechanism to destroy a domain. Any domain can be accessed by any
-thread in the process, regardless of which thread created the domain.
-This call is thread-safe.
+Follow the URI naming style to create domain names. For example,
+"com.my_company.my_application" is an acceptable format. The set of domains is
+expected to be static over the execution time of the application. Therefore,
+there is no mechanism to destroy a domain.
+
+Any thread in the process can access any domain, irrespective of the thread
+that created the domain. This call is thread-safe.
 
 
 Define the beginning of the frame instance. An ``__itt_frame_begin_v3``
 call must be paired with an ``__itt_frame_end_v3`` call:
 
 
-.. code:: c
+.. code:: cpp
    
    
    void __itt_frame_begin_v3(const __itt_domain *domain, __itt_id *id);
@@ -64,18 +63,17 @@ Successive calls to ``__itt_frame_begin_v3`` with the same ID are
 ignored until a call to ``__itt_frame_end_v3`` with the same ID.
 
 
-.. list-table:: 
-   :header-rows: 0
-
-   * -     \ ``[in]``\    
-     -     \ *domain*\    
-     -     The domain for this frame instance    
-   * -     \ ``[in]``\    
-     -     \ *id*\    
-     -     The instance ID for this frame instance. Can be NULL,
-           in which case the next call to ``__itt_frame_end_v3``
-           with NULL as the *id* parameter designates the end
-           of the frame.
++--------+----------------------+----------------------------------------------------------------+
+| Type   | Parameter            | Description                                                    |
++========+======================+================================================================+
+| [in]   | .. code-block:: cpp  | The domain for this frame instance                             |
+|        |                      |                                                                |
+|        |    domain            |                                                                |
++--------+----------------------+----------------------------------------------------------------+
+| [in]   | .. code-block:: cpp  | The instance ID for this frame instance. Can be NULL, in which |
+|        |                      | case the next call to ``__itt_frame_end_v3`` with NULL as the  |
+|        |    id                | *id* parameter designates the end of the frame.                |
++--------+----------------------+----------------------------------------------------------------+
 
 
 Define the end of the frame instance. A ``__itt_frame_end_v3`` call must
@@ -85,22 +83,23 @@ with the same ID are ignored, as are calls that do not have a matching
 ``__itt_frame_begin_v3`` call:
 
 
-.. code:: c
+.. code:: cpp
 
 
    void __itt_frame_end_v3(const __itt_domain *domain, __itt_id *id);
 
 
-.. list-table:: 
-   :header-rows: 0
-
-   * -     \ ``[in]``\    
-     -     \ *domain*\    
-     -     The domain for this frame instance    
-   * -     \ ``[in]``\    
-     -     \ *id*\    
-     -     The instance ID for this frame instance, or NULL for the
-           current instance    
++--------+----------------------+--------------------------------------------------+
+| Type   | Parameter            | Description                                      |
++========+======================+==================================================+
+| [in]   | .. code-block:: cpp  | The domain for this frame instance               |
+|        |                      |                                                  |
+|        |    domain            |                                                  |
++--------+----------------------+--------------------------------------------------+
+| [in]   | .. code-block:: cpp  | The instance ID for this frame instance, or NULL |
+|        |                      | for the current instance                         |
+|        |    id                |                                                  |
++--------+----------------------+--------------------------------------------------+
 
 
 .. note::
@@ -110,8 +109,8 @@ with the same ID are ignored, as are calls that do not have a matching
    collection are limited to 64 distinct frame domains.
 
 
-Guidelines for Frame API Usage
-------------------------------
+Usage Guidelines
+----------------
 
 
 -  Use the frame API to denote the frame begin point and end point.
@@ -119,7 +118,8 @@ Guidelines for Frame API Usage
    points.
 -  VTune Profiler does not attribute the time/samples between
    ``__itt_frame_end_v3()`` and ``__itt_frame_begin_v3()`` to any
-   program unit and displays it as ``[Unknown]`` in the viewpoint.
+   program unit. In the viewpoint for the analysis, this information
+   displays as ``[Unknown]``.
 -  If there are consecutive ``__itt_frame_begin_v3`` calls in the same
    domain, treat it as a ``__itt_frame_end_v3``/``__itt_frame_begin_v3``
    pair.
@@ -140,7 +140,7 @@ The following example uses the frame API to capture the Elapsed times
 for the specified code sections.
 
 
-.. code:: c
+.. code:: cpp
 
 
    #include "ittnotify.h"

@@ -1,7 +1,7 @@
 .. _api-support:
 
-API Usage and Reference
-=======================
+Use the ITT/JIT APIs
+====================
 
 .. note::
 

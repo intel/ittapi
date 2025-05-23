@@ -1,45 +1,49 @@
 .. _build:
 
-Build from Source
-=================
+Build from Source Code
+======================
 
-Requirements for Building from Source
--------------------------------------
+Technical Requirements
+----------------------
 
--  General development tools, including C/C++ compiler.
--  `Python <https://python.org>`__  3.6 or later.
--  `CMake <https://cmake.org>`__ 3.5 or later.
--  Windows only:
-   `Microsoft Visual Studio <https://visualstudio.microsoft.com>`__ 2015 or later
-   ether
-   `Ninja <https://ninja-build.org>`__ 1.9 or later.
--  To enable Fortran support, requires `Intel Fortran Compiler
+Before you build the ITT/JIT APIs, make sure you have the following hardware and software tools:
+
+-  Get general development tools, including C/C++ Compiler
+-  Install `Python <https://python.org>`__  3.6 or later
+-  Install `CMake <https://cmake.org>`__ 3.5 or later
+-  For a Windows* system, install one of these:
+   
+   -  `Microsoft Visual Studio <https://visualstudio.microsoft.com>`__ 2015 or later
+   -  `Ninja <https://ninja-build.org>`__ 1.9 or later.
+
+-  To enable support for Fortran, install the `Intel Fortran Compiler
    <https://www.intel.com/content/www/us/en/developer/tools/oneapi/fortran-compiler-download.html>`__
-   installed.
 
 
-Download the Source Code
-------------------------
+Get the ITT/JIT APIs Source Code
+--------------------------------
 
-Download `ITT/JIT API source code <https://github.com/intel/ittapi/releases>`__ or clone
-`the repository <https://github.com/intel/ittapi.git>`__.
+To get the source code for the ITT/JIT APIs, do one of the following:
+
+-  Download it from `the latest public Release <https://github.com/intel/ittapi/releases>`__
+-  Clone the repository:
 
 .. code-block:: console
 
 	git clone https://github.com/intel/ittapi.git
 
 
-Build
------
+Build the ITT/JIT APIs
+----------------------
 
-To build the ITT/JIT API static library execute:
+To build the ITT/JIT APIs static library, run this command:
 
 .. code-block:: console
 
 	python buildall.py <options>
 
 
-The ailable build options:
+Use these options to configure the build process:
 
 .. code-block:: console
 
