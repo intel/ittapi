@@ -21,7 +21,7 @@ make
 setenv INTEL_LIBITTNOTIFY64 <build_dir>/libittnotify_refcol.so
 ```
 
-By default, log files save in the `temp` directory. To change the location,
+By default, log files save in the `tmp` directory. To change the location,
 use the `INTEL_LIBITTNOTIFY_LOG_DIR` environment variable:
 
 **On Linux**
