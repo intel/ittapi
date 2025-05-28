@@ -1,18 +1,17 @@
 .. _itt-api-support:
 
-Instrumentation and Tracing Technology API (ITT API)
-====================================================
+Instrumentation and Tracing Technology (ITT) API
+================================================
 
 
-Use the Intel® Instrumentation and Tracing Technology API (ITT API) to
-generate trace data and control its collection during the execution of
-your application.
+Use the Intel® Instrumentation and Tracing Technology (ITT) API to generate
+trace data and control its collection during the execution of your application.
 
 
 Use the ITT API to:
 
 
--  Controls application performance overhead based on the amount of
+-  Control application performance overhead based on the amount of
    traces that you collect.
 -  Enable trace collection without having to recompiling your application
 -  Enable code annotation for deeper analysis.

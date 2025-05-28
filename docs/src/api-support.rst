@@ -3,11 +3,11 @@
 Use the ITT/JIT APIs
 ====================
 
-.. note::
 
-    The ITT API is a set of pure C/C++ functions. There are no Java* or .NET*
-    APIs. If you need runtime environment support, you can use a JNI, or C/C++
-    function call from the managed code.
+This section describes how you use ITT/JIT APIs with various environments.
+The ITT/JIT APIs are a set of C/C++ functions and use no Java* or .NET* code.
+For support with your runtime environment, use a Java Native Interface (JNI)
+or C/C++ function call from the managed code.
 
 
 C/C++ API Usage and Reference:

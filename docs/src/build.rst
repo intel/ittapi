@@ -14,7 +14,7 @@ Before you build the ITT/JIT APIs, make sure you have the following hardware and
 -  For a Windows* system, install one of these:
    
    -  `Microsoft Visual Studio <https://visualstudio.microsoft.com>`__ 2015 or later
-   -  `Ninja <https://ninja-build.org>`__ 1.9 or later.
+   -  `Ninja <https://ninja-build.org>`__ 1.9 or later
 
 -  To enable support for Fortran, install the `Intel Fortran Compiler
    <https://www.intel.com/content/www/us/en/developer/tools/oneapi/fortran-compiler-download.html>`__

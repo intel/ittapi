@@ -1,10 +1,10 @@
 .. _jit-api-support:
 
-Just-In-Time API (JIT API)
-==========================
+Just-In-Time (JIT) API
+======================
 
 
-Use the Just-In-Time(JIT) Profiling API to enable performance tools to collect
+Use the Just-In-Time (JIT) Profiling API to enable performance tools to collect
 information about just-in-time generated codes. You must insert JIT Profiling
 API calls in the code generator to report information before the JIT-compiled
 code goes to execution. This information is collected at runtime and used by
@@ -142,30 +142,31 @@ Analyze Split Functions
 
 
 You can use the JIT Profiling API to analyze split functions. This scenario
-often occurs in resource-limited environments, where code for the same function
-is generated or updated in separate segments, sometimes with overlapping lifetimes.
+often occurs in resource-limited environments where the code for the same
+function is generated or updated in separate segments. Sometimes this code
+generation can happen with overlapping lifetimes.
 
 
 .. code-block:: cpp
     
 
     #include <jitprofiling.h>
-    
+
 
     unsigned int method_id = iJIT_GetNewMethodID();
-    
+
 
     iJIT_Method_Load a = {0};
     a.method_id = method_id;
     a.method_load_address = 0x100;
     a.method_size = 0x20;
-    
+
 
     iJIT_Method_Load b = {0};
     b.method_id = method_id;
     b.method_load_address = 0x200;
     b.method_size = 0x30;
-    
+
 
     iJIT_NotifyEvent(iJVM_EVENT_TYPE_METHOD_LOAD_FINISHED, (void*)&a);
     iJIT_NotifyEvent(iJVM_EVENT_TYPE_METHOD_LOAD_FINISHED, (void*)&b) 
