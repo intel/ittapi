@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - master
-      - docs # TODO: delete before merge to the main repo
     paths:
       - 'docs/**' # Trigger only when the source docs files are modified
 
