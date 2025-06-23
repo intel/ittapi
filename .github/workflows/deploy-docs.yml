@@ -8,10 +8,12 @@ on:
       - 'docs/**' # Trigger only when the source docs files are modified
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   build_and_deploy:
+    permissions:
+      contents: write  # for peaceiris/actions-gh-pages to push pages branch
     name: Build and deploy documentation
     runs-on: ubuntu-latest
     steps:

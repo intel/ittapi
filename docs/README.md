@@ -3,7 +3,7 @@
 ## Overview
 
 This repository contains the source files for the ITT/JIT APIs online documentation,
-which is hosted on GitHub Pages. [View the documentation here](link).
+which is hosted on GitHub Pages. [View the documentation here](https://intel.github.io/ittapi).
 
 ## Build Documentation from Sources
 

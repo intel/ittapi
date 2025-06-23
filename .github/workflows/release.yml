@@ -73,7 +73,7 @@ jobs:
 
   create_release:
     permissions:
-      contents: write  # for actions/create-release to create a release
+      contents: write     # for actions/create-release to create a release
       id-token: write     # for actions/attest-build-provenance to attest provenance
       attestations: write # for actions/attest-build-provenance to attest provenance
     name: Create release
