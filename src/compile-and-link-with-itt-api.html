@@ -1,0 +1,248 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Compile and Link with ITT API &mdash; ITT/JIT APIs Documentation  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+
+  
+    <link rel="canonical" href="https://intel.github.io/ittapi/src/compile-and-link-with-itt-api.html" />
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Instrument Your Application" href="instrument-your-application.html" />
+    <link rel="prev" title="Instrumentation and Tracing Technology (ITT) API" href="itt-api-support.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            ITT/JIT APIs Documentation
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="build.html">Build from Source Code</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="api-support.html">Use the ITT/JIT APIs</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="api-support.html#c-c-api-usage-and-reference">C/C++ API Usage and Reference:</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="itt-api-support.html">Instrumentation and Tracing Technology (ITT) API</a><ul class="current">
+<li class="toctree-l4 current"><a class="reference internal" href="itt-api-support.html#itt-api-usage-and-reference">ITT API Usage and Reference</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="jit-api-support.html">Just-In-Time (JIT) API</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="api-support.html#other-language-api-bindings">Other Language API Bindings:</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="ref_collector.html">ITT API Reference Collector</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/intel/ittapi">GitHub Project</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">ITT/JIT APIs Documentation</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content style-external-links">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="api-support.html">Use the ITT/JIT APIs</a></li>
+          <li class="breadcrumb-item"><a href="itt-api-support.html">Instrumentation and Tracing Technology (ITT) API</a></li>
+      <li class="breadcrumb-item active">Compile and Link with ITT API</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/src/compile-and-link-with-itt-api.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="compile-and-link-with-itt-api">
+<span id="id1"></span><h1>Compile and Link with ITT API<a class="headerlink" href="#compile-and-link-with-itt-api" title="Link to this heading"></a></h1>
+<section id="step-1-configure-your-build-system">
+<h2>Step 1: Configure Your Build System<a class="headerlink" href="#step-1-configure-your-build-system" title="Link to this heading"></a></h2>
+<p>Before instrumenting your application with ITT API, configure your build
+system to establish access to the headers and libraries of the API:</p>
+<ul class="simple">
+<li><p>Add <code class="docutils literal notranslate"><span class="pre">&lt;ittapi_dir&gt;\include</span></code> to your <code class="docutils literal notranslate"><span class="pre">INCLUDE</span></code> path</p></li>
+<li><p>Add <code class="docutils literal notranslate"><span class="pre">&lt;ittapi_dir&gt;\build_&lt;target_platform&gt;\&lt;target_bits&gt;\bin</span></code>
+to your <code class="docutils literal notranslate"><span class="pre">LIBRARIES</span></code> path</p></li>
+</ul>
+</section>
+<section id="step-2-include-the-itt-api-header-module-in-your-application">
+<h2>Step 2: Include the ITT API Header/Module in Your Application<a class="headerlink" href="#step-2-include-the-itt-api-header-module-in-your-application" title="Link to this heading"></a></h2>
+<p><strong>C/C++ Applications</strong></p>
+<p>For every source file that you want to instrument, add the following
+<code class="docutils literal notranslate"><span class="pre">#include</span></code> statements:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;ittnotify.h&gt;</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">ittnotify.h</span></code> header contains definitions for ITT API routines
+and important macros that provide the correct logic to invoke the API
+from your application.</p>
+<p>When tracing is disabled, The ITT API incur almost zero overhead. To achieve
+completely zero overhead, you can compile out all ITT API calls from your
+application. To do this, prior to including the <code class="docutils literal notranslate"><span class="pre">ittnotify.h</span></code> file, define
+the <code class="docutils literal notranslate"><span class="pre">INTEL_NO_ITTNOTIFY_API</span></code> macro in your project at compile time. You can
+do this from the compiler command line or in your source file.</p>
+<p><strong>Fortran Applications</strong></p>
+<p>Add the <code class="docutils literal notranslate"><span class="pre">ITTNOTIFY</span></code> module to your source files. Use the following
+source line:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">USE</span><span class="w"> </span><span class="n">ITTNOTIFY</span>
+</pre></div>
+</div>
+</section>
+<section id="step-3-insert-itt-notifications-in-your-application">
+<h2>Step 3: Insert ITT Notifications in Your Application<a class="headerlink" href="#step-3-insert-itt-notifications-in-your-application" title="Link to this heading"></a></h2>
+<p>To insert ITT notifications in your application, use:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Language</p></th>
+<th class="head"><p>Notification</p></th>
+<th class="head"><p>Example</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>C/C++</p></td>
+<td><div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">__itt_</span><span class="o">*</span>
+</pre></div>
+</div>
+</td>
+<td><div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">__itt_pause</span><span class="p">();</span>
+</pre></div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><p>Fortran</p></td>
+<td><div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">ITT_</span><span class="o">*</span>
+</pre></div>
+</div>
+</td>
+<td><div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">CALL</span><span class="w"> </span><span class="n">ITT_PAUSE</span><span class="p">()</span>
+</pre></div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<p>To learn more, open:</p>
+<ul class="simple">
+<li><p><a class="reference external" href="instrument-your-application.html">Instrumenting Your Application</a></p></li>
+<li><p><a class="reference external" href="itt-api-reference.html">ITT API Reference</a></p></li>
+</ul>
+</section>
+<section id="step-4-link-the-libittnotify-static-library-to-your-application">
+<h2>Step 4: Link the libittnotify Static Library to Your Application<a class="headerlink" href="#step-4-link-the-libittnotify-static-library-to-your-application" title="Link to this heading"></a></h2>
+<p>Once you finish inserting ITT notifications in your application, the next step
+is to link the libittnotify static library. This library is <code class="docutils literal notranslate"><span class="pre">libittnotify.a</span></code>
+in Linux* and FreeBSD* systems and <code class="docutils literal notranslate"><span class="pre">libittnotify.lib</span></code> in Windows* systems.</p>
+<p>If you have enabled tracing, the static library loads the dynamic collector of
+the ITT API data and forwards to the collector instrumentation data from the ITT API.</p>
+<p>If you have disabled tracing, the static library ignores ITT API calls, resulting in
+near-zero instrumentation overhead.</p>
+</section>
+<section id="step-5-load-the-dynamic-library">
+<h2>Step 5: Load the Dynamic Library<a class="headerlink" href="#step-5-load-the-dynamic-library" title="Link to this heading"></a></h2>
+<p>After you instrument your application and link the static library, you must
+load the dynamic library of the ITT API to your application. To do this,
+depending on your system architecture, set the <code class="docutils literal notranslate"><span class="pre">INTEL_LIBITTNOTIFY32</span></code> or
+the <code class="docutils literal notranslate"><span class="pre">INTEL_LIBITTNOTIFY64</span></code> environment variable.</p>
+<p><strong>Windows OS:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">set</span><span class="w"> </span><span class="nv">INTEL_LIBITTNOTIFY32</span><span class="o">=</span>&lt;install-dir&gt;<span class="se">\b</span>in32<span class="se">\r</span>untime<span class="se">\i</span>ttnotify_collector.dll
+<span class="nb">set</span><span class="w"> </span><span class="nv">INTEL_LIBITTNOTIFY64</span><span class="o">=</span>&lt;install-dir&gt;<span class="se">\b</span>in64<span class="se">\r</span>untime<span class="se">\i</span>ttnotify_collector.dll
+</pre></div>
+</div>
+<p><strong>Linux OS:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span><span class="w"> </span><span class="nv">INTEL_LIBITTNOTIFY32</span><span class="o">=</span>&lt;install-dir&gt;/lib32/runtime/libittnotify_collector.so
+<span class="nb">export</span><span class="w"> </span><span class="nv">INTEL_LIBITTNOTIFY64</span><span class="o">=</span>&lt;install-dir&gt;/lib64/runtime/libittnotify_collector.so
+</pre></div>
+</div>
+<p><strong>FreeBSD OS:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>setenv<span class="w"> </span><span class="nv">INTEL_LIBITTNOTIFY64</span><span class="o">=</span>&lt;target-package&gt;/lib64/runtime/libittnotify_collector.so
+</pre></div>
+</div>
+</section>
+<section id="additional-information-unicode-support">
+<h2>Additional Information: Unicode Support<a class="headerlink" href="#additional-information-unicode-support" title="Link to this heading"></a></h2>
+<p>All API functions that take parameters of type <code class="docutils literal notranslate"><span class="pre">__itt_char</span></code> follow the
+Windows OS Unicode convention.</p>
+<p>When compilation happens on a Windows system, if the <code class="docutils literal notranslate"><span class="pre">UNICODE</span></code> macro is
+defined, <code class="docutils literal notranslate"><span class="pre">__itt_char</span></code> is set to <code class="docutils literal notranslate"><span class="pre">wchar_t</span></code>. If the <code class="docutils literal notranslate"><span class="pre">UNICODE</span></code> macro is
+not defined, <code class="docutils literal notranslate"><span class="pre">__itt_char</span></code> is set to <code class="docutils literal notranslate"><span class="pre">char</span></code>.</p>
+<p>The actual function names are suffixed with <code class="docutils literal notranslate"><span class="pre">A</span></code> for the ASCII APIs and
+<code class="docutils literal notranslate"><span class="pre">W</span></code> for the Unicode APIs. Both types of functions are defined in the
+DLL that implements the API.</p>
+<p>Strings that contain only ASCII characters are internally equivalent for both
+the Unicode and ASCII API versions. For example, the following
+strings are equivalent:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">__itt_sync_createA</span><span class="p">(</span><span class="w"> </span><span class="n">addr</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;OpenMP Scheduler&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Critical Section&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span>
+<span class="n">__itt_sync_createW</span><span class="p">(</span><span class="w"> </span><span class="n">addr</span><span class="p">,</span><span class="w"> </span><span class="sa">L</span><span class="s">&quot;OpenMP Scheduler&quot;</span><span class="p">,</span><span class="w"> </span><span class="sa">L</span><span class="s">&quot;Critical Section&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="itt-api-support.html" class="btn btn-neutral float-left" title="Instrumentation and Tracing Technology (ITT) API" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="instrument-your-application.html" class="btn btn-neutral float-right" title="Instrument Your Application" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025 Intel Corporation.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
