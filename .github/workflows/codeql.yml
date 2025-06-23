@@ -43,6 +43,18 @@ jobs:
         with:
           category: "/language:${{matrix.language}}"
 
+      - name: Generate CodeQL Security Report
+        uses: rsdmike/github-security-report-action@a149b24539044c92786ec39af8ba38c93496495d # v3.0.4
+        with:
+          template: report
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload CodeQL Security Report
+        uses: actions/upload-artifact@26f96dfa697d77e81fd5907df203aa23a56210a8 # v4.3.0
+        with:
+          name: codeql-report-${{ matrix.language }}
+          path: report.pdf
+
   analyze_rust:
     name: Analyze (Rust)
     runs-on: ubuntu-latest
