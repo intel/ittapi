@@ -26,6 +26,8 @@ static struct ref_collector_logger {
     uint8_t init_state;
 } g_ref_collector_logger = {NULL, 0};
 
+static __itt_global* g_itt_global = NULL;
+
 char* log_file_name_generate()
 {
     time_t time_now = time(NULL);
@@ -95,6 +97,7 @@ ITT_EXTERN_C void ITTAPI __itt_api_init(__itt_global* p, __itt_group_id init_gro
         (void)init_groups;
         fill_func_ptr_per_lib(p);
         ref_col_init();
+        g_itt_global = p;
     }
     else
     {
@@ -138,7 +141,7 @@ void log_func_call(uint8_t log_level, const char* function_name, const char* mes
 /* ------------------------------------------------------------------------------ */
 /* The code below is a reference implementation of the
 /* Instrumentation and Tracing Technology API (ITT API) dynamic collector.
-/* This implementation is designed to log ITTAPI functions calls.*/
+/* This implementation is designed to log ITT API functions calls.*/
 /* ------------------------------------------------------------------------------ */
 
 /* Please remember to call free() after using get_metadata_elements() */
@@ -221,6 +224,195 @@ char* get_context_metadata_element(__itt_context_type type, void* metadata)
     }
 
     return metadata_str;
+}
+
+/* Call this function to release allocated resources and avoid memory leaks */
+void __itt_refcol_release()
+{
+    if (g_itt_global == NULL)
+        return;
+
+    __itt_mutex_lock(&(g_itt_global->mutex));
+
+    __itt_domain *d = g_itt_global->domain_list;
+    while (d)
+    {
+        __itt_domain *next = d->next;
+        if (d->nameA) free((char*)d->nameA);
+        free(d);
+        d = next;
+    }
+    g_itt_global->domain_list = NULL;
+
+    __itt_string_handle *s = g_itt_global->string_list;
+    while (s)
+    {
+        __itt_string_handle *next = s->next;
+        if (s->strA) free((char*)s->strA);
+        free(s);
+        s = next;
+    }
+    g_itt_global->string_list = NULL;
+
+    __itt_counter_info_t *c = g_itt_global->counter_list;
+    while (c)
+    {
+        __itt_counter_info_t *next = c->next;
+        if (c->nameA) free((char*)c->nameA);
+        if (c->domainA) free((char*)c->domainA);
+        free(c);
+        c = next;
+    }
+    g_itt_global->counter_list = NULL;
+
+    __itt_histogram *h = g_itt_global->histogram_list;
+    while (h)
+    {
+        __itt_histogram *next = h->next;
+        if (h->nameA) free((char*)h->nameA);
+        free(h);
+        h = next;
+    }
+    g_itt_global->histogram_list = NULL;
+
+    __itt_mutex_unlock(&(g_itt_global->mutex));
+}
+
+ITT_EXTERN_C __itt_domain* ITTAPI __itt_domain_create(const char *name)
+{
+    if (g_itt_global == NULL || name == NULL)
+    {
+        LOG_FUNC_CALL_WARN("Cannot create domain object");
+        return NULL;
+    }
+
+    __itt_domain *h_tail = NULL, *h = NULL;
+
+    __itt_mutex_lock(&(g_itt_global->mutex));
+
+    for (h_tail = NULL, h = g_itt_global->domain_list; h != NULL; h_tail = h, h = h->next)
+    {
+        if (h->nameA != NULL && !strcmp(h->nameA, name)) break;
+    }
+
+    if (h == NULL)
+    {
+        NEW_DOMAIN_A(g_itt_global, h, h_tail, name);
+        LOG_FUNC_CALL_INFO("functions args: name=%s (created new domain)", name);
+    }
+    else
+    {
+        LOG_FUNC_CALL_INFO("functions args: name=%s (domain already exists)", name);
+    }
+
+    __itt_mutex_unlock(&(g_itt_global->mutex));
+
+    return h;
+}
+
+ITT_EXTERN_C __itt_string_handle* ITTAPI __itt_string_handle_create(const char* name)
+{
+    if (g_itt_global == NULL || name == NULL)
+    {
+        LOG_FUNC_CALL_WARN("Cannot create string handle object");
+        return NULL;
+    }
+
+    __itt_string_handle *h_tail = NULL, *h = NULL;
+
+    __itt_mutex_lock(&(g_itt_global->mutex));
+
+    for (h_tail = NULL, h = g_itt_global->string_list; h != NULL; h_tail = h, h = h->next)
+    {
+        if (h->strA != NULL && !strcmp(h->strA, name)) break;
+    }
+
+    if (h == NULL)
+    {
+        NEW_STRING_HANDLE_A(g_itt_global, h, h_tail, name);
+        LOG_FUNC_CALL_INFO("functions args: name=%s (created new string handle)", name);
+    }
+    else
+    {
+        LOG_FUNC_CALL_INFO("functions args: name=%s (string handle already exists)", name);
+    }
+
+    __itt_mutex_unlock(&(g_itt_global->mutex));
+
+    return h;
+}
+
+ITT_EXTERN_C __itt_counter ITTAPI __itt_counter_create_v3(
+    const __itt_domain* domain, const char* name, __itt_metadata_type type)
+{
+    if (g_itt_global == NULL || name == NULL || domain == NULL)
+    {
+        LOG_FUNC_CALL_WARN("Cannot create counter object");
+        return NULL;
+    }
+
+    __itt_counter_info_t *h_tail = NULL, *h = NULL;
+
+    __itt_mutex_lock(&(g_itt_global->mutex));
+
+    for (h_tail = NULL, h = g_itt_global->counter_list; h != NULL; h_tail = h, h = h->next)
+    {
+        if (h->nameA && h->type == (int)type && !strcmp(h->nameA, name) &&
+            ((h->domainA == NULL && domain->nameA == NULL) ||
+            (h->domainA && domain->nameA && !strcmp(h->domainA, domain->nameA))))
+            break;
+    }
+
+    if (h == NULL)
+    {
+        NEW_COUNTER_A(g_itt_global, h, h_tail, name, domain->nameA, type);
+        LOG_FUNC_CALL_INFO("functions args: name=%s, domain=%s, type=%d (created new counter)",
+                            name, domain->nameA, (int)type);
+    }
+    else
+    {
+        LOG_FUNC_CALL_INFO("functions args: name=%s, domain=%s, type=%d (counter already exists)",
+                            name, domain->nameA, (int)type);
+    }
+
+    __itt_mutex_unlock(&(g_itt_global->mutex));
+
+    return (__itt_counter)h;
+}
+
+ITT_EXTERN_C __itt_histogram* ITTAPI __itt_histogram_create(
+    const __itt_domain* domain, const char* name, __itt_metadata_type x_type, __itt_metadata_type y_type)
+{
+    if (g_itt_global == NULL || name == NULL || domain == NULL)
+    {
+        LOG_FUNC_CALL_WARN("Cannot create histogram object");
+        return NULL;
+    }
+
+    __itt_histogram *h_tail = NULL, *h = NULL;
+
+    __itt_mutex_lock(&(g_itt_global->mutex));
+
+    for (h_tail = NULL, h = g_itt_global->histogram_list; h != NULL; h_tail = h, h = h->next)
+    {
+        if (h->domain == domain && h->nameA && !strcmp(h->nameA, name)) break;
+    }
+
+    if (h == NULL)
+    {
+        NEW_HISTOGRAM_A(g_itt_global, h, h_tail, domain, name, x_type, y_type);
+        LOG_FUNC_CALL_INFO("functions args: domain=%s, name=%s, x_type=%d, y_type=%d (created new histogram)",
+            domain->nameA, name, x_type, y_type);
+    }
+    else
+    {
+        LOG_FUNC_CALL_INFO("functions args: domain=%s, name=%s, x_type=%d, y_type=%d (histogram already exists)",
+            domain->nameA, name, x_type, y_type);
+    }
+
+    __itt_mutex_unlock(&(g_itt_global->mutex));
+
+    return h;
 }
 
 ITT_EXTERN_C void ITTAPI __itt_pause(void)
