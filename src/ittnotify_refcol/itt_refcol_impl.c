@@ -26,6 +26,8 @@ static struct ref_collector_logger {
     uint8_t init_state;
 } g_ref_collector_logger = {NULL, 0};
 
+static __itt_global* g_itt_global = NULL;
+
 char* log_file_name_generate()
 {
     time_t time_now = time(NULL);
@@ -95,6 +97,7 @@ ITT_EXTERN_C void ITTAPI __itt_api_init(__itt_global* p, __itt_group_id init_gro
         (void)init_groups;
         fill_func_ptr_per_lib(p);
         ref_col_init();
+        g_itt_global = p;
     }
     else
     {
@@ -135,13 +138,13 @@ void log_func_call(uint8_t log_level, const char* function_name, const char* mes
 #define LOG_FUNC_CALL_ERROR(...) log_func_call(LOG_LVL_ERROR, __FUNCTION__, __VA_ARGS__)
 #define LOG_FUNC_CALL_FATAL(...) log_func_call(LOG_LVL_FATAL, __FUNCTION__, __VA_ARGS__)
 
-/* ------------------------------------------------------------------------------ */
-/* The code below is a reference implementation of the
-/* Instrumentation and Tracing Technology API (ITT API) dynamic collector.
-/* This implementation is designed to log ITTAPI functions calls.*/
-/* ------------------------------------------------------------------------------ */
+// ----------------------------------------------------------------------------
+// The code below is a reference implementation of the
+// Instrumentation and Tracing Technology API (ITT API) dynamic collector.
+// This implementation is designed to log ITT API functions calls.
+// ----------------------------------------------------------------------------
 
-/* Please remember to call free() after using get_metadata_elements() */
+// Remember to call free() after using get_metadata_elements()
 char* get_metadata_elements(size_t size, __itt_metadata_type type, void* metadata)
 {
     char* metadata_str = malloc(sizeof(char) * LOG_BUFFER_MAX_SIZE);
@@ -190,7 +193,7 @@ char* get_metadata_elements(size_t size, __itt_metadata_type type, void* metadat
     return metadata_str;
 }
 
-/* Please remember to call free() after using get_context_metadata_element() */
+// Remember to call free() after using get_context_metadata_element()
 char* get_context_metadata_element(__itt_context_type type, void* metadata)
 {
     char* metadata_str = malloc(sizeof(char) * LOG_BUFFER_MAX_SIZE/4);
@@ -223,6 +226,195 @@ char* get_context_metadata_element(__itt_context_type type, void* metadata)
     return metadata_str;
 }
 
+// Call this function to release allocated resources and avoid memory leaks
+void __itt_refcol_release()
+{
+    if (g_itt_global == NULL)
+        return;
+
+    __itt_mutex_lock(&(g_itt_global->mutex));
+
+    __itt_domain *d = g_itt_global->domain_list;
+    while (d)
+    {
+        __itt_domain *next = d->next;
+        if (d->nameA) free((char*)d->nameA);
+        free(d);
+        d = next;
+    }
+    g_itt_global->domain_list = NULL;
+
+    __itt_string_handle *s = g_itt_global->string_list;
+    while (s)
+    {
+        __itt_string_handle *next = s->next;
+        if (s->strA) free((char*)s->strA);
+        free(s);
+        s = next;
+    }
+    g_itt_global->string_list = NULL;
+
+    __itt_counter_info_t *c = g_itt_global->counter_list;
+    while (c)
+    {
+        __itt_counter_info_t *next = c->next;
+        if (c->nameA) free((char*)c->nameA);
+        if (c->domainA) free((char*)c->domainA);
+        free(c);
+        c = next;
+    }
+    g_itt_global->counter_list = NULL;
+
+    __itt_histogram *h = g_itt_global->histogram_list;
+    while (h)
+    {
+        __itt_histogram *next = h->next;
+        if (h->nameA) free((char*)h->nameA);
+        free(h);
+        h = next;
+    }
+    g_itt_global->histogram_list = NULL;
+
+    __itt_mutex_unlock(&(g_itt_global->mutex));
+}
+
+ITT_EXTERN_C __itt_domain* ITTAPI __itt_domain_create(const char *name)
+{
+    if (g_itt_global == NULL || name == NULL)
+    {
+        LOG_FUNC_CALL_WARN("Cannot create domain object");
+        return NULL;
+    }
+
+    __itt_domain *h_tail = NULL, *h = NULL;
+
+    __itt_mutex_lock(&(g_itt_global->mutex));
+
+    for (h_tail = NULL, h = g_itt_global->domain_list; h != NULL; h_tail = h, h = h->next)
+    {
+        if (h->nameA != NULL && !strcmp(h->nameA, name)) break;
+    }
+
+    if (h == NULL)
+    {
+        NEW_DOMAIN_A(g_itt_global, h, h_tail, name);
+        LOG_FUNC_CALL_INFO("function args: name=%s (created new domain)", name);
+    }
+    else
+    {
+        LOG_FUNC_CALL_INFO("function args: name=%s (domain already exists)", name);
+    }
+
+    __itt_mutex_unlock(&(g_itt_global->mutex));
+
+    return h;
+}
+
+ITT_EXTERN_C __itt_string_handle* ITTAPI __itt_string_handle_create(const char* name)
+{
+    if (g_itt_global == NULL || name == NULL)
+    {
+        LOG_FUNC_CALL_WARN("Cannot create string handle object");
+        return NULL;
+    }
+
+    __itt_string_handle *h_tail = NULL, *h = NULL;
+
+    __itt_mutex_lock(&(g_itt_global->mutex));
+
+    for (h_tail = NULL, h = g_itt_global->string_list; h != NULL; h_tail = h, h = h->next)
+    {
+        if (h->strA != NULL && !strcmp(h->strA, name)) break;
+    }
+
+    if (h == NULL)
+    {
+        NEW_STRING_HANDLE_A(g_itt_global, h, h_tail, name);
+        LOG_FUNC_CALL_INFO("function args: name=%s (created new string handle)", name);
+    }
+    else
+    {
+        LOG_FUNC_CALL_INFO("function args: name=%s (string handle already exists)", name);
+    }
+
+    __itt_mutex_unlock(&(g_itt_global->mutex));
+
+    return h;
+}
+
+ITT_EXTERN_C __itt_counter ITTAPI __itt_counter_create_v3(
+    const __itt_domain* domain, const char* name, __itt_metadata_type type)
+{
+    if (g_itt_global == NULL || name == NULL || domain == NULL)
+    {
+        LOG_FUNC_CALL_WARN("Cannot create counter object");
+        return NULL;
+    }
+
+    __itt_counter_info_t *h_tail = NULL, *h = NULL;
+
+    __itt_mutex_lock(&(g_itt_global->mutex));
+
+    for (h_tail = NULL, h = g_itt_global->counter_list; h != NULL; h_tail = h, h = h->next)
+    {
+        if (h->nameA && h->type == (int)type && !strcmp(h->nameA, name) &&
+            ((h->domainA == NULL && domain->nameA == NULL) ||
+            (h->domainA && domain->nameA && !strcmp(h->domainA, domain->nameA))))
+            break;
+    }
+
+    if (h == NULL)
+    {
+        NEW_COUNTER_A(g_itt_global, h, h_tail, name, domain->nameA, type);
+        LOG_FUNC_CALL_INFO("function args: name=%s, domain=%s, type=%d (created new counter)",
+                            name, domain->nameA, (int)type);
+    }
+    else
+    {
+        LOG_FUNC_CALL_INFO("function args: name=%s, domain=%s, type=%d (counter already exists)",
+                            name, domain->nameA, (int)type);
+    }
+
+    __itt_mutex_unlock(&(g_itt_global->mutex));
+
+    return (__itt_counter)h;
+}
+
+ITT_EXTERN_C __itt_histogram* ITTAPI __itt_histogram_create(
+    const __itt_domain* domain, const char* name, __itt_metadata_type x_type, __itt_metadata_type y_type)
+{
+    if (g_itt_global == NULL || name == NULL || domain == NULL)
+    {
+        LOG_FUNC_CALL_WARN("Cannot create histogram object");
+        return NULL;
+    }
+
+    __itt_histogram *h_tail = NULL, *h = NULL;
+
+    __itt_mutex_lock(&(g_itt_global->mutex));
+
+    for (h_tail = NULL, h = g_itt_global->histogram_list; h != NULL; h_tail = h, h = h->next)
+    {
+        if (h->domain == domain && h->nameA && !strcmp(h->nameA, name)) break;
+    }
+
+    if (h == NULL)
+    {
+        NEW_HISTOGRAM_A(g_itt_global, h, h_tail, domain, name, x_type, y_type);
+        LOG_FUNC_CALL_INFO("function args: domain=%s, name=%s, x_type=%d, y_type=%d (created new histogram)",
+            domain->nameA, name, x_type, y_type);
+    }
+    else
+    {
+        LOG_FUNC_CALL_INFO("function args: domain=%s, name=%s, x_type=%d, y_type=%d (histogram already exists)",
+            domain->nameA, name, x_type, y_type);
+    }
+
+    __itt_mutex_unlock(&(g_itt_global->mutex));
+
+    return h;
+}
+
 ITT_EXTERN_C void ITTAPI __itt_pause(void)
 {
     LOG_FUNC_CALL_INFO("function call");
@@ -230,7 +422,7 @@ ITT_EXTERN_C void ITTAPI __itt_pause(void)
 
 ITT_EXTERN_C void ITTAPI __itt_pause_scoped(__itt_collection_scope scope)
 {
-    LOG_FUNC_CALL_INFO("functions args: scope=%d", scope);
+    LOG_FUNC_CALL_INFO("function args: scope=%d", scope);
 }
 
 ITT_EXTERN_C void ITTAPI __itt_resume(void)
@@ -240,7 +432,7 @@ ITT_EXTERN_C void ITTAPI __itt_resume(void)
 
 ITT_EXTERN_C void ITTAPI __itt_resume_scoped(__itt_collection_scope scope)
 {
-    LOG_FUNC_CALL_INFO("functions args: scope=%d", scope);
+    LOG_FUNC_CALL_INFO("function args: scope=%d", scope);
 }
 
 ITT_EXTERN_C void ITTAPI __itt_detach(void)
@@ -253,7 +445,7 @@ ITT_EXTERN_C void ITTAPI __itt_frame_begin_v3(const __itt_domain *domain, __itt_
     if (domain != NULL)
     {
         (void)id;
-        LOG_FUNC_CALL_INFO("functions args: domain=%s", domain->nameA);
+        LOG_FUNC_CALL_INFO("function args: domain=%s", domain->nameA);
     }
     else
     {
@@ -266,7 +458,7 @@ ITT_EXTERN_C void ITTAPI __itt_frame_end_v3(const __itt_domain *domain, __itt_id
     if (domain != NULL)
     {
         (void)id;
-        LOG_FUNC_CALL_INFO("functions args: domain=%s", domain->nameA);
+        LOG_FUNC_CALL_INFO("function args: domain=%s", domain->nameA);
     }
     else
     {
@@ -280,7 +472,7 @@ ITT_EXTERN_C void ITTAPI __itt_frame_submit_v3(const __itt_domain *domain, __itt
     if (domain != NULL)
     {
         (void)id;
-        LOG_FUNC_CALL_INFO("functions args: domain=%s, time_begin=%llu, time_end=%llu",
+        LOG_FUNC_CALL_INFO("function args: domain=%s, time_begin=%llu, time_end=%llu",
                         domain->nameA, begin, end);
     }
     else
@@ -296,7 +488,7 @@ ITT_EXTERN_C void ITTAPI __itt_task_begin(
     {
         (void)taskid;
         (void)parentid;
-        LOG_FUNC_CALL_INFO("functions args: domain=%s handle=%s", domain->nameA, name->strA);
+        LOG_FUNC_CALL_INFO("function args: domain=%s handle=%s", domain->nameA, name->strA);
     }
     else
     {
@@ -308,7 +500,7 @@ ITT_EXTERN_C void ITTAPI __itt_task_end(const __itt_domain *domain)
 {
     if (domain != NULL)
     {
-        LOG_FUNC_CALL_INFO("functions args: domain=%s", domain->nameA);
+        LOG_FUNC_CALL_INFO("function args: domain=%s", domain->nameA);
     }
     else
     {
@@ -324,7 +516,7 @@ ITT_EXTERN_C void __itt_metadata_add(const __itt_domain *domain, __itt_id id,
         (void)id;
         (void)key;
         char* metadata_str = get_metadata_elements(count, type, data);
-        LOG_FUNC_CALL_INFO("functions args: domain=%s metadata_size=%lu metadata[]=%s",
+        LOG_FUNC_CALL_INFO("function args: domain=%s metadata_size=%lu metadata[]=%s",
                             domain->nameA, count, metadata_str);
         free(metadata_str);
     }
@@ -348,7 +540,7 @@ ITT_EXTERN_C void __itt_formatted_metadata_add(const __itt_domain *domain, __itt
     char formatted_metadata[LOG_BUFFER_MAX_SIZE];
     vsnprintf(formatted_metadata, LOG_BUFFER_MAX_SIZE, format->strA, args);
 
-    LOG_FUNC_CALL_INFO("functions args: domain=%s formatted_metadata=%s",
+    LOG_FUNC_CALL_INFO("function args: domain=%s formatted_metadata=%s",
                         domain->nameA, formatted_metadata);
 
     va_end(args);
@@ -370,7 +562,7 @@ ITT_EXTERN_C void __itt_histogram_submit(__itt_histogram* hist, size_t length, v
         {
             char* x_data_str = get_metadata_elements(length, hist->x_type, x_data);
             char* y_data_str = get_metadata_elements(length, hist->y_type, y_data);
-            LOG_FUNC_CALL_INFO("functions args: domain=%s name=%s histogram_size=%lu x[]=%s y[]=%s",
+            LOG_FUNC_CALL_INFO("function args: domain=%s name=%s histogram_size=%lu x[]=%s y[]=%s",
                                 hist->domain->nameA, hist->nameA, length, x_data_str, y_data_str);
             free(x_data_str);
             free(y_data_str);
@@ -378,7 +570,7 @@ ITT_EXTERN_C void __itt_histogram_submit(__itt_histogram* hist, size_t length, v
         else
         {
             char* y_data_str = get_metadata_elements(length, hist->y_type, y_data);
-            LOG_FUNC_CALL_INFO("functions args: domain=%s name=%s histogram_size=%lu y[]=%s",
+            LOG_FUNC_CALL_INFO("function args: domain=%s name=%s histogram_size=%lu y[]=%s",
                                 hist->domain->nameA, hist->nameA, length, y_data_str);
             free(y_data_str);
         }
@@ -403,7 +595,7 @@ ITT_EXTERN_C void __itt_bind_context_metadata_to_counter(__itt_counter counter, 
             offset += sprintf(context_metadata+ offset, "%s", context_metadata_element);
             free(context_metadata_element);
         }
-        LOG_FUNC_CALL_INFO("functions args: counter_name=%s context_metadata_size=%lu context_metadata[]=%s",
+        LOG_FUNC_CALL_INFO("function args: counter_name=%s context_metadata_size=%lu context_metadata[]=%s",
                             counter_info->nameA, length, context_metadata);
     }
     else
@@ -418,7 +610,7 @@ ITT_EXTERN_C void __itt_counter_set_value_v3(__itt_counter counter, void* value_
     {
         __itt_counter_info_t* counter_info = (__itt_counter_info_t*)counter;
         uint64_t value = *(uint64_t*)value_ptr;
-        LOG_FUNC_CALL_INFO("functions args: counter_name=%s counter_value=%lu",
+        LOG_FUNC_CALL_INFO("function args: counter_name=%s counter_value=%lu",
                             counter_info->nameA, value);
     }
     else
