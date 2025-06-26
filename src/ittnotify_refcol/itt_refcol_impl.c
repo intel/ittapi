@@ -138,13 +138,13 @@ void log_func_call(uint8_t log_level, const char* function_name, const char* mes
 #define LOG_FUNC_CALL_ERROR(...) log_func_call(LOG_LVL_ERROR, __FUNCTION__, __VA_ARGS__)
 #define LOG_FUNC_CALL_FATAL(...) log_func_call(LOG_LVL_FATAL, __FUNCTION__, __VA_ARGS__)
 
-/* ------------------------------------------------------------------------------ */
-/* The code below is a reference implementation of the
-/* Instrumentation and Tracing Technology API (ITT API) dynamic collector.
-/* This implementation is designed to log ITT API functions calls.
-/* ------------------------------------------------------------------------------ */
+// ----------------------------------------------------------------------------
+// The code below is a reference implementation of the
+// Instrumentation and Tracing Technology API (ITT API) dynamic collector.
+// This implementation is designed to log ITT API functions calls.
+// ----------------------------------------------------------------------------
 
-/* Please remember to call free() after using get_metadata_elements() */
+// Remember to call free() after using get_metadata_elements()
 char* get_metadata_elements(size_t size, __itt_metadata_type type, void* metadata)
 {
     char* metadata_str = malloc(sizeof(char) * LOG_BUFFER_MAX_SIZE);
@@ -193,7 +193,7 @@ char* get_metadata_elements(size_t size, __itt_metadata_type type, void* metadat
     return metadata_str;
 }
 
-/* Please remember to call free() after using get_context_metadata_element() */
+// Remember to call free() after using get_context_metadata_element()
 char* get_context_metadata_element(__itt_context_type type, void* metadata)
 {
     char* metadata_str = malloc(sizeof(char) * LOG_BUFFER_MAX_SIZE/4);
@@ -226,7 +226,7 @@ char* get_context_metadata_element(__itt_context_type type, void* metadata)
     return metadata_str;
 }
 
-/* Call this function to release allocated resources and avoid memory leaks */
+// Call this function to release allocated resources and avoid memory leaks
 void __itt_refcol_release()
 {
     if (g_itt_global == NULL)
