@@ -141,7 +141,7 @@ void log_func_call(uint8_t log_level, const char* function_name, const char* mes
 /* ------------------------------------------------------------------------------ */
 /* The code below is a reference implementation of the
 /* Instrumentation and Tracing Technology API (ITT API) dynamic collector.
-/* This implementation is designed to log ITT API functions calls.*/
+/* This implementation is designed to log ITT API functions calls.
 /* ------------------------------------------------------------------------------ */
 
 /* Please remember to call free() after using get_metadata_elements() */
