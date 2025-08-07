@@ -952,6 +952,7 @@ static void ITTAPI ITT_VERSIONIZE(ITT_JOIN(_N_(bind_context_metadata_to_counter)
         {
             if (PTHREAD_SYMBOLS) __itt_mutex_unlock(&_N_(_ittapi_global).mutex);
             ITTNOTIFY_NAME(bind_context_metadata_to_counter)(counter, length, metadata);
+            return;
         }
         else
         {
