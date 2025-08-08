@@ -1345,14 +1345,12 @@ static void __itt_nullify_all_pointers(void)
 
 static int __itt_is_collector_available(void)
 {
-    int is_available;
-
     ITT_MUTEX_INIT_AND_LOCK(_N_(_ittapi_global));
     if (_N_(_ittapi_global).state == __itt_collection_uninitialized)
     {
         _N_(_ittapi_global).state = (NULL == __itt_get_lib_name()) ? __itt_collection_collector_absent : __itt_collection_collector_exists;
     }
-    is_available = (_N_(_ittapi_global).state == __itt_collection_collector_exists ||
+    int is_available = (_N_(_ittapi_global).state == __itt_collection_collector_exists ||
         _N_(_ittapi_global).state == __itt_collection_init_successful);
     __itt_mutex_unlock(&_N_(_ittapi_global).mutex);
     return is_available;
@@ -1664,13 +1662,12 @@ ITT_EXTERN_C void _N_(mark_pt_region_end)(__itt_pt_region region)
 
 ITT_EXTERN_C __itt_collection_state (_N_(get_collection_state))(void)
 {
-    __itt_collection_state state;
     ITT_MUTEX_INIT_AND_LOCK(_N_(_ittapi_global));
     if (!_N_(_ittapi_global).api_initialized && _N_(_ittapi_global).thread_list == NULL)
     {
         __itt_init_ittlib_name(NULL, __itt_group_all);
     }
-    state = _N_(_ittapi_global).state;
+    __itt_collection_state state = _N_(_ittapi_global).state;
     if (PTHREAD_SYMBOLS) __itt_mutex_unlock(&_N_(_ittapi_global).mutex);
     return state;
 }
