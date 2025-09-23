@@ -84,7 +84,6 @@ void ref_col_init()
 
 void ref_col_release()
 {
-    printf("Releasing ITT API reference collector\n");
     if (g_ref_collector_logger.log_fp)
     {
         fclose(g_ref_collector_logger.log_fp);
