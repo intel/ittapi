@@ -107,7 +107,3 @@ Usage Guidelines
 - Function arguments are processed during the API calls
 - Maximum length of a string argument is 256 symbols
 
-
-.. note::
-
-   The Formatted Metadata API works starting with VTune 2025.7 release.
