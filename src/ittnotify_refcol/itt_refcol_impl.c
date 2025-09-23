@@ -1,3 +1,9 @@
+/*
+  Copyright (C) 2025 Intel Corporation
+
+  SPDX-License-Identifier: GPL-2.0-only OR BSD-3-Clause
+*/
+
 #include <stdio.h>
 #include <stdarg.h>
 #include <stdlib.h>
