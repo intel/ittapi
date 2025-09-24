@@ -1,0 +1,333 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Histogram API &mdash; ITT/JIT APIs Documentation  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+
+  
+    <link rel="canonical" href="https://intel.github.io/ittapi/src/ittapi/histogram-api.html" />
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Load Module API" href="load-module-api.html" />
+    <link rel="prev" title="Frame API" href="frame-api.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            ITT/JIT APIs Documentation
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../build.html">Build from Source Code</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../api-support.html">Use the ITT/JIT APIs</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../api-support.html#c-c-api-usage-and-reference">C/C++ API Usage and Reference:</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="../itt-api-support.html">Instrumentation and Tracing Technology (ITT) API</a><ul class="current">
+<li class="toctree-l4 current"><a class="reference internal" href="../itt-api-support.html#itt-api-usage-and-reference">ITT API Usage and Reference</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../jit-api-support.html">Just-In-Time (JIT) API</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../api-support.html#other-language-api-bindings">Other Language API Bindings:</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../ref_collector.html">ITT API Reference Collector</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/intel/ittapi">GitHub Project</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">ITT/JIT APIs Documentation</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content style-external-links">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../api-support.html">Use the ITT/JIT APIs</a></li>
+          <li class="breadcrumb-item"><a href="../itt-api-support.html">Instrumentation and Tracing Technology (ITT) API</a></li>
+          <li class="breadcrumb-item"><a href="../itt-api-reference.html">ITT API Reference</a></li>
+      <li class="breadcrumb-item active">Histogram API</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/src/ittapi/histogram-api.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="histogram-api">
+<span id="id1"></span><h1>Histogram API<a class="headerlink" href="#histogram-api" title="Link to this heading"></a></h1>
+<p>Use the Histogram API to define histograms that display arbitrary data
+in Intel® VTune™ Profiler.</p>
+<p>Histograms are particularly useful to display statistics that can be
+split by individual units for cross-comparison.</p>
+<p>You can use the Histogram API to:</p>
+<ul class="simple">
+<li><p>Track load distribution</p></li>
+<li><p>Track resource utilization</p></li>
+<li><p>Identify oversubscribed or underutilized worker nodes</p></li>
+</ul>
+<p>Any thread in the process can access any instance of a histogram, regardless
+of the thread that created it. The Histogram API call is thread-safe.</p>
+<section id="define-and-create-a-histogram">
+<h2>Define and Create a Histogram<a class="headerlink" href="#define-and-create-a-histogram" title="Link to this heading"></a></h2>
+<p>Before you create a histogram, you must create an <a class="reference external" href="domain-api.html">ITT API Domain</a> . The pointer to this domain is then passed
+to the primitive.</p>
+<p>In the result display in VTune Profiler, the domain name provides a heading
+for the histogram section in the <strong>Summary</strong> tab.</p>
+<p>One domain can combine any number of histograms. However, the name of
+the histogram must be unique within the same domain.</p>
+<p><strong>Parameters of the primitives:</strong></p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Type</p></th>
+<th class="head"><p>Parameter</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>[in]</p></td>
+<td><div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">domain</span>
+</pre></div>
+</div>
+</td>
+<td><p>Domain controlling the call</p></td>
+</tr>
+<tr class="row-odd"><td><p>[in]</p></td>
+<td><div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">name</span>
+</pre></div>
+</div>
+</td>
+<td><p>Histogram name</p></td>
+</tr>
+<tr class="row-even"><td><p>[in]</p></td>
+<td><div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">x_axis_type</span>
+</pre></div>
+</div>
+</td>
+<td><p>Type of X axis data</p></td>
+</tr>
+<tr class="row-odd"><td><p>[in]</p></td>
+<td><div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">y_axis_type</span>
+</pre></div>
+</div>
+</td>
+<td><p>Type of Y axis data</p></td>
+</tr>
+</tbody>
+</table>
+<div class="fignone docutils container" id="guid-788ceba6-9355-4e6d-adf7-9ed7bd8441a1">
+<p><a class="reference internal" href="../../_images/histogram-api-schema.png"><img alt="image1" src="../../_images/histogram-api-schema.png" style="width: 600px;" /></a></p>
+</div>
+<p><strong>Primitives:</strong></p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Use This Primitive</p></th>
+<th class="head"><p>To Do This</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">__itt_histogram</span><span class="o">*</span><span class="w"> </span><span class="nf">_itt_histogram_create</span><span class="p">(</span>
+<span class="w">    </span><span class="n">__itt_domain</span><span class="o">*</span><span class="w"> </span><span class="n">domain</span><span class="p">,</span>
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">name</span><span class="p">,</span>
+<span class="w">    </span><span class="n">__itt_metadata_type</span><span class="w"> </span><span class="n">x_axis_type</span><span class="p">,</span>
+<span class="w">    </span><span class="n">__itt_metadata_type</span><span class="w"> </span><span class="n">y_axis_type</span><span class="p">);</span>
+</pre></div>
+</div>
+</td>
+<td><p>Create a histogram instance with the specified domain, name, and data
+type on Linux* and Android* OS.</p></td>
+</tr>
+<tr class="row-odd"><td><div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">__itt_histogram</span><span class="o">*</span><span class="w"> </span><span class="nf">_itt_histogram_createA</span><span class="p">(</span>
+<span class="w">    </span><span class="n">__itt_domain</span><span class="o">*</span><span class="w"> </span><span class="n">domain</span><span class="p">,</span>
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">name</span><span class="p">,</span>
+<span class="w">    </span><span class="n">__itt_metadata_type</span><span class="w"> </span><span class="n">x_axis_type</span><span class="p">,</span>
+<span class="w">    </span><span class="n">__itt_metadata_type</span><span class="w"> </span><span class="n">y_axis_type</span><span class="p">);</span>
+</pre></div>
+</div>
+</td>
+<td><p>Create a histogram instance with the specified domain, name, and data
+type on Windows* OS for ASCII strings (char).</p></td>
+</tr>
+<tr class="row-even"><td><div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">__itt_histogram</span><span class="o">*</span><span class="w"> </span><span class="nf">_itt_histogram_createW</span><span class="p">(</span>
+<span class="w">    </span><span class="n">__itt_domain</span><span class="o">*</span><span class="w"> </span><span class="n">domain</span><span class="p">,</span>
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="kt">wchar_t</span><span class="o">*</span><span class="w"> </span><span class="n">name</span><span class="p">,</span>
+<span class="w">    </span><span class="n">__itt_metadata_type</span><span class="w"> </span><span class="n">x_axis_type</span><span class="p">,</span>
+<span class="w">    </span><span class="n">__itt_metadata_type</span><span class="w"> </span><span class="n">y_axis_type</span><span class="p">);</span>
+</pre></div>
+</div>
+</td>
+<td><p>Create a histogram instance with the specified domain, name, and data
+type on Windows* OS for UNICODE strings (wchar_t).</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="submit-data-to-histogram">
+<h2>Submit Data to Histogram<a class="headerlink" href="#submit-data-to-histogram" title="Link to this heading"></a></h2>
+<p><strong>Parameters of the primitives:</strong></p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Type</p></th>
+<th class="head"><p>Parameter</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>[in]</p></td>
+<td><div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">histogram</span>
+</pre></div>
+</div>
+</td>
+<td><p>Histogram instance to submit data to</p></td>
+</tr>
+<tr class="row-odd"><td><p>[in]</p></td>
+<td><div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">length</span>
+</pre></div>
+</div>
+</td>
+<td><p>Number of elements in submitted axis data array</p></td>
+</tr>
+<tr class="row-even"><td><p>[in]</p></td>
+<td><div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">x_axis_data</span>
+</pre></div>
+</div>
+</td>
+<td><p>Array containing X axis data (may be <code class="docutils literal notranslate"><span class="pre">NULL</span></code>).
+If <code class="docutils literal notranslate"><span class="pre">x_axis_data</span></code> is <code class="docutils literal notranslate"><span class="pre">NULL</span></code>, VTune Profiler
+uses the indices of the <code class="docutils literal notranslate"><span class="pre">y_axis_data</span></code> array.</p></td>
+</tr>
+<tr class="row-odd"><td><p>[in]</p></td>
+<td><div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">y_axis_data</span>
+</pre></div>
+</div>
+</td>
+<td><p>Array containing Y axis data.</p></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Primitives:</strong></p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Use This Primitive</p></th>
+<th class="head"><p>To Do This</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">_itt_histogram_submit</span><span class="p">(</span>
+<span class="w">    </span><span class="n">__itt_histogram</span><span class="o">*</span><span class="w"> </span><span class="n">histogram</span><span class="p">,</span>
+<span class="w">    </span><span class="kt">size_t</span><span class="w"> </span><span class="n">length</span><span class="p">,</span>
+<span class="w">    </span><span class="kt">void</span><span class="o">*</span><span class="w"> </span><span class="n">x_axis_data</span><span class="p">,</span>
+<span class="w">    </span><span class="kt">void</span><span class="o">*</span><span class="w"> </span><span class="n">y_axis_data</span><span class="p">);</span>
+</pre></div>
+</div>
+</td>
+<td><p>Submit user statistics for the selected instance of the histogram.
+Just like the coordinates of a point on a 2D plane, the array
+data for the Y-axis is mapped to the array data for the X-axis.
+Data submitted during a workload run is summarized into one common
+histogram for all calls of this primitive. To lower collection overhead,
+determine an efficient interval between data submissions.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="usage-example">
+<h2>Usage Example<a class="headerlink" href="#usage-example" title="Link to this heading"></a></h2>
+<p>The following example creates a histogram to store worker thread
+statistics:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;ittnotify.h&quot;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;ittnotify_types.h&quot;</span>
+
+
+<span class="kt">void</span><span class="w"> </span><span class="nf">submit_stats</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="c1">// Create domain</span>
+<span class="w">    </span><span class="n">__itt_domain</span><span class="o">*</span><span class="w"> </span><span class="n">domain</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">__itt_domain_create</span><span class="p">(</span><span class="s">&quot;Histogram statistics domain&quot;</span><span class="p">);</span>
+
+
+<span class="w">    </span><span class="c1">// Create histogram</span>
+<span class="w">    </span><span class="n">__itt_histogram</span><span class="o">*</span><span class="w"> </span><span class="n">histogram</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">__itt_histogram_create</span><span class="p">(</span><span class="n">domain</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Worker TID 13454&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">__itt_metadata_u64</span><span class="p">,</span><span class="w"> </span><span class="n">__itt_metadata_u64</span><span class="p">);</span>
+
+
+<span class="w">    </span><span class="c1">// Fill the statistics arrays with profiling data:</span>
+<span class="w">    </span><span class="kt">uint64_t</span><span class="o">*</span><span class="w"> </span><span class="n">x_stats</span><span class="p">,</span><span class="w"> </span><span class="n">y_stats</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">size_t</span><span class="w"> </span><span class="n">array_size</span><span class="p">;</span>
+<span class="w">    </span><span class="n">get_worker_stats</span><span class="p">(</span><span class="n">x_stats</span><span class="p">,</span><span class="w"> </span><span class="n">y_stats</span><span class="p">,</span><span class="w"> </span><span class="n">array_size</span><span class="p">);</span>
+
+
+<span class="w">    </span><span class="c1">// Submit histogram statistics:</span>
+<span class="w">    </span><span class="n">__itt_histogram_submit</span><span class="p">(</span><span class="n">histogram</span><span class="p">,</span><span class="w"> </span><span class="n">array_size</span><span class="p">,</span><span class="w"> </span><span class="n">x_stats</span><span class="p">,</span><span class="w"> </span><span class="n">y_stats</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="frame-api.html" class="btn btn-neutral float-left" title="Frame API" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="load-module-api.html" class="btn btn-neutral float-right" title="Load Module API" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025 Intel Corporation.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
