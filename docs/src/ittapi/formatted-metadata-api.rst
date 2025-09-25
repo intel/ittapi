@@ -43,7 +43,7 @@ API Functions
 
 
 Metadata Visualization and Analysis
---------------------------------------------
+-----------------------------------
 
 Formatted metadata provides several benefits for visualization and analysis in Intel® VTune™ Profiler:
 
