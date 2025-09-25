@@ -1,3 +1,9 @@
+/*
+  Copyright (C) 2025 Intel Corporation
+
+  SPDX-License-Identifier: GPL-2.0-only OR BSD-3-Clause
+*/
+
 #include <stdio.h>
 #include <stdarg.h>
 #include <stdlib.h>
@@ -22,7 +28,7 @@ enum {
 };
 
 static struct ref_collector_logger {
-    char* file_name;
+    FILE* log_fp;
     uint8_t init_state;
 } g_ref_collector_logger = {NULL, 0};
 
@@ -71,9 +77,71 @@ void ref_col_init()
         }
         free(log_file);
 
-        g_ref_collector_logger.file_name = file_name_buffer;
+        g_ref_collector_logger.log_fp = fopen(file_name_buffer, "a");
+        if (!g_ref_collector_logger.log_fp)
+        {
+            printf("ERROR: Cannot open log file: %s\n", file_name_buffer);
+            return;
+        }
+
         g_ref_collector_logger.init_state = 1;
     }
+}
+
+void ref_col_release()
+{
+    if (g_ref_collector_logger.log_fp)
+    {
+        fclose(g_ref_collector_logger.log_fp);
+        g_ref_collector_logger.log_fp = NULL;
+    }
+
+    if (g_itt_global == NULL) return;
+
+    __itt_mutex_lock(&(g_itt_global->mutex));
+
+    __itt_domain *d = g_itt_global->domain_list;
+    while (d)
+    {
+        __itt_domain *next = d->next;
+        if (d->nameA) free((char*)d->nameA);
+        free(d);
+        d = next;
+    }
+    g_itt_global->domain_list = NULL;
+
+    __itt_string_handle *s = g_itt_global->string_list;
+    while (s)
+    {
+        __itt_string_handle *next = s->next;
+        if (s->strA) free((char*)s->strA);
+        free(s);
+        s = next;
+    }
+    g_itt_global->string_list = NULL;
+
+    __itt_counter_info_t *c = g_itt_global->counter_list;
+    while (c)
+    {
+        __itt_counter_info_t *next = c->next;
+        if (c->nameA) free((char*)c->nameA);
+        if (c->domainA) free((char*)c->domainA);
+        free(c);
+        c = next;
+    }
+    g_itt_global->counter_list = NULL;
+
+    __itt_histogram *h = g_itt_global->histogram_list;
+    while (h)
+    {
+        __itt_histogram *next = h->next;
+        if (h->nameA) free((char*)h->nameA);
+        free(h);
+        h = next;
+    }
+    g_itt_global->histogram_list = NULL;
+
+    __itt_mutex_unlock(&(g_itt_global->mutex));
 }
 
 static void fill_func_ptr_per_lib(__itt_global* p)
@@ -98,6 +166,7 @@ ITT_EXTERN_C void ITTAPI __itt_api_init(__itt_global* p, __itt_group_id init_gro
         fill_func_ptr_per_lib(p);
         ref_col_init();
         g_itt_global = p;
+        atexit(ref_col_release);
     }
     else
     {
@@ -107,30 +176,22 @@ ITT_EXTERN_C void ITTAPI __itt_api_init(__itt_global* p, __itt_group_id init_gro
 
 void log_func_call(uint8_t log_level, const char* function_name, const char* message_format, ...)
 {
-    if (g_ref_collector_logger.init_state)
+    if (!g_ref_collector_logger.init_state || !g_ref_collector_logger.log_fp)
     {
-        FILE * pLogFile = NULL;
-        char log_buffer[LOG_BUFFER_MAX_SIZE];
-        uint32_t result_len = 0;
-        va_list message_args;
-
-        result_len += sprintf(log_buffer, "[%s] %s(...) - ", log_level_str[log_level] ,function_name);
-        va_start(message_args, message_format);
-        vsnprintf(log_buffer + result_len, LOG_BUFFER_MAX_SIZE - result_len, message_format, message_args);
-
-        pLogFile = fopen(g_ref_collector_logger.file_name, "a");
-        if (!pLogFile)
-        {
-            printf("ERROR: Cannot open file: %s\n", g_ref_collector_logger.file_name);
-            return;
-        }
-        fprintf(pLogFile, "%s\n", log_buffer);
-        fclose(pLogFile);
-    }
-    else
-    {
+        printf("ERROR: Failed to log function call\n");
         return;
     }
+
+    char log_buffer[LOG_BUFFER_MAX_SIZE];
+    uint32_t result_len = 0;
+    va_list message_args;
+
+    result_len += sprintf(log_buffer, "[%s] %s(...) - ", log_level_str[log_level] ,function_name);
+    va_start(message_args, message_format);
+    vsnprintf(log_buffer + result_len, LOG_BUFFER_MAX_SIZE - result_len, message_format, message_args);
+    va_end(message_args);
+
+    fprintf(g_ref_collector_logger.log_fp, "%s\n", log_buffer);
 }
 
 #define LOG_FUNC_CALL_INFO(...)  log_func_call(LOG_LVL_INFO, __FUNCTION__, __VA_ARGS__)
@@ -224,58 +285,6 @@ char* get_context_metadata_element(__itt_context_type type, void* metadata)
     }
 
     return metadata_str;
-}
-
-// Call this function to release allocated resources and avoid memory leaks
-void __itt_refcol_release()
-{
-    if (g_itt_global == NULL)
-        return;
-
-    __itt_mutex_lock(&(g_itt_global->mutex));
-
-    __itt_domain *d = g_itt_global->domain_list;
-    while (d)
-    {
-        __itt_domain *next = d->next;
-        if (d->nameA) free((char*)d->nameA);
-        free(d);
-        d = next;
-    }
-    g_itt_global->domain_list = NULL;
-
-    __itt_string_handle *s = g_itt_global->string_list;
-    while (s)
-    {
-        __itt_string_handle *next = s->next;
-        if (s->strA) free((char*)s->strA);
-        free(s);
-        s = next;
-    }
-    g_itt_global->string_list = NULL;
-
-    __itt_counter_info_t *c = g_itt_global->counter_list;
-    while (c)
-    {
-        __itt_counter_info_t *next = c->next;
-        if (c->nameA) free((char*)c->nameA);
-        if (c->domainA) free((char*)c->domainA);
-        free(c);
-        c = next;
-    }
-    g_itt_global->counter_list = NULL;
-
-    __itt_histogram *h = g_itt_global->histogram_list;
-    while (h)
-    {
-        __itt_histogram *next = h->next;
-        if (h->nameA) free((char*)h->nameA);
-        free(h);
-        h = next;
-    }
-    g_itt_global->histogram_list = NULL;
-
-    __itt_mutex_unlock(&(g_itt_global->mutex));
 }
 
 ITT_EXTERN_C __itt_domain* ITTAPI __itt_domain_create(const char *name)

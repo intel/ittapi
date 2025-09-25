@@ -60,7 +60,7 @@ these domains to control the level of detail that is written to the trace file.
      __itt_domain* detailed = __itt_domain_create(L"MyFunction.Detailed");
 
      // Create string handles at global scope.
-     __itt_string_handle* h_my_funcion = __itt_string_handle_create(L"MyFunction");
+     __itt_string_handle* h_my_function = __itt_string_handle_create(L"MyFunction");
      void MyFunction(int arg)
      {
          __itt_task_begin(basic, __itt_null, __itt_null, h_my_function);
