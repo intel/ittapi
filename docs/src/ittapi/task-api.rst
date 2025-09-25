@@ -21,6 +21,10 @@ A task instance represents a piece of work performed by a particular
 thread for a period of time. The task is defined by the bracketing of
 ``__itt_task_begin()`` and ``__itt_task_end()`` on the same thread.
 
+You can enhance task representation by adding formatted metadata to tasks using
+the `Formatted Metadata API <formatted-metadata-api.html>`__. This allows you to attach contextual
+information with printf-style formatting that appears in VTune analysis views.
+
 
 Tasks can be simple or overlapped.
 

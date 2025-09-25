@@ -13,6 +13,7 @@ ITT API Reference
    ittapi/counter-api
    ittapi/domain-api
    ittapi/event-api
+   ittapi/formatted-metadata-api
    ittapi/frame-api
    ittapi/histogram-api
    ittapi/load-module-api
