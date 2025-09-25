@@ -21,6 +21,15 @@ API Functions
                                     __itt_string_handle *format_handle,
                                     ...);
 
+**To add formatted metadata to an overlapped task, use the following primitive:**
+
+.. code-block:: cpp
+
+   void __itt_formatted_metadata_add_overlapped(const __itt_domain *domain,
+                                               __itt_id taskid,
+                                               __itt_string_handle *format_handle,
+                                               ...);
+
 
 **Parameters of the primitive:**
 
@@ -30,6 +39,10 @@ API Functions
 | [in]   | .. code-block:: cpp          | Metadata domain                                    |
 |        |                              |                                                    |
 |        |    __itt_domain* domain      |                                                    |
++--------+------------------------------+----------------------------------------------------+
+| [in]   | .. code-block:: cpp          | Task ID (required for overlapped variant only)     |
+|        |                              |                                                    |
+|        |    __itt_id taskid           |                                                    |
 +--------+------------------------------+----------------------------------------------------+
 | [in]   | .. code-block:: cpp          | String handle containing the format string with    |
 |        |                              | printf-style format specifiers                     |
@@ -55,6 +68,19 @@ Formatted metadata provides several benefits for visualization and analysis in I
   characteristics across different execution contexts.
 - **Square bracket notation for format specifiers**: When you include format specifiers in square brackets
   (e.g., ``[%s]``) within your format string, VTune treats these as special grouping identifiers.
+
+
+Usage Guidelines
+----------------
+
+- **Supported format specifiers:** ``%s``, ``%ls``, ``%d``, ``%u``, ``%hd``, ``%hu``, ``%ld``, ``%lu``, ``%lld``, ``%llu``, ``%f``, ``%lf``
+- **Regular tasks:** Use ``__itt_formatted_metadata_add`` for metadata associated with the currently running task
+- **Overlapped tasks:** Use ``__itt_formatted_metadata_add_overlapped`` with a specific task ID for overlapped task instances
+- **Limit to one metadata call per task** - making multiple calls to ``__itt_formatted_metadata_add`` for the same task may result in incorrect processing
+- For optimal performance, limit the frequency and size of metadata additions
+- Format specifiers in square brackets (e.g., ``[%s]``) create additional grouping options in VTune analysis views
+- Function arguments are processed during the API calls
+- Maximum length of a string argument is 256 symbols
 
 
 Usage Example
@@ -94,16 +120,4 @@ Usage Example
        process_file("image.jpg");
        return 0;
    }
-
-
-Usage Guidelines
-----------------
-
-- Format strings support standard printf-style format specifiers (``%s``, ``%d``, ``%f``, etc.)
-- Metadata is associated with the currently running task at the time of the API call
-- **Limit to one metadata call per task** - making multiple calls to ``__itt_formatted_metadata_add`` for the same task may result in incorrect processing
-- For optimal performance, limit the frequency and size of metadata additions
-- Format specifiers in square brackets (e.g., ``[%s]``) create additional grouping options in VTune analysis views
-- Function arguments are processed during the API calls
-- Maximum length of a string argument is 256 symbols
 
