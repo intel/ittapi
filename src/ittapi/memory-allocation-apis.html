@@ -1,0 +1,330 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Memory Allocation APIs &mdash; ITT/JIT APIs Documentation  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+
+  
+    <link rel="canonical" href="https://intel.github.io/ittapi/src/ittapi/memory-allocation-apis.html" />
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Metadata API" href="metadata-api.html" />
+    <link rel="prev" title="Marker API" href="marker-api.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            ITT/JIT APIs Documentation
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../build.html">Build from Source Code</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../api-support.html">Use the ITT/JIT APIs</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../api-support.html#c-c-api-usage-and-reference">C/C++ API Usage and Reference:</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="../itt-api-support.html">Instrumentation and Tracing Technology (ITT) API</a><ul class="current">
+<li class="toctree-l4 current"><a class="reference internal" href="../itt-api-support.html#itt-api-usage-and-reference">ITT API Usage and Reference</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../jit-api-support.html">Just-In-Time (JIT) API</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../api-support.html#other-language-api-bindings">Other Language API Bindings:</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../ref_collector.html">ITT API Reference Collector</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/intel/ittapi">GitHub Project</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">ITT/JIT APIs Documentation</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content style-external-links">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../api-support.html">Use the ITT/JIT APIs</a></li>
+          <li class="breadcrumb-item"><a href="../itt-api-support.html">Instrumentation and Tracing Technology (ITT) API</a></li>
+          <li class="breadcrumb-item"><a href="../itt-api-reference.html">ITT API Reference</a></li>
+      <li class="breadcrumb-item active">Memory Allocation APIs</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/src/ittapi/memory-allocation-apis.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="memory-allocation-apis">
+<span id="id1"></span><h1>Memory Allocation APIs<a class="headerlink" href="#memory-allocation-apis" title="Link to this heading"></a></h1>
+<p>Intel® VTune™ Profiler contains a set of APIs that help identify the
+semantics of your <code class="docutils literal notranslate"><span class="pre">malloc</span></code>-like heap management functions.</p>
+<p>Annotating your code with these APIs enables VTune Profiler to correctly
+determine memory objects as part of the <strong>Memory Access Analysis</strong>.</p>
+<section id="usage-guidelines">
+<h2>Usage Guidelines<a class="headerlink" href="#usage-guidelines" title="Link to this heading"></a></h2>
+<p>When using the Memory Allocation APIs, follow these guidelines:</p>
+<ul class="simple">
+<li><p>Create <em>wrapper</em> functions for your routines. Put <code class="docutils literal notranslate"><span class="pre">__itt_heap_*_begin</span></code>
+and <code class="docutils literal notranslate"><span class="pre">__itt_heap_*_end</span></code> calls in these functions.</p></li>
+<li><p>When your application calls <code class="docutils literal notranslate"><span class="pre">__itt_heap_function_create</span></code>, allocate a
+unique domain for each pair of allocate/free functions. This enables
+VTune Profiler to verify that a matching free function gets called for
+every allocate function call.</p></li>
+<li><p>Annotate the beginning and end of every allocate function and free
+function.</p></li>
+<li><p>Call all function pairs from the same stack frame. Otherwise,
+VTune Profiler assumes that an exception occurred, and that the allocation
+attempt failed.</p></li>
+<li><p>Do not call an end function without calling the matching begin
+function first.</p></li>
+</ul>
+</section>
+<section id="using-memory-allocation-apis-in-your-code">
+<h2>Using Memory Allocation APIs in Your Code<a class="headerlink" href="#using-memory-allocation-apis-in-your-code" title="Link to this heading"></a></h2>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Use This</p></th>
+<th class="head"><p>To Do This</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">typedef</span><span class="w"> </span><span class="kt">void</span><span class="o">*</span>
+<span class="n">__itt_heap_function</span><span class="p">;</span>
+
+<span class="n">__itt_heap_function</span>
+<span class="nf">__itt_heap_function_create</span><span class="p">(</span>
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">__itt_char</span><span class="o">*</span><span class="w"> </span><span class="o">&lt;</span><span class="n">name</span><span class="o">&gt;</span><span class="p">,</span>
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">__itt_char</span><span class="o">*</span><span class="w"> </span><span class="o">&lt;</span><span class="n">domain</span><span class="o">&gt;</span>
+<span class="p">);</span>
+</pre></div>
+</div>
+</td>
+<td><p>Declare a handle type to match begin and end calls and domains.</p>
+<p>name = Name of the function you want to annotate.
+domain = String identifying a matching set of functions.</p>
+<p>For example, if there are three functions that all work with
+my_struct, such as alloc_my_structs, free_my_structs, and
+realloc_my_structs, pass the same domain to all three
+__itt_heap_function_create() calls.</p>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span>
+<span class="nf">__itt_heap_allocate_begin</span><span class="p">(</span>
+<span class="w">    </span><span class="n">__itt_heap_function</span><span class="w"> </span><span class="o">&lt;</span><span class="n">h</span><span class="o">&gt;</span><span class="p">,</span>
+<span class="w">    </span><span class="kt">size_t</span><span class="w"> </span><span class="o">&lt;</span><span class="n">size</span><span class="o">&gt;</span><span class="p">,</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="o">&lt;</span><span class="n">initialized</span><span class="o">&gt;</span>
+<span class="p">);</span>
+
+<span class="kt">void</span>
+<span class="nf">__itt_heap_allocate_end</span><span class="p">(</span>
+<span class="w">    </span><span class="n">__itt_heap_function</span><span class="w"> </span><span class="o">&lt;</span><span class="n">h</span><span class="o">&gt;</span><span class="p">,</span>
+<span class="w">    </span><span class="kt">void</span><span class="o">**</span><span class="p">,</span>
+<span class="w">    </span><span class="kt">size_t</span><span class="w"> </span><span class="o">&lt;</span><span class="n">size</span><span class="o">&gt;</span><span class="p">,</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="o">&lt;</span><span class="n">initialized</span><span class="o">&gt;</span>
+<span class="p">);</span>
+</pre></div>
+</div>
+</td>
+<td><p>Identify allocation functions.</p>
+<p>h = Handle returned when this function’s name was passed
+to __itt_heap_function_create().</p>
+<p>size = Size in bytes of the requested memory region.</p>
+<p>initialized = Flag indicating if the memory region will be
+initialized by this routine.</p>
+<p>addr = Pointer to the address of the memory region this
+function has allocated, or 0 if the allocation failed.</p>
+</td>
+</tr>
+<tr class="row-even"><td><div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span>
+<span class="nf">__itt_heap_free_begin</span><span class="p">(</span>
+<span class="w">    </span><span class="n">__itt_heap_function</span><span class="w"> </span><span class="o">&lt;</span><span class="n">h</span><span class="o">&gt;</span><span class="p">,</span>
+<span class="w">    </span><span class="kt">void</span><span class="o">*</span>
+<span class="p">);</span>
+
+<span class="kt">void</span>
+<span class="nf">__itt_heap_free_end</span><span class="p">(</span>
+<span class="w">    </span><span class="n">__itt_heap_function</span><span class="w"> </span><span class="o">&lt;</span><span class="n">h</span><span class="o">&gt;</span><span class="p">,</span>
+<span class="w">    </span><span class="kt">void</span><span class="o">*</span>
+<span class="p">);</span>
+</pre></div>
+</div>
+</td>
+<td><p>Identify deallocation functions.</p>
+<p>h = Handle returned when this function’s name was passed
+to __itt_heap_function_create().</p>
+<p>addr = Pointer to the address of the memory region this
+function is deallocating.</p>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span>
+<span class="nf">__itt_heap_reallocate_begin</span><span class="p">(</span>
+<span class="w">    </span><span class="n">__itt_heap_function</span><span class="w"> </span><span class="o">&lt;</span><span class="n">h</span><span class="o">&gt;</span><span class="p">,</span>
+<span class="w">    </span><span class="kt">void</span><span class="o">*</span><span class="p">,</span>
+<span class="w">    </span><span class="kt">size_t</span><span class="w"> </span><span class="o">&lt;</span><span class="n">new_size</span><span class="o">&gt;</span><span class="p">,</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="o">&lt;</span><span class="n">initialized</span><span class="o">&gt;</span>
+<span class="p">);</span>
+
+<span class="kt">void</span>
+<span class="nf">__itt_heap_reallocate_end</span><span class="p">(</span>
+<span class="w">    </span><span class="n">__itt_heap_function</span><span class="w"> </span><span class="o">&lt;</span><span class="n">h</span><span class="o">&gt;</span><span class="p">,</span>
+<span class="w">    </span><span class="kt">void</span><span class="o">*</span><span class="p">,</span>
+<span class="w">    </span><span class="kt">void</span><span class="o">**</span><span class="w"> </span><span class="o">&lt;</span><span class="n">new_addr</span><span class="o">&gt;</span><span class="p">,</span>
+<span class="w">    </span><span class="kt">size_t</span><span class="w"> </span><span class="o">&lt;</span><span class="n">new_size</span><span class="o">&gt;</span><span class="p">,</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="o">&lt;</span><span class="n">initialized</span><span class="o">&gt;</span>
+<span class="p">);</span>
+</pre></div>
+</div>
+</td>
+<td><p>Identify reallocation functions.</p>
+<p>Note that itt_heap_reallocate_end() must be called after
+the attempt even if no memory is returned. VTune Profiler
+assumes C-runtime realloc semantics.</p>
+<p>h = Handle returned when this function’s name was passed
+to __itt_heap_function_create().</p>
+<p>addr = Pointer to the address of the memory region this
+function is reallocating. If addr is NULL, the VTune Profiler
+treats this as if it is an allocation.</p>
+<p>new_addr = Pointer to a pointer to hold the address of the
+reallocated memory region.</p>
+<p>size = Size in bytes of the requested memory region. If
+new_size is 0, the VTune Profiler treats this as if it is
+a deallocation.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="usage-example-heap-allocation">
+<h2>Usage Example: Heap Allocation<a class="headerlink" href="#usage-example-heap-allocation" title="Link to this heading"></a></h2>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;ittnotify.h&gt;</span>
+
+
+<span class="kt">void</span><span class="o">*</span><span class="w"> </span><span class="nf">user_defined_malloc</span><span class="p">(</span><span class="kt">size_t</span><span class="w"> </span><span class="n">size</span><span class="p">);</span>
+<span class="kt">void</span><span class="w"> </span><span class="nf">user_defined_free</span><span class="p">(</span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">p</span><span class="p">);</span>
+<span class="kt">void</span><span class="o">*</span><span class="w"> </span><span class="nf">user_defined_realloc</span><span class="p">(</span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">p</span><span class="p">,</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">s</span><span class="p">);</span>
+
+
+<span class="n">__itt_heap_function</span><span class="w"> </span><span class="n">my_allocator</span><span class="p">;</span>
+<span class="n">__itt_heap_function</span><span class="w"> </span><span class="n">my_reallocator</span><span class="p">;</span>
+<span class="n">__itt_heap_function</span><span class="w"> </span><span class="n">my_freer</span><span class="p">;</span>
+
+
+<span class="kt">void</span><span class="o">*</span><span class="w"> </span><span class="nf">my_malloc</span><span class="p">(</span><span class="kt">size_t</span><span class="w"> </span><span class="n">s</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="kt">void</span><span class="o">*</span><span class="w"> </span><span class="n">p</span><span class="p">;</span>
+
+
+<span class="w">    </span><span class="n">__itt_heap_allocate_begin</span><span class="p">(</span><span class="n">my_allocator</span><span class="p">,</span><span class="w"> </span><span class="n">s</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span>
+<span class="w">    </span><span class="n">p</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">user_defined_malloc</span><span class="p">(</span><span class="n">s</span><span class="p">);</span>
+<span class="w">    </span><span class="n">__itt_heap_allocate_end</span><span class="p">(</span><span class="n">my_allocator</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">p</span><span class="p">,</span><span class="w"> </span><span class="n">s</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span>
+
+
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">p</span><span class="p">;</span>
+<span class="p">}</span>
+
+
+
+
+<span class="kt">void</span><span class="w"> </span><span class="nf">my_free</span><span class="p">(</span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">p</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">__itt_heap_free_begin</span><span class="w"> </span><span class="p">(</span><span class="n">my_freer</span><span class="p">,</span><span class="w"> </span><span class="n">p</span><span class="p">);</span>
+<span class="w">    </span><span class="n">user_defined_free</span><span class="p">(</span><span class="n">p</span><span class="p">);</span>
+<span class="w">    </span><span class="n">__itt_heap_free_end</span><span class="w"> </span><span class="p">(</span><span class="n">my_freer</span><span class="p">,</span><span class="w"> </span><span class="n">p</span><span class="p">);</span>
+<span class="p">}</span>
+
+
+<span class="kt">void</span><span class="o">*</span><span class="w"> </span><span class="nf">my_realloc</span><span class="p">(</span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">p</span><span class="p">,</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">s</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">np</span><span class="p">;</span>
+
+
+<span class="w">    </span><span class="n">__itt_heap_reallocate_begin</span><span class="w"> </span><span class="p">(</span><span class="n">my_reallocator</span><span class="p">,</span><span class="w"> </span><span class="n">p</span><span class="p">,</span><span class="w"> </span><span class="n">s</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span>
+<span class="w">    </span><span class="n">np</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">user_defined_realloc</span><span class="p">(</span><span class="n">p</span><span class="p">,</span><span class="w"> </span><span class="n">s</span><span class="p">);</span>
+<span class="w">    </span><span class="n">__itt_heap_reallocate_end</span><span class="p">(</span><span class="n">my_reallocator</span><span class="p">,</span><span class="w"> </span><span class="n">p</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">np</span><span class="p">,</span><span class="w"> </span><span class="n">s</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span>
+
+
+<span class="w">    </span><span class="k">return</span><span class="p">(</span><span class="n">np</span><span class="p">);</span>
+<span class="p">}</span>
+
+
+<span class="c1">// Make sure to call this init routine before any calls to</span>
+<span class="c1">// user defined allocators.</span>
+<span class="kt">void</span><span class="w"> </span><span class="nf">init_itt_calls</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">my_allocator</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">__itt_heap_function_create</span><span class="p">(</span><span class="s">&quot;my_malloc&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;mydomain&quot;</span><span class="p">);</span>
+<span class="w">    </span><span class="n">my_reallocator</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">__itt_heap_function_create</span><span class="p">(</span><span class="s">&quot;my_realloc&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;mydomain&quot;</span><span class="p">);</span>
+<span class="w">    </span><span class="n">my_freer</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">__itt_heap_function_create</span><span class="p">(</span><span class="s">&quot;my_free&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;mydomain&quot;</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="marker-api.html" class="btn btn-neutral float-left" title="Marker API" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="metadata-api.html" class="btn btn-neutral float-right" title="Metadata API" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025 Intel Corporation.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

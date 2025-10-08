@@ -1,0 +1,213 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Instrument Your Application &mdash; ITT/JIT APIs Documentation  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+
+  
+    <link rel="canonical" href="https://intel.github.io/ittapi/src/instrument-your-application.html" />
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Minimize ITT API Overhead" href="minimize-itt-api-overhead.html" />
+    <link rel="prev" title="Compile and Link with ITT API" href="compile-and-link-with-itt-api.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            ITT/JIT APIs Documentation
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="build.html">Build from Source Code</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="api-support.html">Use the ITT/JIT APIs</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="api-support.html#c-c-api-usage-and-reference">C/C++ API Usage and Reference:</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="itt-api-support.html">Instrumentation and Tracing Technology (ITT) API</a><ul class="current">
+<li class="toctree-l4 current"><a class="reference internal" href="itt-api-support.html#itt-api-usage-and-reference">ITT API Usage and Reference</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="jit-api-support.html">Just-In-Time (JIT) API</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="api-support.html#other-language-api-bindings">Other Language API Bindings:</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="ref_collector.html">ITT API Reference Collector</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/intel/ittapi">GitHub Project</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">ITT/JIT APIs Documentation</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content style-external-links">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="api-support.html">Use the ITT/JIT APIs</a></li>
+          <li class="breadcrumb-item"><a href="itt-api-support.html">Instrumentation and Tracing Technology (ITT) API</a></li>
+      <li class="breadcrumb-item active">Instrument Your Application</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/src/instrument-your-application.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="instrument-your-application">
+<span id="id1"></span><h1>Instrument Your Application<a class="headerlink" href="#instrument-your-application" title="Link to this heading"></a></h1>
+<p>When you collect performance data with the ITT/JIT APIs, for optimum results,
+add API calls in your code to designate logical tasks. You can then visualize
+the relationship between tasks in your code (for example, when they start and
+end) relative to other CPU and GPU tasks.</p>
+<p>At the highest level, a task is a logical group of work that executes on a
+specific thread. A task can correspond to any grouping of code within your
+program that you consider important. You can mark up your code by
+identifying the beginning and end of each logical task with
+<code class="docutils literal notranslate"><span class="pre">__itt_task_begin</span></code> and <code class="docutils literal notranslate"><span class="pre">__itt_task_end</span></code> calls.</p>
+<p>To get started, use the following API calls:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">__itt_domain_create()</span></code> creates a domain that is required in most ITT
+API calls. Define atleast one domain.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">__itt_string_handle_create()</span></code> creates string handles to identify your
+tasks. String handles are more efficient than strings to identify traces.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">__itt_task_begin()</span></code> marks the beginning of a task.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">__itt_task_end()</span></code> marks the end of a task.</p></li>
+</ul>
+<section id="example">
+<h2>Example<a class="headerlink" href="#example" title="Link to this heading"></a></h2>
+<p>This example shows how you use four basic ITT API functions in a
+multi-threaded application:</p>
+<ul class="simple">
+<li><p><a class="reference external" href="domain-api.html">Domain API</a></p></li>
+<li><p><a class="reference external" href="string-handle-api.html">String Handle API</a></p></li>
+<li><p><a class="reference external" href="task-api.html">Task API</a></p></li>
+<li><p><a class="reference external" href="thread-naming-api.html">Thread Naming API</a></p></li>
+</ul>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;windows.h&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;ittnotify.h&gt;</span>
+
+
+<span class="c1">// Forward declaration of a thread function.</span>
+<span class="n">DWORD</span><span class="w"> </span><span class="n">WINAPI</span><span class="w"> </span><span class="n">workerthread</span><span class="p">(</span><span class="n">LPVOID</span><span class="p">);</span>
+<span class="kt">bool</span><span class="w"> </span><span class="n">g_done</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">false</span><span class="p">;</span>
+
+<span class="c1">// Create a domain that is visible globally: we will use it in our example.</span>
+<span class="n">__itt_domain</span><span class="o">*</span><span class="w"> </span><span class="n">domain</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">__itt_domain_create</span><span class="p">(</span><span class="s">&quot;Example.Domain.Global&quot;</span><span class="p">);</span>
+<span class="c1">// Create string handles which associates with the &quot;main&quot; task.</span>
+<span class="n">__itt_string_handle</span><span class="o">*</span><span class="w"> </span><span class="n">handle_main</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">__itt_string_handle_create</span><span class="p">(</span><span class="s">&quot;main&quot;</span><span class="p">);</span>
+<span class="n">__itt_string_handle</span><span class="o">*</span><span class="w"> </span><span class="n">handle_createthread</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">__itt_string_handle_create</span><span class="p">(</span><span class="s">&quot;CreateThread&quot;</span><span class="p">);</span>
+
+<span class="kt">void</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">argv</span><span class="p">[])</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="c1">// Create a task associated with the &quot;main&quot; routine.</span>
+<span class="w">  </span><span class="n">__itt_task_begin</span><span class="p">(</span><span class="n">domain</span><span class="p">,</span><span class="w"> </span><span class="n">__itt_null</span><span class="p">,</span><span class="w"> </span><span class="n">__itt_null</span><span class="p">,</span><span class="w"> </span><span class="n">handle_main</span><span class="p">);</span>
+
+<span class="w">  </span><span class="c1">// Now we&#39;ll create 4 worker threads</span>
+<span class="w">  </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">4</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// We might be curious about the cost of CreateThread. We add tracing to do the measurement.</span>
+<span class="w">    </span><span class="n">__itt_task_begin</span><span class="p">(</span><span class="n">domain</span><span class="p">,</span><span class="w"> </span><span class="n">__itt_null</span><span class="p">,</span><span class="w"> </span><span class="n">__itt_null</span><span class="p">,</span><span class="w"> </span><span class="n">handle_createthread</span><span class="p">);</span>
+<span class="w">    </span><span class="n">cppCreateThread</span><span class="p">(</span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">workerthread</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="n">LPVOID</span><span class="p">)</span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">);</span>
+<span class="w">    </span><span class="n">__itt_task_end</span><span class="p">(</span><span class="n">domain</span><span class="p">);</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="c1">// Wait a while,...</span>
+<span class="w">  </span><span class="n">cppSleep</span><span class="p">(</span><span class="mi">5000</span><span class="p">);</span>
+<span class="w">  </span><span class="n">g_done</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span>
+
+<span class="w">  </span><span class="c1">// Mark the end of the main task</span>
+<span class="w">  </span><span class="n">__itt_task_end</span><span class="p">(</span><span class="n">domain</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="c1">// Create string handle for the work task.</span>
+<span class="n">__itt_string_handle</span><span class="o">*</span><span class="w"> </span><span class="n">handle_work</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">__itt_string_handle_create</span><span class="p">(</span><span class="s">&quot;work&quot;</span><span class="p">);</span>
+<span class="n">DWORD</span><span class="w"> </span><span class="n">WINAPI</span><span class="w"> </span><span class="n">workerthread</span><span class="p">(</span><span class="n">LPVOID</span><span class="w"> </span><span class="n">data</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="c1">// Set the name of this thread so it shows up in the UI as something meaningful</span>
+<span class="w">  </span><span class="kt">char</span><span class="w"> </span><span class="n">threadname</span><span class="p">[</span><span class="mi">32</span><span class="p">];</span>
+<span class="w">  </span><span class="n">wsprintf</span><span class="p">(</span><span class="n">threadname</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Worker Thread %d&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">data</span><span class="p">);</span>
+<span class="w">  </span><span class="n">__itt_thread_set_name</span><span class="p">(</span><span class="n">threadname</span><span class="p">);</span>
+
+<span class="w">  </span><span class="c1">// Each worker thread does some number of &quot;work&quot; tasks</span>
+<span class="w">  </span><span class="k">while</span><span class="p">(</span><span class="o">!</span><span class="n">g_done</span><span class="p">)</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="n">__itt_task_begin</span><span class="p">(</span><span class="n">domain</span><span class="p">,</span><span class="w"> </span><span class="n">__itt_null</span><span class="p">,</span><span class="w"> </span><span class="n">__itt_null</span><span class="p">,</span><span class="w"> </span><span class="n">handle_work</span><span class="p">);</span>
+<span class="w">    </span><span class="n">cppSleep</span><span class="p">(</span><span class="mi">150</span><span class="p">);</span>
+<span class="w">    </span><span class="n">__itt_task_end</span><span class="p">(</span><span class="n">domain</span><span class="p">);</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="compile-and-link-with-itt-api.html" class="btn btn-neutral float-left" title="Compile and Link with ITT API" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="minimize-itt-api-overhead.html" class="btn btn-neutral float-right" title="Minimize ITT API Overhead" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025 Intel Corporation.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
