@@ -20,7 +20,7 @@ mod util;
 
 pub use collection_control::{detach, pause, resume};
 pub use domain::Domain;
-pub use event::Event;
+pub use event::{Event, StartedEvent};
 pub use region::{MarkedRegion, Region};
 pub use string::StringHandle;
 pub use task::Task;
