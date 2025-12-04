@@ -1,6 +1,15 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [0.5.0] - 2025-12-04
+### Added
+- Add support for PT regions ([#140](https://github.com/intel/ittapi/pull/140))
+### Fixed
+- Fixed an issue to remove an unneeded borrow. ([#193](https://github.com/intel/ittapi/pull/193))
+- Fixed several clippy, documentation and test issues
+### Changed
+- Regenerate bindings with recent VTune ([#114](https://github.com/intel/ittapi/pull/114))
+
 ## [0.4.0] - 2023-10-23
 ### Fixed
 - Fixed a bug where JIT-generated code was not visible to VTune
