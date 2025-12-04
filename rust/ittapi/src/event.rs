@@ -1,4 +1,4 @@
-use std::{ffi::CString, marker::PhantomData};
+use std::ffi::CString;
 
 /// See the [Event API] documentation.
 ///
@@ -51,19 +51,18 @@ impl Event {
             let result = unsafe { start_fn(self.0) };
             assert!(result == 0, "unable to start event");
         }
-        StartedEvent {
-            event: self.0,
-            phantom: PhantomData,
-        }
+        StartedEvent { event: self.0 }
     }
 }
 
-pub struct StartedEvent<'a> {
+/// Contains the information about a started event.
+///
+/// Allows for the drop implementation to end the event when it goes out of scope.
+pub struct StartedEvent {
     event: ittapi_sys::__itt_event,
-    phantom: PhantomData<&'a mut ()>,
 }
 
-impl StartedEvent<'_> {
+impl StartedEvent {
     /// End the event.
     #[allow(clippy::unused_self)]
     pub fn end(self) {
@@ -72,7 +71,7 @@ impl StartedEvent<'_> {
     }
 }
 
-impl Drop for StartedEvent<'_> {
+impl Drop for StartedEvent {
     fn drop(&mut self) {
         if let Some(end_fn) = unsafe { ittapi_sys::__itt_event_end_ptr__3_0 } {
             let result = unsafe { end_fn(self.event) };
@@ -90,5 +89,14 @@ mod tests {
         let event = Event::new("test");
         let _started_event = event.start();
         // Dropping `started_event` ends the event.
+    }
+
+    #[test]
+    fn double_end() {
+        let event = Event::new("test");
+        let s1 = event.start();
+        let s2 = event.start();
+        s2.end();
+        s1.end();
     }
 }
