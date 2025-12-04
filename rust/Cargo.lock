@@ -129,7 +129,7 @@ dependencies = [
 
 [[package]]
 name = "ittapi"
-version = "0.4.0"
+version = "0.5.0"
 dependencies = [
  "anyhow",
  "ittapi-sys",
@@ -139,7 +139,7 @@ dependencies = [
 
 [[package]]
 name = "ittapi-sys"
-version = "0.4.0"
+version = "0.5.0"
 dependencies = [
  "bindgen",
  "cc",
