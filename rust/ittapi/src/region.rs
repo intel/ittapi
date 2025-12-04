@@ -48,7 +48,7 @@ impl Region {
     /// ```
     #[inline]
     #[must_use]
-    pub fn mark(&self) -> MarkedRegion {
+    pub fn mark(&self) -> MarkedRegion<'_> {
         unsafe { ittapi_sys::__itt_mark_pt_region_begin(self.0) };
         MarkedRegion(self)
     }
