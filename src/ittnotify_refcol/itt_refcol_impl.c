@@ -179,6 +179,7 @@ static void ref_collector_release()
     }
     g_ref_collector_global.histogram_list = NULL;
 
+    g_ref_collector_global.mutex_initialized = 0;
     __itt_mutex_unlock(&g_ref_collector_global.mutex);
     __itt_mutex_destroy(&g_ref_collector_global.mutex);
 }
