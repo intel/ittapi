@@ -604,14 +604,14 @@ typedef struct ___itt_global
     } \
 }
 
-#define NEW_COUNTER_W(gptr,h,h_tail,name,domain,type) { \
+#define NEW_COUNTER_W(gptr,h,h_tail,name,domain,_type) { \
     h = (__itt_counter_info_t*)malloc(sizeof(__itt_counter_info_t)); \
     if (h != NULL) { \
         h->nameA   = NULL; \
         h->nameW   = name ? _wcsdup(name) : NULL; \
         h->domainA   = NULL; \
         h->domainW   = domain ? _wcsdup(domain) : NULL; \
-        h->type = type; \
+        h->type = _type; \
         h->index = 0; \
         h->next   = NULL; \
         if (h_tail == NULL) \
@@ -621,7 +621,7 @@ typedef struct ___itt_global
     } \
 }
 
-#define NEW_COUNTER_A(gptr,h,h_tail,name,domain,type) { \
+#define NEW_COUNTER_A(gptr,h,h_tail,name,domain,_type) { \
     h = (__itt_counter_info_t*)malloc(sizeof(__itt_counter_info_t)); \
     if (h != NULL) { \
         char *name_copy = NULL; \
@@ -632,7 +632,7 @@ typedef struct ___itt_global
         __itt_fstrdup(domain, domain_copy); \
         h->domainA  = domain_copy; \
         h->domainW   = NULL; \
-        h->type = type; \
+        h->type = _type; \
         h->index = 0; \
         h->next   = NULL; \
         if (h_tail == NULL) \
@@ -642,14 +642,14 @@ typedef struct ___itt_global
     } \
 }
 
-#define NEW_HISTOGRAM_W(gptr,h,h_tail,domain,name,x_type,y_type) { \
+#define NEW_HISTOGRAM_W(gptr,h,h_tail,_domain,name,_x_type,_y_type) { \
     h = (__itt_histogram*)malloc(sizeof(__itt_histogram)); \
     if (h != NULL) { \
-        h->domain = domain; \
+        h->domain = _domain; \
         h->nameA  = NULL; \
         h->nameW  = name ? _wcsdup(name) : NULL; \
-        h->x_type = x_type; \
-        h->y_type = y_type; \
+        h->x_type = _x_type; \
+        h->y_type = _y_type; \
         h->extra1 = 0; \
         h->extra2 = NULL; \
         h->next   = NULL; \
@@ -660,16 +660,16 @@ typedef struct ___itt_global
     } \
 }
 
-#define NEW_HISTOGRAM_A(gptr,h,h_tail,domain,name,x_type,y_type) { \
+#define NEW_HISTOGRAM_A(gptr,h,h_tail,_domain,name,_x_type,_y_type) { \
     h = (__itt_histogram*)malloc(sizeof(__itt_histogram)); \
     if (h != NULL) { \
-        h->domain = domain; \
+        h->domain = _domain; \
         char *name_copy = NULL; \
         __itt_fstrdup(name, name_copy); \
         h->nameA  = name_copy; \
         h->nameW  = NULL; \
-        h->x_type = x_type; \
-        h->y_type = y_type; \
+        h->x_type = _x_type; \
+        h->y_type = _y_type; \
         h->extra1 = 0; \
         h->extra2 = NULL; \
         h->next   = NULL; \
