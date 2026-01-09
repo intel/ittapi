@@ -2,12 +2,12 @@ name: "CodeQL"
 
 on:
   push:
-    branches: ["master"]
+    branches: ["master", "bandit"]
   pull_request:
     branches: ["master"]
-  schedule:
+  #schedule:
     # Run every Monday at midnight
-    - cron: "0 0 * * 1"
+    #- cron: "0 0 * * 1"
 
 permissions:
   contents: read
@@ -90,3 +90,18 @@ jobs:
         with:
           sarif_file: rust/clippy.sarif
           wait-for-processing: true
+
+  analyze_bandit:
+    name: Analyze (Bandit Scan)
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+
+      - name: Perform Bandit Analysis
+        uses: PyCQA/bandit-action@67a458d90fa11fb1463e91e7f4c8f068b5863c7f # v1.0.1
