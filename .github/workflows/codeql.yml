@@ -2,12 +2,12 @@ name: "CodeQL"
 
 on:
   push:
-    branches: ["master", "bandit"]
+    branches: ["master"]
   pull_request:
     branches: ["master"]
-  #schedule:
+  schedule:
     # Run every Monday at midnight
-    #- cron: "0 0 * * 1"
+    - cron: "0 0 * * 1"
 
 permissions:
   contents: read
