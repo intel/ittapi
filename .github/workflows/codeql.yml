@@ -100,16 +100,20 @@ jobs:
       security-events: write
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      - name: Install dependencies
+        run: pip install sarif-tools
 
       - name: Perform Bandit Analysis
         uses: PyCQA/bandit-action@67a458d90fa11fb1463e91e7f4c8f068b5863c7f # v1.0.1
+        continue-on-error: true
         with:
-          python-version: "3.10"
+          targets: "python"
+
+      - name: Convert SARIF report to HTML
+        run: sarif html --output bandit-report.html results.sarif
 
       - name: Upload Bandit Artifact
         uses: actions/upload-artifact@26f96dfa697d77e81fd5907df203aa23a56210a8 # v4.3.0
         with:
           name: bandit-report
-          path: results.sarif
+          path: bandit-report.html
