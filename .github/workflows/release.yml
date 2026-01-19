@@ -107,7 +107,7 @@ jobs:
             zip -rg ../ittapi_build_${{ github.ref_name }}.zip build*/**/bin build*/**/fortran python_dist &&
             cd -
       - name: Generate release provenance
-        uses: actions/attest-build-provenance@1c608d11d69870c2092266b3f9a6f3abbf17002c # v1.4.3
+        uses: actions/attest-build-provenance@00014ed6ed5efc5b1ab7f7f34a39eb55d41aa4f8 # v3.1.0
         with:
           subject-path: ./ittapi_build_${{ github.ref_name }}.zip
       - name: Upload release asset
