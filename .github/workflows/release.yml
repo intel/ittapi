@@ -23,7 +23,7 @@ jobs:
           - os: macos-latest
     steps:
     - name: Checkout sources
-      uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
     - name: Config environment
       if: runner.os == 'Linux'
       run: sudo apt-get update && sudo apt-get install gcc-multilib
@@ -57,7 +57,7 @@ jobs:
             cibw_skip_args: "*-win32 *_i686 cp313-*"
     steps:
       - name: Checkout sources
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
       - name: Install cibuildwheels
         run: python -m pip install cibuildwheel==2.20.0
       - name: Build ittapi python wheels
@@ -81,7 +81,7 @@ jobs:
     needs: [build, python_build]
     steps:
       - name: Checkout sources
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
       - name: Create release
         id: create_release
         uses: actions/create-release@0cb9c9b65d5d1901c1f53e5e66eaf4afd303e70e # v1.1.4
