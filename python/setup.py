@@ -7,6 +7,7 @@ import sys
 from setuptools import setup, Extension
 from setuptools.command.build_ext import build_ext
 from subprocess import run  # pylint: disable=C0411
+from shutil import which
 
 
 def get_environment_flag(name):
@@ -27,10 +28,14 @@ ITT_DEFAULT_DIR = '../'
 itt_dir = os.environ.get('ITTAPI_ITT_API_SOURCE_DIR', None)
 itt_dir = itt_dir if itt_dir else ITT_DEFAULT_DIR
 
-assert os.path.exists(itt_dir), 'The specified directory with ITT API source code does not exist.'
-assert itt_dir != ITT_DEFAULT_DIR or len(os.listdir(itt_dir)), \
-    (f'The specified directory with ITT API source code ({itt_dir}) is empty.\n'
-     f'Please make sure you provide a valid path.')
+if not os.path.exists(itt_dir):
+    raise FileNotFoundError('The specified directory with ITT API source code does not exist.')
+
+if itt_dir == ITT_DEFAULT_DIR and not len(os.listdir(itt_dir)):
+    raise ValueError(
+        f'The specified directory with ITT API source code ({itt_dir}) is empty.\n'
+        f'Please make sure you provide a valid path.'
+    )
 
 # Check if IPT support is requested
 build_itt_with_ipt_support = get_environment_flag('ITTAPI_BUILD_WITH_ITT_API_IPT_SUPPORT')
@@ -98,6 +103,11 @@ class NativeBuildExtension(build_ext):  # pylint: disable=R0903
 
             as_path = os.path.dirname(self.compiler.cc) if hasattr(self.compiler, 'cc') else ''
 
+            # Validate assembler tool path (avoid untrusted execution)
+            as_full_path = os.path.join(as_path, as_tool) if as_path else which(as_tool)
+            if not as_full_path or not os.path.isfile(as_full_path):
+                raise RuntimeError(f"Assembler tool not found: {as_tool}")
+
             # Extract asm files from extra objects
             # pylint: disable=W0106
             asm_files = [filename for filename in ext.extra_objects if filename.lower().endswith(as_ext)]
@@ -112,8 +122,8 @@ class NativeBuildExtension(build_ext):  # pylint: disable=R0903
             obj_asm_pairs = [(os.path.join(self.build_temp, os.path.splitext(filename)[0]) + '.obj',
                               os.path.join(src_dir, filename)) for filename in asm_files]
             # Compile
-            [run([os.path.join(as_path, as_tool), '/Fo', obj_file, '/c', asm_file], check=True)
-             for obj_file, asm_file in obj_asm_pairs]
+            for obj_file, asm_file in obj_asm_pairs:
+                run([as_full_path, '/Fo', obj_file, '/c', asm_file], check=True, shell=False)
 
             [ext.extra_objects.append(obj_file) for obj_file, _ in obj_asm_pairs]
 
