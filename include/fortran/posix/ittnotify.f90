@@ -5,8 +5,7 @@
 
 !--------
 !
-! This file defines functions used by Intel(R) Parallel Inspector and
-! Amplifier.
+! This file defines functions used by Intel(R) VTune(TM) Profiler.
 !
 ! Version of ittnotify that was used to generate this file. 
 ! This is not Fortran code that can be used to check but rather a comment 
