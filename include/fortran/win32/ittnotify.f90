@@ -5,8 +5,7 @@
 
 !--------
 !
-! This file defines functions used by Intel(R) Parallel Inspector and
-! Amplifier.
+! This file defines functions used by Intel(R) VTune(TM) Profiler.
 !
 ! Version of ittnotify that was used to generate this file. 
 ! This is not Fortran code that can be used to check but rather a comment 
@@ -109,7 +108,6 @@ module ittnotify
 
     end interface
 
-    !DEC$IF DEFINED(intel64)
     type(C_FUNPTR) :: itt_pause_fort_ptr
     !DEC$ ATTRIBUTES C, EXTERN, ALIAS:'__itt_pause_ptr__3_0' :: itt_pause_fort_ptr
     type(C_FUNPTR) :: itt_resume_fort_ptr
@@ -156,54 +154,6 @@ module ittnotify
     !DEC$ ATTRIBUTES C, EXTERN, ALIAS:'__itt_heap_reset_detection_ptr__3_0' :: itt_heap_reset_detection_fort_ptr
     type(C_FUNPTR) :: itt_heap_record_fort_ptr
     !DEC$ ATTRIBUTES C, EXTERN, ALIAS:'__itt_heap_record_ptr__3_0' :: itt_heap_record_fort_ptr
-    !DEC$ELSE
-    type(C_FUNPTR) :: itt_pause_fort_ptr
-    !DEC$ ATTRIBUTES C, EXTERN, ALIAS:'___itt_pause_ptr__3_0' :: itt_pause_fort_ptr
-    type(C_FUNPTR) :: itt_resume_fort_ptr
-    !DEC$ ATTRIBUTES C, EXTERN, ALIAS:'___itt_resume_ptr__3_0' :: itt_resume_fort_ptr
-    type(C_FUNPTR) :: itt_thread_ignore_fort_ptr
-    !DEC$ ATTRIBUTES C, EXTERN, ALIAS:'___itt_thread_ignore_ptr__3_0' :: itt_thread_ignore_fort_ptr
-    type(C_FUNPTR) :: itt_suppress_push_fort_ptr
-    !DEC$ ATTRIBUTES C, EXTERN, ALIAS:'___itt_suppress_push_ptr__3_0' :: itt_suppress_push_fort_ptr
-    type(C_FUNPTR) :: itt_suppress_pop_fort_ptr
-    !DEC$ ATTRIBUTES C, EXTERN, ALIAS:'___itt_suppress_pop_ptr__3_0' :: itt_suppress_pop_fort_ptr
-    type(C_FUNPTR) :: itt_suppress_mark_range_fort_ptr
-    !DEC$ ATTRIBUTES C, EXTERN, ALIAS:'___itt_suppress_mark_range_ptr__3_0' :: itt_suppress_mark_range_fort_ptr
-    type(C_FUNPTR) :: itt_suppress_clear_range_fort_ptr
-    !DEC$ ATTRIBUTES C, EXTERN, ALIAS:'___itt_suppress_clear_range_ptr__3_0' :: itt_suppress_clear_range_fort_ptr
-    type(C_FUNPTR) :: itt_sync_prepare_fort_ptr
-    !DEC$ ATTRIBUTES C, EXTERN, ALIAS:'___itt_sync_prepare_ptr__3_0' :: itt_sync_prepare_fort_ptr
-    type(C_FUNPTR) :: itt_sync_cancel_fort_ptr
-    !DEC$ ATTRIBUTES C, EXTERN, ALIAS:'___itt_sync_cancel_ptr__3_0' :: itt_sync_cancel_fort_ptr
-    type(C_FUNPTR) :: itt_sync_acquired_fort_ptr
-    !DEC$ ATTRIBUTES C, EXTERN, ALIAS:'___itt_sync_acquired_ptr__3_0' :: itt_sync_acquired_fort_ptr
-    type(C_FUNPTR) :: itt_sync_releasing_fort_ptr
-    !DEC$ ATTRIBUTES C, EXTERN, ALIAS:'___itt_sync_releasing_ptr__3_0' :: itt_sync_releasing_fort_ptr
-    type(C_FUNPTR) :: itt_fsync_prepare_fort_ptr
-    !DEC$ ATTRIBUTES C, EXTERN, ALIAS:'___itt_fsync_prepare_ptr__3_0' :: itt_fsync_prepare_fort_ptr
-    type(C_FUNPTR) :: itt_fsync_cancel_fort_ptr
-    !DEC$ ATTRIBUTES C, EXTERN, ALIAS:'___itt_fsync_cancel_ptr__3_0' :: itt_fsync_cancel_fort_ptr
-    type(C_FUNPTR) :: itt_fsync_acquired_fort_ptr
-    !DEC$ ATTRIBUTES C, EXTERN, ALIAS:'___itt_fsync_acquired_ptr__3_0' :: itt_fsync_acquired_fort_ptr
-    type(C_FUNPTR) :: itt_fsync_releasing_fort_ptr
-    !DEC$ ATTRIBUTES C, EXTERN, ALIAS:'___itt_fsync_releasing_ptr__3_0' :: itt_fsync_releasing_fort_ptr
-    type(C_FUNPTR) :: itt_sync_destroy_fort_ptr
-    !DEC$ ATTRIBUTES C, EXTERN, ALIAS:'___itt_sync_destroy_ptr__3_0' :: itt_sync_destroy_fort_ptr
-    type(C_FUNPTR) :: itt_sync_create_fort_ptr
-    !DEC$ ATTRIBUTES C, EXTERN, ALIAS:'___itt_sync_createA_ptr__3_0' :: itt_sync_create_fort_ptr
-    type(C_FUNPTR) :: itt_sync_rename_fort_ptr
-    !DEC$ ATTRIBUTES C, EXTERN, ALIAS:'___itt_sync_renameA_ptr__3_0' :: itt_sync_rename_fort_ptr
-    type(C_FUNPTR) :: itt_thread_set_name_fort_ptr
-    !DEC$ ATTRIBUTES C, EXTERN, ALIAS:'___itt_thread_set_nameA_ptr__3_0' :: itt_thread_set_name_fort_ptr
-    type(C_FUNPTR) :: itt_heap_record_memory_growth_begin_fort_ptr
-    !DEC$ ATTRIBUTES C, EXTERN, ALIAS:'___itt_heap_record_memory_growth_begin_ptr__3_0' :: itt_heap_record_memory_growth_begin_fort_ptr
-    type(C_FUNPTR) :: itt_heap_record_memory_growth_end_fort_ptr
-    !DEC$ ATTRIBUTES C, EXTERN, ALIAS:'___itt_heap_record_memory_growth_end_ptr__3_0' :: itt_heap_record_memory_growth_end_fort_ptr
-    type(C_FUNPTR) :: itt_heap_reset_detection_fort_ptr
-    !DEC$ ATTRIBUTES C, EXTERN, ALIAS:'___itt_heap_reset_detection_ptr__3_0' :: itt_heap_reset_detection_fort_ptr
-    type(C_FUNPTR) :: itt_heap_record_fort_ptr
-    !DEC$ ATTRIBUTES C, EXTERN, ALIAS:'___itt_heap_record_ptr__3_0' :: itt_heap_record_fort_ptr
-    !DEC$ENDIF
 
     contains
 
