@@ -1,6 +1,6 @@
 from os import environ, path
 from sys import platform
-from subprocess import run
+from subprocess import run # nosec B404
 
 
 class VTuneTool:
@@ -48,7 +48,7 @@ class VTuneTool:
         else:
             raise TypeError('app_args argument must be a list or str')
 
-        return run(collection_args, check=True)
+        return run(collection_args, check=True) # nosec B603
 
 
 def run_vtune_hotspot_collection(app_args, additional_collection_args=None):
