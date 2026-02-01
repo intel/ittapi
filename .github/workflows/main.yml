@@ -27,7 +27,7 @@ jobs:
           - os: macos-latest
     steps:
     - name: Checkout sources
-      uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+      uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
     - name: Setup Fortran compiler
       uses: fortran-lang/setup-fortran@8821f57b53846d35d62632eb51c60ac6c4bff4ce # v1.6.1
       with:
@@ -46,7 +46,7 @@ jobs:
       run:
         working-directory: rust
     steps:
-    - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+    - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
     - run: rustup component add rustfmt clippy
     - run: cargo fmt --all -- --check
     - run: cargo clippy
@@ -55,7 +55,7 @@ jobs:
     name: Check Rust dependencies
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+    - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
     - uses: EmbarkStudios/cargo-deny-action@76cd80eb775d7bbbd2d80292136d74d39e1b4918 # v2.0.14
       with:
         manifest-path: rust/Cargo.toml
@@ -77,7 +77,7 @@ jobs:
         working-directory: rust
         shell: bash
     steps:
-    - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+    - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       with:
         submodules: recursive
     - run: rustup target add ${{ matrix.target }}
@@ -107,7 +107,7 @@ jobs:
         working-directory: python
     steps:
       - name: Checkout sources
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       - name: Build and install ittapi package
         run: python -m pip install .
       - name: Run unit tests
