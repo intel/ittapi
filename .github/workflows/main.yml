@@ -29,7 +29,7 @@ jobs:
     - name: Checkout sources
       uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
     - name: Setup Fortran compiler
-      uses: fortran-lang/setup-fortran@8821f57b53846d35d62632eb51c60ac6c4bff4ce # v1.6.1
+      uses: fortran-lang/setup-fortran@47809fdb6e637da656ce9ada436527b240c1287f # v1.8.1
       with:
           compiler: intel
     - name: Build C library
