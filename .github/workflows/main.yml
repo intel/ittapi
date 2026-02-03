@@ -2,7 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [ master, pypi_version ]
+    branches:
+      - master
+      - pypi_version
   pull_request:
     branches: [ master ]
 
