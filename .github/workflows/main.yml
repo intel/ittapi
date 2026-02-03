@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [ master ]
+    branches: [ master, pypi_version ]
   pull_request:
     branches: [ master ]
 
@@ -112,4 +112,27 @@ jobs:
         run: python -m pip install .
       - name: Run unit tests
         run: python -m unittest discover -s utest -t utest
+
+  # Temporary job to test wheel builds for all Python versions
+  python_wheel_build:
+    name: Build ittapi wheels (test)
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            cibw_skip_args: "*_i686 *-musllinux_*"
+          - os: windows-latest
+            cibw_skip_args: "*-win32 *_i686"
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Install cibuildwheels
+        run: python -m pip install cibuildwheel==3.3.1
+      - name: Build ittapi python wheels
+        run: python -m cibuildwheel python --output-dir python_dist
+        env:
+          CIBW_BUILD: cp3*
+          CIBW_SKIP: ${{ matrix.cibw_skip_args }}
 
