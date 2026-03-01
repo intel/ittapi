@@ -5,7 +5,6 @@ to mark up the Python code for further performance analysis using performance an
 or others.
 
 NOTE: For compatibility and smooth migration with earlier versions of Python bindings([itt-python](https://github.com/oleksandr-pavlyk/itt-python/)), please replace `import itt` with `import ittapi.compat as itt`. For more details about `ittapi.compat`, visit [ittapi.compat page](./ittapi/compat/README.md).
-       
 ittapi supports following ITT APIs:
  - Collection Control API
  - Domain API
@@ -61,8 +60,7 @@ for `ittapi.task` in the same way as for the decorator form.
 
 ## Installation
 
-ittapi package is available on PyPi and can be installed in the usual way for the supported configurations:
-       
+ittapi package is available on PyPI and can be installed in the usual way for the supported configurations:
     pip install ittapi
 
 ## Build
