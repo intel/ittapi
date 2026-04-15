@@ -26,6 +26,7 @@ project(ittapi)
 option(FORCE_32 "Force a 32-bit compile on 64-bit" OFF)
 option(ITT_API_IPT_SUPPORT "ptmarks support" OFF)
 option(ITT_API_FORTRAN_SUPPORT "fortran support" OFF)
+option(ITT_API_INSTALL "Enable ITT API installation rules" ON)
 
 if(FORCE_32 AND UNIX)
     SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -m32")
@@ -134,6 +135,8 @@ else()
     add_library(ittnotify STATIC ${ITT_SRCS} ${ITT_PUBLIC_HDRS} ${ITT_PT})
 endif()
 
+add_library(ittapi::ittnotify ALIAS ittnotify)
+
 set(JITPROFILING_SRC "src/ittnotify/jitprofiling.c")
 add_library(jitprofiling STATIC ${JITPROFILING_SRC})
 
@@ -173,24 +176,26 @@ target_include_directories(jitprofiling
 include(CMakePackageConfigHelpers)
 include(GNUInstallDirs)
 
-install(TARGETS ittnotify EXPORT ittapi-targets INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
-install(EXPORT ittapi-targets NAMESPACE ittapi:: DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/ittapi)
-install(DIRECTORY include/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
-    FILES_MATCHING PATTERN "*.h"
-                   PATTERN "fortran" EXCLUDE)
+if(ITT_API_INSTALL)
+    install(TARGETS ittnotify EXPORT ittapi-targets INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+    install(EXPORT ittapi-targets NAMESPACE ittapi:: DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/ittapi)
+    install(DIRECTORY include/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+        FILES_MATCHING PATTERN "*.h"
+                       PATTERN "fortran" EXCLUDE)
 
-configure_package_config_file(${CMAKE_CURRENT_SOURCE_DIR}/cmake/ittapiConfig.cmake.in
-                              ${CMAKE_CURRENT_BINARY_DIR}/share/ittapiConfig.cmake
-    INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/ittapi
-    NO_SET_AND_CHECK_MACRO)
+    configure_package_config_file(${CMAKE_CURRENT_SOURCE_DIR}/cmake/ittapiConfig.cmake.in
+                                  ${CMAKE_CURRENT_BINARY_DIR}/share/ittapiConfig.cmake
+        INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/ittapi
+        NO_SET_AND_CHECK_MACRO)
 
-file(STRINGS "${CMAKE_CURRENT_SOURCE_DIR}/include/ittnotify.h" ITT_VERSION_PARTS REGEX "#define ITT_[A-Z]+[ ]+" )
-string(REGEX REPLACE ".+ITT_MAJOR[ ]+([0-9]+).*" "\\1" ITT_MAJOR "${ITT_VERSION_PARTS}")
-string(REGEX REPLACE ".+ITT_MINOR[ ]+([0-9]+).*" "\\1" ITT_MINOR "${ITT_VERSION_PARTS}")
-write_basic_package_version_file(${CMAKE_CURRENT_BINARY_DIR}/share/ittapiConfigVersion.cmake
-    VERSION ${ITT_MAJOR}.${ITT_MINOR}.0
-    COMPATIBILITY SameMajorVersion)
+    file(STRINGS "${CMAKE_CURRENT_SOURCE_DIR}/include/ittnotify.h" ITT_VERSION_PARTS REGEX "#define ITT_[A-Z]+[ ]+" )
+    string(REGEX REPLACE ".+ITT_MAJOR[ ]+([0-9]+).*" "\\1" ITT_MAJOR "${ITT_VERSION_PARTS}")
+    string(REGEX REPLACE ".+ITT_MINOR[ ]+([0-9]+).*" "\\1" ITT_MINOR "${ITT_VERSION_PARTS}")
+    write_basic_package_version_file(${CMAKE_CURRENT_BINARY_DIR}/share/ittapiConfigVersion.cmake
+        VERSION ${ITT_MAJOR}.${ITT_MINOR}.0
+        COMPATIBILITY SameMajorVersion)
 
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/share/ittapiConfig.cmake
-              ${CMAKE_CURRENT_BINARY_DIR}/share/ittapiConfigVersion.cmake
-        DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/ittapi)
+    install(FILES ${CMAKE_CURRENT_BINARY_DIR}/share/ittapiConfig.cmake
+                  ${CMAKE_CURRENT_BINARY_DIR}/share/ittapiConfigVersion.cmake
+            DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/ittapi)
+endif()
