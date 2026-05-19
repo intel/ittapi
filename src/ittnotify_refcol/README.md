@@ -9,11 +9,11 @@ environment variable.
 
 ## Building
 
-### CMake (all platforms, recommended)
+Use CMake from the repository root, enabling the `ITT_API_REFERENCE_COLLECTOR` option:
 
 ```
-cmake <repo_root> -DITT_API_REFERENCE_COLLECTOR=ON
-cmake --build .
+cmake -B <build_dir> -DITT_API_REFERENCE_COLLECTOR=ON
+cmake --build <build_dir>
 ```
 
 The shared library is placed in the `bin/` subdirectory of the CMake build
@@ -23,11 +23,12 @@ directory. Alternatively, use the provided `buildall.py` script:
 python buildall.py --refcol
 ```
 
-### Make (Linux / FreeBSD)
+The shared library is placed in the `bin/` subdirectory of the CMake build directory:
 
-```
-make
-```
+| Platform | Library name                   |
+|----------|--------------------------------|
+| Linux    | `libittnotify_refcol.so`       |
+| Windows  | `libittnotify_refcol.dll`      |
 
 ## Usage
 
@@ -72,7 +73,7 @@ This implementation adds logging of some of the ITT API function calls. Adding
 logging of other ITT API function calls is welcome. The solution provides 4
 functions with different log levels that take `printf` format for logging:
 
-```
+```c
 LOG_FUNC_CALL_INFO(const char *msg_format, ...);
 LOG_FUNC_CALL_WARN(const char *msg_format, ...);
 LOG_FUNC_CALL_ERROR(const char *msg_format, ...);
