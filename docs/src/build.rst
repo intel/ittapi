@@ -56,6 +56,8 @@ Use these options to configure the build process:
       -v, --verbose   enable verbose output from build process
       -pt, --ptmark   enable anomaly detection support
       -ft, --fortran  enable fortran support
+      -cpp, --cpp     enable C++ wrapper support
       --force_bits    specify bit version for the target
+      --refcol        enable reference collector build
       --vs            specify visual studio version (Windows only)
       --cmake_gen     specify cmake build generator (Windows only)
