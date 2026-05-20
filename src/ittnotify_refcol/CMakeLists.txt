@@ -1,3 +1,8 @@
+#
+#  Copyright (C) 2026 Intel Corporation
+#  SPDX-License-Identifier: (BSD-3-Clause OR GPL-2.0-only)
+#
+
 add_library(ittnotify_refcol SHARED itt_refcol_impl.c)
 
 target_include_directories(ittnotify_refcol
