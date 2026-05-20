@@ -39,6 +39,36 @@ jobs:
       #    doesn't work in case of CMake + VS (https://github.com/fortran-lang/setup-fortran/issues/45)
       run: python buildall.py --force_bits 64 -ft ${{ matrix.optional_args }}
 
+  refcol_smoke:
+    name: Reference collector smoke test
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            lib: build_linux/64/bin/libittnotify_refcol.so
+            exe: build_linux/64/bin/refcol_smoke_test
+            build_dir: build_linux/64
+          - os: windows-latest
+            lib: build_win/64/bin/libittnotify_refcol.dll
+            exe: build_win/64/bin/refcol_smoke_test.exe
+            build_dir: build_win/64
+    defaults:
+      run:
+        shell: bash
+    steps:
+    - name: Checkout sources
+      uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+    - name: Build reference collector library
+      run: python buildall.py --force_bits 64 --refcol ${{ runner.os == 'Windows' && '--cmake_gen ninja' || '' }}
+    - name: Build smoke test
+      run: |
+        cmake ${{ matrix.build_dir }} -DITT_API_REFCOL_SMOKE_TESTS=ON
+        cmake --build ${{ matrix.build_dir }} --target refcol_smoke_test
+    - name: Run smoke test
+      run: python src/ittnotify_refcol/tests/run_smoke_test.py --lib ${{ matrix.lib }} --exe ${{ matrix.exe }}
+
   cpp_wrapper:
     name: Check C++ wrapper
     runs-on: ${{ matrix.os }}

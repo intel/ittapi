@@ -4,8 +4,10 @@
   SPDX-License-Identifier: GPL-2.0-only OR BSD-3-Clause
 */
 
+#include <inttypes.h>
 #include <stdio.h>
 #include <stdarg.h>
+#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
@@ -45,15 +47,34 @@ static struct ref_collector_global {
     __itt_histogram*       histogram_list;
 } g_ref_collector_global = {MUTEX_INITIALIZER, 0, NULL, NULL, NULL, NULL};
 
+#ifdef _WIN32
+    #define REFCOL_LOCALTIME(out_tm, in_time) (localtime_s((out_tm), (in_time)) == 0)
+#else
+    #define REFCOL_LOCALTIME(out_tm, in_time) (localtime_r((in_time), (out_tm)) != NULL)
+#endif
+
 static char* log_file_name_generate()
 {
     time_t time_now = time(NULL);
-    struct tm* time_info = localtime(&time_now);
+    struct tm time_info;
     char* log_file_name = malloc(sizeof(char) * (LOG_BUFFER_MAX_SIZE/2));
 
-    sprintf(log_file_name,"libittnotify_refcol_%d%d%d%d%d%d.log",
-            time_info->tm_year+1900, time_info->tm_mon+1, time_info->tm_mday,
-            time_info->tm_hour, time_info->tm_min, time_info->tm_sec);
+    if (log_file_name == NULL)
+    {
+        printf("ERROR: Failed to allocate memory for log file name\n");
+        return NULL;
+    }
+
+    if (!REFCOL_LOCALTIME(&time_info, &time_now))
+    {
+        printf("ERROR: Failed to get local time for log file name\n");
+        free(log_file_name);
+        return NULL;
+    }
+
+    snprintf(log_file_name, LOG_BUFFER_MAX_SIZE/2, "libittnotify_refcol_%d%d%d%d%d%d.log",
+             time_info.tm_year+1900, time_info.tm_mon+1, time_info.tm_mday,
+             time_info.tm_hour, time_info.tm_min, time_info.tm_sec);
 
     return log_file_name;
 }
@@ -72,9 +93,9 @@ static void ref_collector_init()
         if (log_dir != NULL)
         {
             #ifdef _WIN32
-                sprintf(file_name_buffer,"%s\\%s", log_dir, log_file);
+                snprintf(file_name_buffer, sizeof(file_name_buffer), "%s\\%s", log_dir, log_file);
             #else
-                sprintf(file_name_buffer,"%s/%s", log_dir, log_file);
+                snprintf(file_name_buffer, sizeof(file_name_buffer), "%s/%s", log_dir, log_file);
             #endif
         }
         else
@@ -83,10 +104,14 @@ static void ref_collector_init()
                 char* temp_dir = getenv("TEMP");
                 if (temp_dir != NULL)
                 {
-                    sprintf(file_name_buffer,"%s\\%s", temp_dir, log_file);
+                    snprintf(file_name_buffer, sizeof(file_name_buffer), "%s\\%s", temp_dir, log_file);
+                }
+                else
+                {
+                    snprintf(file_name_buffer, sizeof(file_name_buffer), "%s", log_file);
                 }
             #else
-                sprintf(file_name_buffer,"/tmp/%s", log_file);
+                snprintf(file_name_buffer, sizeof(file_name_buffer), "/tmp/%s", log_file);
             #endif
         }
         free(log_file);
@@ -122,7 +147,7 @@ static void ref_collector_init_mutex()
 
 // Cleanup hook called at program exit via atexit().
 // Releases all resources: closes log file, frees all ITT objects.
-static void ref_collector_release()
+static void ref_collector_release(void)
 {
     static int released = 0;
     if (released) return;
@@ -261,7 +286,9 @@ static void log_func_call(uint8_t log_level, const char* function_name, const ch
     uint32_t result_len = 0;
     va_list message_args;
 
-    result_len += sprintf(log_buffer, "[%s] %s(...) - ", log_level_str[log_level] ,function_name);
+    result_len += snprintf(log_buffer, LOG_BUFFER_MAX_SIZE, "[%s] %s(...) - ", log_level_str[log_level], function_name);
+    if (result_len >= LOG_BUFFER_MAX_SIZE)
+        result_len = LOG_BUFFER_MAX_SIZE - 1;
     va_start(message_args, message_format);
     vsnprintf(log_buffer + result_len, LOG_BUFFER_MAX_SIZE - result_len, message_format, message_args);
     va_end(message_args);
@@ -292,36 +319,36 @@ static char* get_metadata_elements(size_t size, __itt_metadata_type type, void* 
     switch (type)
     {
     case __itt_metadata_u64:
-        for (uint16_t i = 0; i < size; i++)
-            offset += sprintf(metadata_str + offset, "%lu;", ((uint64_t*)metadata)[i]);
+        for (uint16_t i = 0; i < size && offset < LOG_BUFFER_MAX_SIZE - 1; i++)
+            offset += snprintf(metadata_str + offset, LOG_BUFFER_MAX_SIZE - offset, "%" PRIu64 ";", ((uint64_t*)metadata)[i]);
         break;
     case __itt_metadata_s64:
-        for (uint16_t i = 0; i < size; i++)
-            offset += sprintf(metadata_str + offset, "%ld;", ((int64_t*)metadata)[i]);
+        for (uint16_t i = 0; i < size && offset < LOG_BUFFER_MAX_SIZE - 1; i++)
+            offset += snprintf(metadata_str + offset, LOG_BUFFER_MAX_SIZE - offset, "%" PRId64 ";", ((int64_t*)metadata)[i]);
         break;
     case __itt_metadata_u32:
-        for (uint16_t i = 0; i < size; i++)
-            offset += sprintf(metadata_str + offset, "%u;", ((uint32_t*)metadata)[i]);
+        for (uint16_t i = 0; i < size && offset < LOG_BUFFER_MAX_SIZE - 1; i++)
+            offset += snprintf(metadata_str + offset, LOG_BUFFER_MAX_SIZE - offset, "%u;", ((uint32_t*)metadata)[i]);
         break;
     case __itt_metadata_s32:
-        for (uint16_t i = 0; i < size; i++)
-            offset += sprintf(metadata_str + offset, "%d;", ((int32_t*)metadata)[i]);
+        for (uint16_t i = 0; i < size && offset < LOG_BUFFER_MAX_SIZE - 1; i++)
+            offset += snprintf(metadata_str + offset, LOG_BUFFER_MAX_SIZE - offset, "%d;", ((int32_t*)metadata)[i]);
         break;
     case __itt_metadata_u16:
-        for (uint16_t i = 0; i < size; i++)
-            offset += sprintf(metadata_str + offset, "%u;", ((uint16_t*)metadata)[i]);
+        for (uint16_t i = 0; i < size && offset < LOG_BUFFER_MAX_SIZE - 1; i++)
+            offset += snprintf(metadata_str + offset, LOG_BUFFER_MAX_SIZE - offset, "%u;", ((uint16_t*)metadata)[i]);
         break;
     case __itt_metadata_s16:
-        for (uint16_t i = 0; i < size; i++)
-            offset += sprintf(metadata_str + offset, "%d;", ((int16_t*)metadata)[i]);
+        for (uint16_t i = 0; i < size && offset < LOG_BUFFER_MAX_SIZE - 1; i++)
+            offset += snprintf(metadata_str + offset, LOG_BUFFER_MAX_SIZE - offset, "%d;", ((int16_t*)metadata)[i]);
         break;
     case __itt_metadata_float:
-        for (uint16_t i = 0; i < size; i++)
-            offset += sprintf(metadata_str + offset, "%f;", ((float*)metadata)[i]);
+        for (uint16_t i = 0; i < size && offset < LOG_BUFFER_MAX_SIZE - 1; i++)
+            offset += snprintf(metadata_str + offset, LOG_BUFFER_MAX_SIZE - offset, "%f;", ((float*)metadata)[i]);
         break;
     case __itt_metadata_double:
-        for (uint16_t i = 0; i < size; i++)
-            offset += sprintf(metadata_str + offset, "%lf;", ((double*)metadata)[i]);
+        for (uint16_t i = 0; i < size && offset < LOG_BUFFER_MAX_SIZE - 1; i++)
+            offset += snprintf(metadata_str + offset, LOG_BUFFER_MAX_SIZE - offset, "%lf;", ((double*)metadata)[i]);
         break;
     default:
         printf("ERROR: Unknown metadata type\n");
@@ -343,7 +370,7 @@ static char* get_context_metadata_element(__itt_context_type type, void* metadat
         case __itt_context_device:
         case __itt_context_units:
         case __itt_context_pci_addr:
-            sprintf(metadata_str, "%s;", ((char*)metadata));
+            snprintf(metadata_str, LOG_BUFFER_MAX_SIZE/4, "%s;", ((char*)metadata));
             break;
         case __itt_context_max_val:
         case __itt_context_tid:
@@ -354,7 +381,7 @@ static char* get_context_metadata_element(__itt_context_type type, void* metadat
         case __itt_context_cpu_instructions_flag:
         case __itt_context_cpu_cycles_flag:
         case __itt_context_is_abs_val_flag:
-            sprintf(metadata_str, "%lu;", *(uint64_t*)metadata);
+            snprintf(metadata_str, LOG_BUFFER_MAX_SIZE/4, "%" PRIu64 ";", *(uint64_t*)metadata);
             break;
         default:
             printf("ERROR: Unknown context metadata type\n");
@@ -364,7 +391,48 @@ static char* get_context_metadata_element(__itt_context_type type, void* metadat
     return metadata_str;
 }
 
+#ifdef _WIN32
+static char* wchar2char(const wchar_t* wide_str)
+{
+    if (wide_str == NULL)
+    {
+        return NULL;
+    }
+
+    int narrow_size = WideCharToMultiByte(CP_UTF8, 0, wide_str, -1, NULL, 0, NULL, NULL);
+    if (narrow_size <= 0)
+    {
+        return NULL;
+    }
+
+    char* narrow_str = (char*)malloc((size_t)narrow_size);
+    if (narrow_str == NULL)
+    {
+        return NULL;
+    }
+
+    if (!WideCharToMultiByte(CP_UTF8, 0, wide_str, -1, narrow_str, narrow_size, NULL, NULL))
+    {
+        free(narrow_str);
+        return NULL;
+    }
+
+    return narrow_str;
+}
+#endif
+
+#ifdef _WIN32
+ITT_EXTERN_C __itt_domain* ITTAPI __itt_domain_createW(const wchar_t *name)
+{
+    char* name_a = wchar2char(name);
+    __itt_domain* result = __itt_domain_createA(name_a);
+    free(name_a);
+    return result;
+}
+ITT_EXTERN_C __itt_domain* ITTAPI __itt_domain_createA(const char *name)
+#else
 ITT_EXTERN_C __itt_domain* ITTAPI __itt_domain_create(const char *name)
+#endif
 {
     if (!g_ref_collector_global.mutex_initialized || name == NULL)
     {
@@ -396,7 +464,18 @@ ITT_EXTERN_C __itt_domain* ITTAPI __itt_domain_create(const char *name)
     return h;
 }
 
+#ifdef _WIN32
+ITT_EXTERN_C __itt_string_handle* ITTAPI __itt_string_handle_createW(const wchar_t* name)
+{
+    char* name_a = wchar2char(name);
+    __itt_string_handle* result = __itt_string_handle_createA(name_a);
+    free(name_a);
+    return result;
+}
+ITT_EXTERN_C __itt_string_handle* ITTAPI __itt_string_handle_createA(const char* name)
+#else
 ITT_EXTERN_C __itt_string_handle* ITTAPI __itt_string_handle_create(const char* name)
+#endif
 {
     if (!g_ref_collector_global.mutex_initialized || name == NULL)
     {
@@ -428,21 +507,69 @@ ITT_EXTERN_C __itt_string_handle* ITTAPI __itt_string_handle_create(const char* 
     return h;
 }
 
+#ifdef _WIN32
+ITT_EXTERN_C __itt_counter ITTAPI __itt_counter_createW(const wchar_t *name, const wchar_t *domain)
+{
+    char* name_a = wchar2char(name);
+    char* domain_a = wchar2char(domain);
+    __itt_counter result = __itt_counter_createA(name_a, domain_a);
+    free(name_a);
+    free(domain_a);
+    return result;
+}
+ITT_EXTERN_C __itt_counter ITTAPI __itt_counter_createA(const char *name, const char *domain)
+#else
 ITT_EXTERN_C __itt_counter ITTAPI __itt_counter_create(const char *name, const char *domain)
+#endif
 {
     LOG_FUNC_CALL_INFO("function call");
     return __itt_counter_create_typed(name, domain, __itt_metadata_u64);
 }
 
+#ifdef _WIN32
+ITT_EXTERN_C __itt_counter ITTAPI __itt_counter_createW_v3(
+    const __itt_domain* domain, const wchar_t* name, __itt_metadata_type type)
+{
+    if (domain == NULL) return NULL;
+    char* name_a = wchar2char(name);
+    if (name_a == NULL) return NULL;
+    __itt_counter result = __itt_counter_create_typed(name_a, domain->nameA, type);
+    free(name_a);
+    return result;
+}
+ITT_EXTERN_C __itt_counter ITTAPI __itt_counter_createA_v3(
+    const __itt_domain* domain, const char* name, __itt_metadata_type type)
+#else
 ITT_EXTERN_C __itt_counter ITTAPI __itt_counter_create_v3(
     const __itt_domain* domain, const char* name, __itt_metadata_type type)
+#endif
 {
+    if (domain == NULL)
+    {
+        LOG_FUNC_CALL_WARN("domain is NULL");
+        return NULL;
+    }
     LOG_FUNC_CALL_INFO("function call");
     return __itt_counter_create_typed(name, domain->nameA, type);
 }
 
+#ifdef _WIN32
+ITT_EXTERN_C __itt_counter ITTAPI __itt_counter_create_typedW(
+    const wchar_t *name, const wchar_t *domain, __itt_metadata_type type)
+{
+    char* name_a = wchar2char(name);
+    char* domain_a = wchar2char(domain);
+    __itt_counter result = __itt_counter_create_typedA(name_a, domain_a, type);
+    free(name_a);
+    free(domain_a);
+    return result;
+}
+ITT_EXTERN_C __itt_counter ITTAPI __itt_counter_create_typedA(
+    const char *name, const char *domain, __itt_metadata_type type)
+#else
 ITT_EXTERN_C __itt_counter ITTAPI __itt_counter_create_typed(
     const char *name, const char *domain, __itt_metadata_type type)
+#endif
 {
     if (!g_ref_collector_global.mutex_initialized || name == NULL || domain == NULL)
     {
@@ -478,8 +605,21 @@ ITT_EXTERN_C __itt_counter ITTAPI __itt_counter_create_typed(
     return (__itt_counter)h;
 }
 
+#ifdef _WIN32
+ITT_EXTERN_C __itt_histogram* ITTAPI __itt_histogram_createW(
+    const __itt_domain* domain, const wchar_t* name, __itt_metadata_type x_type, __itt_metadata_type y_type)
+{
+    char* name_a = wchar2char(name);
+    __itt_histogram* result = __itt_histogram_createA(domain, name_a, x_type, y_type);
+    free(name_a);
+    return result;
+}
+ITT_EXTERN_C __itt_histogram* ITTAPI __itt_histogram_createA(
+    const __itt_domain* domain, const char* name, __itt_metadata_type x_type, __itt_metadata_type y_type)
+#else
 ITT_EXTERN_C __itt_histogram* ITTAPI __itt_histogram_create(
     const __itt_domain* domain, const char* name, __itt_metadata_type x_type, __itt_metadata_type y_type)
+#endif
 {
     if (!g_ref_collector_global.mutex_initialized || name == NULL || domain == NULL)
     {
@@ -644,7 +784,7 @@ ITT_EXTERN_C void __itt_metadata_add(const __itt_domain *domain, __itt_id id,
         (void)id;
         (void)key;
         char* metadata_str = get_metadata_elements(count, type, data);
-        LOG_FUNC_CALL_INFO("function args: domain=%s metadata_size=%lu metadata[]=%s",
+        LOG_FUNC_CALL_INFO("function args: domain=%s metadata_size=%zu metadata[]=%s",
                             domain->nameA, count, metadata_str);
         free(metadata_str);
     }
@@ -690,7 +830,7 @@ ITT_EXTERN_C void __itt_histogram_submit(__itt_histogram* hist, size_t length, v
         {
             char* x_data_str = get_metadata_elements(length, hist->x_type, x_data);
             char* y_data_str = get_metadata_elements(length, hist->y_type, y_data);
-            LOG_FUNC_CALL_INFO("function args: domain=%s name=%s histogram_size=%lu x[]=%s y[]=%s",
+            LOG_FUNC_CALL_INFO("function args: domain=%s name=%s histogram_size=%zu x[]=%s y[]=%s",
                                 hist->domain->nameA, hist->nameA, length, x_data_str, y_data_str);
             free(x_data_str);
             free(y_data_str);
@@ -698,7 +838,7 @@ ITT_EXTERN_C void __itt_histogram_submit(__itt_histogram* hist, size_t length, v
         else
         {
             char* y_data_str = get_metadata_elements(length, hist->y_type, y_data);
-            LOG_FUNC_CALL_INFO("function args: domain=%s name=%s histogram_size=%lu y[]=%s",
+            LOG_FUNC_CALL_INFO("function args: domain=%s name=%s histogram_size=%zu y[]=%s",
                                 hist->domain->nameA, hist->nameA, length, y_data_str);
             free(y_data_str);
         }
@@ -717,13 +857,13 @@ ITT_EXTERN_C void __itt_bind_context_metadata_to_counter(__itt_counter counter, 
         char context_metadata[LOG_BUFFER_MAX_SIZE];
         context_metadata[0] = '\0';
         uint16_t offset = 0;
-        for(size_t i=0; i<length; i++)
+        for(size_t i=0; i<length && offset < LOG_BUFFER_MAX_SIZE - 1; i++)
         {
             char* context_metadata_element = get_context_metadata_element(metadata[i].type, metadata[i].value);
-            offset += sprintf(context_metadata+ offset, "%s", context_metadata_element);
+            offset += snprintf(context_metadata + offset, LOG_BUFFER_MAX_SIZE - offset, "%s", context_metadata_element);
             free(context_metadata_element);
         }
-        LOG_FUNC_CALL_INFO("function args: counter_name=%s context_metadata_size=%lu context_metadata[]=%s",
+        LOG_FUNC_CALL_INFO("function args: counter_name=%s context_metadata_size=%zu context_metadata[]=%s",
                             counter_info->nameA, length, context_metadata);
     }
     else
@@ -738,7 +878,7 @@ ITT_EXTERN_C void __itt_counter_set_value_v3(__itt_counter counter, void* value_
     {
         __itt_counter_info_t* counter_info = (__itt_counter_info_t*)counter;
         uint64_t value = *(uint64_t*)value_ptr;
-        LOG_FUNC_CALL_INFO("function args: counter_name=%s counter_value=%lu",
+        LOG_FUNC_CALL_INFO("function args: counter_name=%s counter_value=%" PRIu64,
                             counter_info->nameA, value);
     }
     else

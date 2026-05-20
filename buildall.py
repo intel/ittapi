@@ -120,6 +120,8 @@ def main():
     parser.add_argument(
         "-cpp", "--cpp", help="enable C++ wrapper support", action="store_true")
     parser.add_argument(
+        "--refcol", help="enable reference collector build", action="store_true")
+    parser.add_argument(
         "--force_bits", choices=["32", "64"], help="specify bit version for the target")
     if sys.platform == 'win32' and vs_versions:
         parser.add_argument(
@@ -180,7 +182,8 @@ def main():
             ('-DCMAKE_VERBOSE_MAKEFILE:BOOL=ON' if args.verbose else ''),
             ("-DITT_API_IPT_SUPPORT=1" if args.ptmark else ""),
             ("-DITT_API_FORTRAN_SUPPORT=1" if args.fortran else ""),
-            ("-DITT_API_CPP_SUPPORT=ON" if args.cpp else "")
+            ("-DITT_API_CPP_SUPPORT=ON" if args.cpp else ""),
+            ("-DITT_API_REFERENCE_COLLECTOR=ON" if args.refcol else ""),
         ])))
 
         if sys.platform == 'win32':
