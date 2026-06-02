@@ -24,9 +24,6 @@ jobs:
     steps:
     - name: Checkout sources
       uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-    - name: Config environment
-      if: runner.os == 'Linux'
-      run: sudo apt-get update && sudo apt-get install gcc-multilib
     - name: Setup Fortran compiler
       uses: fortran-lang/setup-fortran@8821f57b53846d35d62632eb51c60ac6c4bff4ce # v1.6.1
       with:
@@ -43,7 +40,7 @@ jobs:
           build*/**/bin
           build*/**/fortran
 
-  # build wheels for cpython versions 3.8+ on linux and windows 64-bits
+  # build wheels for cpython versions 3.8+ on linux and windows
   python_build:
     name: Build ittapi wheels
     runs-on: ${{ matrix.os }}
