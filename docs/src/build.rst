@@ -47,7 +47,7 @@ Use these options to configure the build process:
 
 .. code-block:: console
 
-    usage: python buildall.py [-h] [-d] [-c] [-v] [-pt] [-ft] [--force_bits]
+    usage: python buildall.py [-h] [-d] [-c] [-v] [-pt] [-ft]
 
     optional arguments:
       -h, --help      show this help message and exit
@@ -57,7 +57,6 @@ Use these options to configure the build process:
       -pt, --ptmark   enable anomaly detection support
       -ft, --fortran  enable fortran support
       -cpp, --cpp     enable C++ wrapper support
-      --force_bits    specify bit version for the target
       --refcol        enable reference collector build
       --vs            specify visual studio version (Windows only)
       --cmake_gen     specify cmake build generator (Windows only)

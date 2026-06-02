@@ -13,7 +13,7 @@ system to establish access to the headers and libraries of the API:
 
 
 -  Add ``<ittapi_dir>\include`` to your ``INCLUDE`` path
--  Add ``<ittapi_dir>\build_<target_platform>\<target_bits>\bin``
+-  Add ``<ittapi_dir>\build_<target_platform>\bin``
    to your ``LIBRARIES`` path
 
 
