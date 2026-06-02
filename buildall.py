@@ -1,23 +1,22 @@
 #!/usr/bin/env python
 #
-# Copyright (C) 2005-2019 Intel Corporation
+# Copyright (C) 2005-2026 Intel Corporation
 #
 # SPDX-License-Identifier: GPL-2.0-only OR BSD-3-Clause
 #
 
-from __future__ import print_function
 import os
 import sys
 import shutil
-import fnmatch
 import subprocess
 
 
 def run_shell(cmd):
-    print("\n>>", cmd)
-    code = os.system(cmd)
-    if code != 0:
-        sys.exit(">> failed to run shell command: %s" % cmd)
+    print(f"\n>> {cmd}")
+    try:
+        subprocess.run(cmd, shell=True, check=True)
+    except subprocess.CalledProcessError:
+        sys.exit(f">> failed to run shell command: {cmd}")
 
 
 if sys.platform == 'win32':
@@ -91,15 +90,14 @@ def get_vs_versions():  # https://www.mztools.com/articles/2008/MZ2008003.aspx
 
 def detect_cmake():
     if sys.platform == 'darwin':
-        path, err = subprocess.Popen(
-            "which cmake", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
-        if not path.strip():
-            path, err = subprocess.Popen(
-                "which xcrun", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
-            if not path.strip():
-                print("No cmake and no XCode found...")
-                return None
+        cmake_path = shutil.which('cmake')
+        if cmake_path:
+            return 'cmake'
+        xcrun_path = shutil.which('xcrun')
+        if xcrun_path:
             return 'xcrun cmake'
+        print("No cmake and no XCode found...")
+        return None
     return 'cmake'
 
 
@@ -121,9 +119,10 @@ def main():
         "-cpp", "--cpp", help="enable C++ wrapper support", action="store_true")
     parser.add_argument(
         "--refcol", help="enable reference collector build", action="store_true")
-    if sys.platform == 'win32' and vs_versions:
-        parser.add_argument(
-            "--vs", help="specify visual studio version {default}", choices=vs_versions, default=vs_versions[0])
+    if sys.platform == 'win32':
+        if vs_versions:
+            parser.add_argument(
+                "--vs", help="specify visual studio version {default}", choices=vs_versions, default=vs_versions[0])
         parser.add_argument(
             "--cmake_gen", choices=["vs", "ninja"], help="specify cmake build generator")
     args = parser.parse_args()
@@ -134,6 +133,7 @@ def main():
         if os.path.exists(bin_dir):
             shutil.rmtree(bin_dir)
 
+    # Build folder: build_linux, build_win, build_darwin
     work_folder = os.path.join(
         work_dir, "build_" + sys.platform.replace('32', ""))
     already_there = os.path.exists(work_folder)
@@ -151,9 +151,14 @@ def main():
         return
 
     if sys.platform == 'win32':
-        use_ninja = args.cmake_gen == 'ninja'
+        vs_year = {
+            '12': '2013', '14': '2015', '15': '2017',
+            '16': '2019', '17': '2022', '18': '2025',
+        }
+        use_ninja = getattr(args, 'cmake_gen', None) == 'ninja'
         if vs_versions and not use_ninja:
-            generator = 'Visual Studio {}'.format(args.vs)
+            year = vs_year.get(args.vs, '')
+            generator = f'Visual Studio {args.vs} {year}'.strip()
             generator_args = '-A x64'
         else:
             generator = 'Ninja'
@@ -162,22 +167,29 @@ def main():
         generator = 'Unix Makefiles'
         generator_args = ''
 
-    run_shell('%s "%s" -G"%s" %s %s' % (cmake, work_dir, generator, generator_args, " ".join([
-        ("-DCMAKE_BUILD_TYPE=Debug" if args.debug else ""),
-        ('-DCMAKE_VERBOSE_MAKEFILE:BOOL=ON' if args.verbose else ''),
-        ("-DITT_API_IPT_SUPPORT=1" if args.ptmark else ""),
-        ("-DITT_API_FORTRAN_SUPPORT=1" if args.fortran else ""),
-        ("-DITT_API_CPP_SUPPORT=ON" if args.cpp else ""),
-        ("-DITT_API_REFERENCE_COLLECTOR=ON" if args.refcol else ""),
-    ])))
+    cmake_options = [f'-G"{generator}"', generator_args]
+    if args.debug:
+        cmake_options.append('-DCMAKE_BUILD_TYPE=Debug')
+    if args.verbose:
+        cmake_options.append('-DCMAKE_VERBOSE_MAKEFILE:BOOL=ON')
+    if args.ptmark:
+        cmake_options.append('-DITT_API_IPT_SUPPORT=1')
+    if args.fortran:
+        cmake_options.append('-DITT_API_FORTRAN_SUPPORT=1')
+    if args.cpp:
+        cmake_options.append('-DITT_API_CPP_SUPPORT=ON')
+    if args.refcol:
+        cmake_options.append('-DITT_API_REFERENCE_COLLECTOR=ON')
+
+    run_shell(f'{cmake} "{work_dir}" {" ".join(opt for opt in cmake_options if opt)}')
 
     if sys.platform == 'win32':
-        target_project = 'ALL_BUILD' if not use_ninja else 'all'
-        run_shell('%s --build . --config %s --target %s' %
-                  (cmake, ('Debug' if args.debug else 'Release'), target_project))
+        target = 'ALL_BUILD' if not use_ninja else 'all'
+        config = 'Debug' if args.debug else 'Release'
+        run_shell(f'{cmake} --build . --config {config} --target {target}')
     else:
-        run_shell('%s --build . --config %s' %
-                  (cmake, ('Debug' if args.debug else 'Release')))
+        config = 'Debug' if args.debug else 'Release'
+        run_shell(f'{cmake} --build . --config {config}')
 
 
 if __name__ == "__main__":

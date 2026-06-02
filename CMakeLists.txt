@@ -1,10 +1,10 @@
 #
-# Copyright (C) 2005-2023 Intel Corporation
+# Copyright (C) 2005-2026 Intel Corporation
 #
 # SPDX-License-Identifier: GPL-2.0-only OR BSD-3-Clause
 #
 
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.10)
 
 if(POLICY CMP0048)
     # The `project()` command manages `VERSION` variables

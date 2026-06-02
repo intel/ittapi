@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [ master ]
+    branches: [ master, 32bits ]
   pull_request:
-    branches: [ master ]
+    branches: [ master, 32bits ]
 
 env:
   CARGO_TERM_COLOR: always
@@ -29,12 +29,17 @@ jobs:
     - name: Checkout sources
       uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
     - name: Setup Fortran compiler
-      uses: fortran-lang/setup-fortran@8821f57b53846d35d62632eb51c60ac6c4bff4ce # v1.6.1
+      uses: fortran-lang/setup-fortran@2a1b9c55897d827a9dfeb114408f3615e53b2b72 # v1.9.0
       with:
           compiler: intel
+    - name: Setup MSVC environment
+      if: runner.os == 'Windows'
+      uses: ilammy/msvc-dev-cmd@0b201ec74fa43914dc39ae48a89fd1d8cb592756 # v1.13.0
+      with:
+        arch: amd64
     - name: Build C library
       # Disable PT support for MacOS since we have x86 specific assembly instructions
-      run: python buildall.py -ft ${{ matrix.optional_args }}
+      run: python buildall.py -v -ft ${{ matrix.optional_args }}
 
   refcol_smoke:
     name: Reference collector smoke test
@@ -57,8 +62,13 @@ jobs:
     steps:
     - name: Checkout sources
       uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+    - name: Setup MSVC environment
+      if: runner.os == 'Windows'
+      uses: ilammy/msvc-dev-cmd@0b201ec74fa43914dc39ae48a89fd1d8cb592756 # v1.13.0
+      with:
+        arch: amd64
     - name: Build reference collector library
-      run: python buildall.py --refcol ${{ runner.os == 'Windows' && '--cmake_gen ninja' || '' }}
+      run: python buildall.py -v --refcol ${{ runner.os == 'Windows' && '--cmake_gen ninja' || '' }}
     - name: Build smoke test
       run: |
         cmake ${{ matrix.build_dir }} -DITT_API_REFCOL_SMOKE_TESTS=ON
@@ -78,8 +88,13 @@ jobs:
     steps:
     - name: Checkout sources
       uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+    - name: Setup MSVC environment
+      if: runner.os == 'Windows'
+      uses: ilammy/msvc-dev-cmd@0b201ec74fa43914dc39ae48a89fd1d8cb592756 # v1.13.0
+      with:
+        arch: amd64
     - name: Build C++ wrapper
-      run: python buildall.py -cpp
+      run: python buildall.py -v -cpp ${{ runner.os == 'Windows' && '--cmake_gen ninja' || '' }}
     - name: Test (Linux)
       run: ctest --test-dir build_linux/cpp --build-config Release --output-on-failure
       if: runner.os == 'Linux'
