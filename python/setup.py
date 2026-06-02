@@ -21,8 +21,6 @@ def get_environment_flag(name):
     return (flag_value and flag_value.lower() not in ('0', 'n', 'no', 'false')) if flag_value is not None else None
 
 
-IS_64_ARCHITECTURE = sys.maxsize > 2 ** 32
-
 # Check if custom location for ITT API source code is specified
 ITT_DEFAULT_DIR = '../'
 itt_dir = os.environ.get('ITTAPI_ITT_API_SOURCE_DIR', None)
@@ -51,9 +49,9 @@ if itt_dir == ITT_DEFAULT_DIR:
 if build_itt_with_ipt_support:
     itt_compiler_flags = ['-DITT_API_IPT_SUPPORT']
     if sys.platform == 'win32':
-        ITT_PTMARK_SOURCE = 'ittptmark64.asm' if IS_64_ARCHITECTURE else 'ittptmark32.asm'
+        ITT_PTMARK_SOURCE = 'ittptmark64.asm'
     else:
-        ITT_PTMARK_SOURCE = 'ittptmark64.S' if IS_64_ARCHITECTURE else 'ittptmark32.S'
+        ITT_PTMARK_SOURCE = 'ittptmark64.S'
     itt_extra_objects = [os.path.join(itt_dir, 'src', 'ittnotify', ITT_PTMARK_SOURCE)]
 else:
     itt_compiler_flags = []
@@ -94,7 +92,7 @@ class NativeBuildExtension(build_ext):  # pylint: disable=R0903
         """
         if ext.name == 'ittapi.native' and self.compiler.compiler_type == 'msvc':
             # Setup asm tool
-            as_tool = 'ml64.exe' if IS_64_ARCHITECTURE else 'ml.exe'
+            as_tool = 'ml64.exe'
             as_ext = '.asm'
 
             if hasattr(self.compiler, 'initialized') and hasattr(self.compiler, 'initialize'):

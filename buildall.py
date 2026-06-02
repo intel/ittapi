@@ -121,8 +121,6 @@ def main():
         "-cpp", "--cpp", help="enable C++ wrapper support", action="store_true")
     parser.add_argument(
         "--refcol", help="enable reference collector build", action="store_true")
-    parser.add_argument(
-        "--force_bits", choices=["32", "64"], help="specify bit version for the target")
     if sys.platform == 'win32' and vs_versions:
         parser.add_argument(
             "--vs", help="specify visual studio version {default}", choices=vs_versions, default=vs_versions[0])
@@ -130,70 +128,56 @@ def main():
             "--cmake_gen", choices=["vs", "ninja"], help="specify cmake build generator")
     args = parser.parse_args()
 
-    if args.force_bits:
-        target_bits = [args.force_bits]
-    else:
-        target_bits = ['64']
-        if (sys.platform != 'darwin'):  # on MAC OSX we produce FAT library including both 32 and 64 bits
-            target_bits.append('32')
-
-    print("target_bits", target_bits)
     work_dir = os.getcwd()
     if args.clean:
         bin_dir = os.path.join(work_dir, 'bin')
         if os.path.exists(bin_dir):
             shutil.rmtree(bin_dir)
-    for bits in target_bits:
-        work_folder = os.path.join(
-            work_dir, "build_" + (sys.platform.replace('32', "")), bits)
-        already_there = os.path.exists(work_folder)
-        if already_there and args.clean:
-            shutil.rmtree(work_folder)
-            already_there = False
-        if not already_there:
-            os.makedirs(work_folder)
-        print("work_folder: ", work_folder)
-        os.chdir(work_folder)
-        if args.clean:
-            continue
 
-        cmake = detect_cmake()
-        if not cmake:
-            print("Error: cmake is not found")
-            return
+    work_folder = os.path.join(
+        work_dir, "build_" + sys.platform.replace('32', ""))
+    already_there = os.path.exists(work_folder)
+    if already_there and args.clean:
+        shutil.rmtree(work_folder)
+        already_there = False
+    if not already_there:
+        os.makedirs(work_folder)
+    print("work_folder: ", work_folder)
+    os.chdir(work_folder)
 
-        if sys.platform == 'win32':
-            # ninja does not support platform bit specification
-            use_ninja = args.cmake_gen == 'ninja' and bits =='64'
-            if vs_versions and not use_ninja:
-                generator = 'Visual Studio {}'.format(args.vs)
-                generator_args = '-A {}'.format('x64' if bits ==
-                                                '64' else 'Win32')
-            else:
-                generator = 'Ninja'
-                generator_args = ''
+    cmake = detect_cmake()
+    if not cmake:
+        print("Error: cmake is not found")
+        return
+
+    if sys.platform == 'win32':
+        use_ninja = args.cmake_gen == 'ninja'
+        if vs_versions and not use_ninja:
+            generator = 'Visual Studio {}'.format(args.vs)
+            generator_args = '-A x64'
         else:
-            generator = 'Unix Makefiles'
+            generator = 'Ninja'
             generator_args = ''
+    else:
+        generator = 'Unix Makefiles'
+        generator_args = ''
 
-        run_shell('%s "%s" -G"%s" %s %s' % (cmake, work_dir, generator, generator_args, " ".join([
-            ("-DFORCE_32=ON" if bits == '32' else ""),
-            ("-DCMAKE_BUILD_TYPE=Debug" if args.debug else ""),
-            ('-DCMAKE_VERBOSE_MAKEFILE:BOOL=ON' if args.verbose else ''),
-            ("-DITT_API_IPT_SUPPORT=1" if args.ptmark else ""),
-            ("-DITT_API_FORTRAN_SUPPORT=1" if args.fortran else ""),
-            ("-DITT_API_CPP_SUPPORT=ON" if args.cpp else ""),
-            ("-DITT_API_REFERENCE_COLLECTOR=ON" if args.refcol else ""),
-        ])))
+    run_shell('%s "%s" -G"%s" %s %s' % (cmake, work_dir, generator, generator_args, " ".join([
+        ("-DCMAKE_BUILD_TYPE=Debug" if args.debug else ""),
+        ('-DCMAKE_VERBOSE_MAKEFILE:BOOL=ON' if args.verbose else ''),
+        ("-DITT_API_IPT_SUPPORT=1" if args.ptmark else ""),
+        ("-DITT_API_FORTRAN_SUPPORT=1" if args.fortran else ""),
+        ("-DITT_API_CPP_SUPPORT=ON" if args.cpp else ""),
+        ("-DITT_API_REFERENCE_COLLECTOR=ON" if args.refcol else ""),
+    ])))
 
-        if sys.platform == 'win32':
-            target_project = 'ALL_BUILD' if not use_ninja else 'all'
-            run_shell('%s --build . --config %s --target %s' %
-                      (cmake, ('Debug' if args.debug else 'Release'), target_project))
-        else:
-            import glob
-            run_shell('%s --build . --config %s' %
-                      (cmake, ('Debug' if args.debug else 'Release')))
+    if sys.platform == 'win32':
+        target_project = 'ALL_BUILD' if not use_ninja else 'all'
+        run_shell('%s --build . --config %s --target %s' %
+                  (cmake, ('Debug' if args.debug else 'Release'), target_project))
+    else:
+        run_shell('%s --build . --config %s' %
+                  (cmake, ('Debug' if args.debug else 'Release')))
 
 
 if __name__ == "__main__":
