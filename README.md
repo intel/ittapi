@@ -32,7 +32,7 @@ To build the library:
 
 - Get general development tools, including C/C++ Compiler
 - Install [Python](https://python.org) 3.6 or later
-- Install [CMake](https://cmake.org) 3.5 or later
+- Install [CMake](https://cmake.org) 3.10 or later
 - For a Windows* system, install one of these:
   - [Microsoft Visual Studio](https://visualstudio.microsoft.com) 2015 or later
   - [Ninja](https://github.com/ninja-build/ninja/releases) 1.9 or later
@@ -41,7 +41,7 @@ To build the library:
 - To list available build options execute: `python buildall.py -h`
 
 ```
-usage: buildall.py [-h] [-d] [-c] [-v] [-pt] [-ft] [-cpp]
+usage: buildall.py [-h] [-d] [-c] [-v] [-pt] [-ft] [-cpp] [--refcol]
 
 optional arguments:
   -h, --help      show this help message and exit

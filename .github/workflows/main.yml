@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [ master, 32bits ]
+    branches: [ master ]
   pull_request:
-    branches: [ master, 32bits ]
+    branches: [ master ]
 
 env:
   CARGO_TERM_COLOR: always
@@ -38,7 +38,9 @@ jobs:
       with:
         arch: amd64
     - name: Build C library
-      # Disable PT support for MacOS since we have x86 specific assembly instructions
+      # - Disable PT support for MacOS since we have x86 specific assembly instructions
+      # - Switch to use Ninja CMake Generator for Windows since setup-fortran action
+      #   doesn't work in case of CMake + VS (https://github.com/fortran-lang/setup-fortran/issues/45)
       run: python buildall.py -v -ft ${{ matrix.optional_args }}
 
   refcol_smoke:
