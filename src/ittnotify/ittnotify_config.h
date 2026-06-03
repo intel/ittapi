@@ -194,10 +194,10 @@
 #define ITT_MAGIC { 0xED, 0xAB, 0xAB, 0xEC, 0x0D, 0xEE, 0xDA, 0x30 }
 
 /* Replace with snapshot date YYYYMMDD for promotion build. */
-#define API_VERSION_BUILD    20250807
+#define API_VERSION_BUILD    20260603
 
 #ifndef API_VERSION_NUM
-#define API_VERSION_NUM 3.26.3
+#define API_VERSION_NUM 3.28.0
 #endif /* API_VERSION_NUM */
 
 #define API_VERSION "ITT-API-Version " ITT_TO_STR(API_VERSION_NUM) \
@@ -328,7 +328,7 @@ __itt_interlocked_compare_exchange(volatile long* ptr, long exchange, long compe
 #else  /* __INTEL_COMPILER */
 /* TODO: Add Support for not Intel compilers for IA-64 architecture */
 #endif /* __INTEL_COMPILER */
-#elif ITT_ARCH==ITT_ARCH_IA32E /* ITT_ARCH!=ITT_ARCH_IA64 */
+#elif ITT_ARCH==ITT_ARCH_IA32E
 ITT_INLINE long
 __TBB_machine_fetchadd4(volatile void* ptr, long addend) ITT_INLINE_ATTRIBUTE;
 ITT_INLINE long __TBB_machine_fetchadd4(volatile void* ptr, long addend)
