@@ -168,6 +168,8 @@
 #    define ITT_ARCH ITT_ARCH_ARM64
 #  elif defined __powerpc64__
 #    define ITT_ARCH ITT_ARCH_PPC64
+#  else
+#    error "Unsupported architecture. Only 64-bit platforms are supported."
 #  endif
 #endif
 

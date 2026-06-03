@@ -132,15 +132,16 @@ def main():
         bin_dir = os.path.join(work_dir, 'bin')
         if os.path.exists(bin_dir):
             shutil.rmtree(bin_dir)
+        work_folder = os.path.join(
+            work_dir, "build_" + sys.platform.replace('32', ""))
+        if os.path.exists(work_folder):
+            shutil.rmtree(work_folder)
+        return
 
     # Build folder: build_linux, build_win, build_darwin
     work_folder = os.path.join(
         work_dir, "build_" + sys.platform.replace('32', ""))
-    already_there = os.path.exists(work_folder)
-    if already_there and args.clean:
-        shutil.rmtree(work_folder)
-        already_there = False
-    if not already_there:
+    if not os.path.exists(work_folder):
         os.makedirs(work_folder)
     print("work_folder: ", work_folder)
     os.chdir(work_folder)

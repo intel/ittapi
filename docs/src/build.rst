@@ -10,7 +10,7 @@ Before you build the ITT/JIT APIs, make sure you have the following hardware and
 
 -  Get general development tools, including C/C++ Compiler
 -  Install `Python <https://python.org>`__  3.6 or later
--  Install `CMake <https://cmake.org>`__ 3.5 or later
+-  Install `CMake <https://cmake.org>`__ 3.10 or later
 -  For a Windows* system, install one of these:
    
    -  `Microsoft Visual Studio <https://visualstudio.microsoft.com>`__ 2015 or later
@@ -47,7 +47,7 @@ Use these options to configure the build process:
 
 .. code-block:: console
 
-    usage: python buildall.py [-h] [-d] [-c] [-v] [-pt] [-ft] [-cpp]
+    usage: python buildall.py [-h] [-d] [-c] [-v] [-pt] [-ft] [-cpp] [--refcol]
 
     optional arguments:
       -h, --help      show this help message and exit
