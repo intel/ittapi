@@ -93,11 +93,7 @@
 #  if ITT_PLATFORM==ITT_PLATFORM_WIN
 #    define ITTAPI_CDECL __cdecl
 #  else /* ITT_PLATFORM==ITT_PLATFORM_WIN */
-#    if defined _M_IX86 || defined __i386__
-#      define ITTAPI_CDECL __attribute__ ((cdecl))
-#    else  /* _M_IX86 || __i386__ */
-#      define ITTAPI_CDECL /* actual only on x86 platform */
-#    endif /* _M_IX86 || __i386__ */
+#    define ITTAPI_CDECL /* nothing */
 #  endif /* ITT_PLATFORM==ITT_PLATFORM_WIN */
 #endif /* ITTAPI_CDECL */
 
@@ -105,11 +101,7 @@
 #  if ITT_PLATFORM==ITT_PLATFORM_WIN
 #    define STDCALL __stdcall
 #  else /* ITT_PLATFORM==ITT_PLATFORM_WIN */
-#    if defined _M_IX86 || defined __i386__
-#      define STDCALL __attribute__ ((stdcall))
-#    else  /* _M_IX86 || __i386__ */
-#      define STDCALL /* supported only on x86 platform */
-#    endif /* _M_IX86 || __i386__ */
+#    define STDCALL /* nothing */
 #  endif /* ITT_PLATFORM==ITT_PLATFORM_WIN */
 #endif /* STDCALL */
 
@@ -145,10 +137,6 @@
 #endif /* ITT_PLATFORM==ITT_PLATFORM_WIN */
 /** @endcond */
 
-#ifndef ITT_ARCH_IA32
-#  define ITT_ARCH_IA32  1
-#endif /* ITT_ARCH_IA32 */
-
 #ifndef ITT_ARCH_IA32E
 #  define ITT_ARCH_IA32E 2
 #endif /* ITT_ARCH_IA32E */
@@ -170,9 +158,7 @@
 #endif /* ITT_ARCH_ARM64 */
 
 #ifndef ITT_ARCH
-#  if defined _M_IX86 || defined __i386__
-#    define ITT_ARCH ITT_ARCH_IA32
-#  elif defined _M_X64 || defined _M_AMD64 || defined __x86_64__
+#  if defined _M_X64 || defined _M_AMD64 || defined __x86_64__
 #    define ITT_ARCH ITT_ARCH_IA32E
 #  elif defined _M_IA64 || defined __ia64__
 #    define ITT_ARCH ITT_ARCH_IA64
@@ -342,7 +328,7 @@ __itt_interlocked_compare_exchange(volatile long* ptr, long exchange, long compe
 #else  /* __INTEL_COMPILER */
 /* TODO: Add Support for not Intel compilers for IA-64 architecture */
 #endif /* __INTEL_COMPILER */
-#elif ITT_ARCH==ITT_ARCH_IA32 || ITT_ARCH==ITT_ARCH_IA32E /* ITT_ARCH!=ITT_ARCH_IA64 */
+#elif ITT_ARCH==ITT_ARCH_IA32E /* ITT_ARCH!=ITT_ARCH_IA64 */
 ITT_INLINE long
 __TBB_machine_fetchadd4(volatile void* ptr, long addend) ITT_INLINE_ATTRIBUTE;
 ITT_INLINE long __TBB_machine_fetchadd4(volatile void* ptr, long addend)
