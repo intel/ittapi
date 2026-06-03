@@ -41,7 +41,7 @@ jobs:
       # - Disable PT support for MacOS since we have x86 specific assembly instructions
       # - Switch to use Ninja CMake Generator for Windows since setup-fortran action
       #   doesn't work in case of CMake + VS (https://github.com/fortran-lang/setup-fortran/issues/45)
-      run: python buildall.py -v -ft ${{ matrix.optional_args }}
+      run: python buildall.py -ft ${{ matrix.optional_args }}
 
   refcol_smoke:
     name: Reference collector smoke test
@@ -70,7 +70,7 @@ jobs:
       with:
         arch: amd64
     - name: Build reference collector library
-      run: python buildall.py -v --refcol ${{ runner.os == 'Windows' && '--cmake_gen ninja' || '' }}
+      run: python buildall.py --refcol ${{ runner.os == 'Windows' && '--cmake_gen ninja' || '' }}
     - name: Build smoke test
       run: |
         cmake ${{ matrix.build_dir }} -DITT_API_REFCOL_SMOKE_TESTS=ON
@@ -96,7 +96,7 @@ jobs:
       with:
         arch: amd64
     - name: Build C++ wrapper
-      run: python buildall.py -v -cpp ${{ runner.os == 'Windows' && '--cmake_gen ninja' || '' }}
+      run: python buildall.py -cpp ${{ runner.os == 'Windows' && '--cmake_gen ninja' || '' }}
     - name: Test (Linux)
       run: ctest --test-dir build_linux/cpp --build-config Release --output-on-failure
       if: runner.os == 'Linux'
