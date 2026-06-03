@@ -106,8 +106,7 @@ Step 5: Load the Dynamic Library
 
 After you instrument your application and link the static library, you must
 load the dynamic library of the ITT API to your application. To do this,
-depending on your system architecture, set the ``INTEL_LIBITTNOTIFY32`` or
-the ``INTEL_LIBITTNOTIFY64`` environment variable.
+set the ``INTEL_LIBITTNOTIFY64`` environment variable.
 
 
 **Windows OS:**
@@ -116,7 +115,6 @@ the ``INTEL_LIBITTNOTIFY64`` environment variable.
 .. code-block:: bash
    
    
-   set INTEL_LIBITTNOTIFY32=<install-dir>\bin32\runtime\ittnotify_collector.dll
    set INTEL_LIBITTNOTIFY64=<install-dir>\bin64\runtime\ittnotify_collector.dll
 
 
@@ -126,7 +124,6 @@ the ``INTEL_LIBITTNOTIFY64`` environment variable.
 .. code-block:: bash
 
 
-   export INTEL_LIBITTNOTIFY32=<install-dir>/lib32/runtime/libittnotify_collector.so
    export INTEL_LIBITTNOTIFY64=<install-dir>/lib64/runtime/libittnotify_collector.so
 
 
