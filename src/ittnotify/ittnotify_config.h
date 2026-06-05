@@ -157,6 +157,10 @@
 #  define ITT_ARCH_ARM64  6
 #endif /* ITT_ARCH_ARM64 */
 
+#ifndef ITT_ARCH_UNSUPPORTED
+#  define ITT_ARCH_UNSUPPORTED  0
+#endif /* ITT_ARCH_UNSUPPORTED */
+
 #ifndef ITT_ARCH
 #  if defined _M_X64 || defined _M_AMD64 || defined __x86_64__
 #    define ITT_ARCH ITT_ARCH_IA32E
@@ -167,7 +171,7 @@
 #  elif defined __powerpc64__
 #    define ITT_ARCH ITT_ARCH_PPC64
 #  else
-#    error "Unsupported architecture. Only 64-bit platforms are supported."
+#    define ITT_ARCH ITT_ARCH_UNSUPPORTED
 #  endif
 #endif
 
