@@ -98,11 +98,7 @@
 #  if ITT_PLATFORM==ITT_PLATFORM_WIN
 #    define ITTAPI_CDECL __cdecl
 #  else /* ITT_PLATFORM==ITT_PLATFORM_WIN */
-#    if defined _M_IX86 || defined __i386__
-#      define ITTAPI_CDECL __attribute__ ((cdecl))
-#    else  /* _M_IX86 || __i386__ */
-#      define ITTAPI_CDECL /* actual only on x86 platform */
-#    endif /* _M_IX86 || __i386__ */
+#    define ITTAPI_CDECL /* nothing */
 #  endif /* ITT_PLATFORM==ITT_PLATFORM_WIN */
 #endif /* ITTAPI_CDECL */
 
@@ -110,11 +106,7 @@
 #  if ITT_PLATFORM==ITT_PLATFORM_WIN
 #    define STDCALL __stdcall
 #  else /* ITT_PLATFORM==ITT_PLATFORM_WIN */
-#    if defined _M_IX86 || defined __i386__
-#      define STDCALL __attribute__ ((stdcall))
-#    else  /* _M_IX86 || __i386__ */
-#      define STDCALL /* supported only on x86 platform */
-#    endif /* _M_IX86 || __i386__ */
+#    define STDCALL /* nothing */
 #  endif /* ITT_PLATFORM==ITT_PLATFORM_WIN */
 #endif /* STDCALL */
 
