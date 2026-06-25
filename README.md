@@ -63,7 +63,7 @@ Find complete documentation for ITT/JIT APIs on the
 
 ### License
 
-All code in the repo is dual licensed under GPLv2 and 3-Clause BSD licenses
+This project is dual-licensed under either the BSD-3-Clause or the GPL-2.0-only license
 
 ### Make Contributions
 
