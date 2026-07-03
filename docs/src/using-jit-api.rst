@@ -21,7 +21,7 @@ To include JIT Profiling support, do one of the following:
        in your code. This header file provides all API function prototype
        and type definitions.
    #.  Link to ``jitprofiling.lib`` (Windows*) or ``jitprofiling.a`` (Linux*),
-       located under ``<ittapi_dir>\build_<target_platform>\<target_bits>\bin``
+       located under ``<ittapi_dir>\build_<target_platform>\bin``
        directory.
 
 

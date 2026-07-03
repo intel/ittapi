@@ -122,11 +122,7 @@ typedef HMODULE lib_t;
 
 #else /* defined(WIN32) || defined(_WIN32) */
 
-#if defined _M_IX86 || __i386__
-#   define ANNOTATEAPI __attribute__ ((cdecl))
-#else
-#   define ANNOTATEAPI /* actual only on x86 platform */
-#endif
+#define ANNOTATEAPI /* nothing */
 
 
 #ifndef ANNOTATE_DECLARE
@@ -305,11 +301,7 @@ __annotate_routines_init(struct __annotate_routines* itt) {
         char* lib_name = NULL;
         lib_t itt_notify = 0;
 
-        if (sizeof(void*) > 4) {
-            lib_name = getenv("INTEL_LIBITTNOTIFY64");
-        } else {
-            lib_name = getenv("INTEL_LIBITTNOTIFY32");
-        }
+        lib_name = getenv("INTEL_LIBITTNOTIFY64");
 
         if (lib_name) {
             itt_notify = __itt_load_lib(lib_name);

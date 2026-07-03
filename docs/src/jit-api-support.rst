@@ -44,35 +44,29 @@ Environment Variables in the JIT Profiling API
 ----------------------------------------------
 
 
-The JIT Profiling API contains two environment variables:
+The JIT Profiling API uses the ``INTEL_JIT_PROFILER64`` environment variable
+that contains the path to a specific runtime library.
 
--  ``INTEL_JIT_PROFILER32``
--  ``INTEL_JIT_PROFILER64``
-
-In turn, these variables contain paths to specific runtime libraries.
-
-These variables are used to signal the replacement of the stub
+This variable is used to signal the replacement of the stub
 implementation of the JIT API with the JIT API collector.
 After you instrument your code with the JIT API and link it to the
 JIT API stub (``libjitprofiling.lib/libjitprofiling.a``), when the
-environment variables are set, your code loads the libraries defined
-in the variables.
+environment variable is set, your code loads the library defined
+in the variable.
 
-Make sure to set these environment variables for the ``ittnotify_collector``
+Make sure to set this environment variable for the ``ittnotify_collector``
 to enable data collection:   
 
 On Windows*:
    
 .. code-block:: bash
 
-   INTEL_JIT_PROFILER32=<install-dir>\bin32\runtime\ittnotify_collector.dll
    INTEL_JIT_PROFILER64=<install-dir>\bin64\runtime\ittnotify_collector.dll
 
 On Linux*:
 
 .. code-block:: bash
 
-   INTEL_JIT_PROFILER32=<install-dir>/lib32/runtime/libittnotify_collector.so
    INTEL_JIT_PROFILER64=<install-dir>/lib64/runtime/libittnotify_collector.so    
 
 On FreeBSD*:

@@ -21,11 +21,7 @@
 static const char rcsid[] = "\n@(#) $Revision$\n";
 
 #ifndef NEW_DLL_ENVIRONMENT_VAR
-#if ITT_ARCH==ITT_ARCH_IA32
-#define NEW_DLL_ENVIRONMENT_VAR	        "INTEL_JIT_PROFILER32"
-#else
 #define NEW_DLL_ENVIRONMENT_VAR	        "INTEL_JIT_PROFILER64"
-#endif
 #endif /* NEW_DLL_ENVIRONMENT_VAR */
 
 #if ITT_PLATFORM==ITT_PLATFORM_WIN
