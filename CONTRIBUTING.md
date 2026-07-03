@@ -21,7 +21,7 @@ We welcome contributions from everyone. Your efforts help improve the project an
 
 ## Licensing
 
-- All code is dual licensed under GPLv2 and 3-Clause BSD
+- All code is dual-licensed under either the BSD-3-Clause or the GPL-2.0-only license
 - All contributions must carry these licenses
 
 Thank you for contributing to Intel® Instrumentation and Tracing Technology (ITT) and Just-In-Time (JIT) API

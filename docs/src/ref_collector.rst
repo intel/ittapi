@@ -8,8 +8,7 @@ This is a reference implementation of the ITT API **dynamic** part that
 performs tracing data from ITT API function calls to log files.
 
 To use this solution, build the collector as a shared library and point the
-full library path to the `INTEL_LIBITTNOTIFY64` or `INTEL_LIBITTNOTIFY32`
-environment variable.
+full library path to the `INTEL_LIBITTNOTIFY64` environment variable.
 
 
 Building

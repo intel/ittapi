@@ -586,11 +586,7 @@ extern "C" {
 #  if defined WIN32 || defined _WIN32
 #    define JITAPI_CDECL __cdecl
 #  else /* defined WIN32 || defined _WIN32 */
-#    if defined _M_IX86 || defined __i386__
-#      define JITAPI_CDECL __attribute__ ((cdecl))
-#    else  /* _M_IX86 || __i386__ */
-#      define JITAPI_CDECL /* actual only on x86_64 platform */
-#    endif /* _M_IX86 || __i386__ */
+#    define JITAPI_CDECL /* nothing */
 #  endif /* defined WIN32 || defined _WIN32 */
 #endif /* JITAPI_CDECL */
 

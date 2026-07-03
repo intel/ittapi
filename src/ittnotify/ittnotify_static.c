@@ -102,24 +102,14 @@ static const char* ittnotify_lib_name = "libittnotify.dylib";
 #endif
 
 /* default location of userapi collector on Android */
-#define ANDROID_ITTNOTIFY_DEFAULT_PATH_MASK(x)  "/data/data/com.intel.vtune/perfrun/lib" \
-                                                #x "/runtime/libittnotify.so"
-
-#if ITT_ARCH==ITT_ARCH_IA32 || ITT_ARCH==ITT_ARCH_ARM
-#define ANDROID_ITTNOTIFY_DEFAULT_PATH  ANDROID_ITTNOTIFY_DEFAULT_PATH_MASK(32)
-#else
-#define ANDROID_ITTNOTIFY_DEFAULT_PATH  ANDROID_ITTNOTIFY_DEFAULT_PATH_MASK(64)
-#endif
+#define ANDROID_ITTNOTIFY_DEFAULT_PATH  "/data/data/com.intel.vtune/perfrun/lib" \
+                                        "64/runtime/libittnotify.so"
 
 #endif
 
 
 #ifndef LIB_VAR_NAME
-#if ITT_ARCH==ITT_ARCH_IA32 || ITT_ARCH==ITT_ARCH_ARM
-#define LIB_VAR_NAME INTEL_LIBITTNOTIFY32
-#else
 #define LIB_VAR_NAME INTEL_LIBITTNOTIFY64
-#endif
 #endif /* LIB_VAR_NAME */
 
 #define ITT_MUTEX_INIT_AND_LOCK(p) {                                 \

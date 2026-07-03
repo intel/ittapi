@@ -637,11 +637,7 @@ contains
         type(C_PTR) :: library
         character*1024 ittnotify_path
 
-!dec$ if defined(__X86_64) .or. defined(_M_X64)
         call getenv('INTEL_LIBITTNOTIFY64',ittnotify_path)
-!dec$ else
-        call getenv('INTEL_LIBITTNOTIFY32',ittnotify_path)
-!dec$ endif
         if ( ittnotify_path /= '' ) then
           !  print *,' libpath: "'//trim(ittnotify_path)//'"'
 !dec$ if defined(WIN32) .or. defined(_WIN32)

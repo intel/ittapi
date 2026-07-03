@@ -1,10 +1,10 @@
 #
-# Copyright (C) 2005-2023 Intel Corporation
+# Copyright (C) 2005-2026 Intel Corporation
 #
 # SPDX-License-Identifier: GPL-2.0-only OR BSD-3-Clause
 #
 
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.10)
 
 if(POLICY CMP0048)
     # The `project()` command manages `VERSION` variables
@@ -23,27 +23,11 @@ endif()
 
 project(ittapi)
 
-option(FORCE_32 "Force a 32-bit compile on 64-bit" OFF)
 option(ITT_API_IPT_SUPPORT "ptmarks support" OFF)
 option(ITT_API_FORTRAN_SUPPORT "fortran support" OFF)
 option(ITT_API_CPP_SUPPORT "C++ wrapper support" OFF)
 option(ITT_API_REFERENCE_COLLECTOR "Build reference collector shared library" OFF)
 option(ITT_API_INSTALL "Enable ITT API installation rules" ON)
-
-if(FORCE_32 AND UNIX)
-    SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -m32")
-    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -m32")
-endif()
-
-if(CMAKE_SIZEOF_VOID_P MATCHES "8" AND NOT(FORCE_32))
-    set(ARCH_64 ON)
-endif()
-
-if(FORCE_32 AND ITT_API_FORTRAN_SUPPORT)
-    # ifx dropped 32-bit support
-    message(WARNING "Fortran support for 32-bit has been discontinued")
-    set(ITT_API_FORTRAN_SUPPORT OFF)
-endif()
 
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "^(Apple)?Clang$")
     # override default -O3
@@ -75,20 +59,10 @@ if(ITT_API_IPT_SUPPORT)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DITT_API_IPT_SUPPORT")
     if(NOT WIN32)
         enable_language(ASM)
-        if(ARCH_64)
-            set(ITT_PT src/ittnotify/ittptmark64.S)
-        else()
-            set(ASM_OPTIONS "-m32")
-            set(ITT_PT src/ittnotify/ittptmark32.S)
-        endif()
-        set(CMAKE_ASM_FLAGS "${CFLAGS} ${ASM_OPTIONS}")
+        set(ITT_PT src/ittnotify/ittptmark64.S)
     else()
         enable_language(ASM_MASM)
-        if(ARCH_64)
-            set(ITT_PT src/ittnotify/ittptmark64.asm)
-	    else()
-            set(ITT_PT src/ittnotify/ittptmark32.asm)
-        endif()
+        set(ITT_PT src/ittnotify/ittptmark64.asm)
     endif()
 endif()
 

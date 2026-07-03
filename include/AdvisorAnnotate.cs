@@ -84,14 +84,7 @@ namespace AdvisorAnnotate
         {
             string libname;
 
-            if (Environment.Is64BitOperatingSystem)
-            {
-                libname = Environment.GetEnvironmentVariable("INTEL_LIBITTNOTIFY64");
-            }
-            else
-            {
-                libname = Environment.GetEnvironmentVariable("INTEL_LIBITTNOTIFY32");
-            }
+            libname = Environment.GetEnvironmentVariable("INTEL_LIBITTNOTIFY64");
 
             if (String.IsNullOrEmpty(libname))
             {
