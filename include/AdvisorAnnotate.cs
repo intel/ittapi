@@ -1,4 +1,4 @@
-// Copyright (C) 2005-2026 Intel Corporation
+// Copyright (C) 2012-2026 Intel Corporation
 // SPDX-License-Identifier: (BSD-3-Clause OR GPL-2.0-only)
 
 // This file defines functions used by the Intel(R) Advisor
