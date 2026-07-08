@@ -12,6 +12,10 @@ env:
 permissions:
   contents: read
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   c_build:
     name: Check upstream C library
@@ -73,8 +77,8 @@ jobs:
       run: python buildall.py --refcol ${{ runner.os == 'Windows' && '--cmake_gen ninja' || '' }}
     - name: Build smoke test
       run: |
-        cmake ${{ matrix.build_dir }} -DITT_API_REFCOL_SMOKE_TESTS=ON
-        cmake --build ${{ matrix.build_dir }} --target refcol_smoke_test
+        cmake ${{ matrix.build_dir }} -DITT_API_REFERENCE_COLLECTOR=ON -DITT_API_REFCOL_SMOKE_TESTS=ON
+        cmake --build ${{ matrix.build_dir }} --target refcol_smoke_test --config Release
     - name: Run smoke test
       run: python src/ittnotify_refcol/tests/run_smoke_test.py --lib ${{ matrix.lib }} --exe ${{ matrix.exe }}
 
