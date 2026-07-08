@@ -45,9 +45,6 @@ if(WIN32)
         WINDOWS_EXPORT_ALL_SYMBOLS ON)
 endif()
 
-# Where to put the built library:
-#   * repository build -> <build>/bin  (alongside the other ITT targets)
-#   * standalone build -> <build>      (right next to where cmake was invoked)
 if(DEFINED LIBRARY_OUTPUT_PATH AND NOT ITT_REFCOL_STANDALONE)
     set(ITT_REFCOL_OUTPUT_DIR "${LIBRARY_OUTPUT_PATH}")
 else()
