@@ -1,6 +1,6 @@
 ! ========================================================================
-! Copyright (C) 2012-2017 Intel Corporation
-! SPDX-License-Identifier: GPL-2.0-only OR BSD-3-Clause
+! Copyright (C) 2012-2026 Intel Corporation
+! SPDX-License-Identifier: (BSD-3-Clause OR GPL-2.0-only)
 ! ========================================================================
 
 !--------

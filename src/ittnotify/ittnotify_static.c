@@ -1,7 +1,6 @@
 /*
-  Copyright (C) 2005-2019 Intel Corporation
-
-  SPDX-License-Identifier: GPL-2.0-only OR BSD-3-Clause
+  Copyright (C) 2005-2026 Intel Corporation
+  SPDX-License-Identifier: (BSD-3-Clause OR GPL-2.0-only)
 */
 
 #define INTEL_NO_MACRO_BODY
