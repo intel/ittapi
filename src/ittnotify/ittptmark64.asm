@@ -1,8 +1,6 @@
-COMMENT @
-  Copyright (C) 2017-2025 Intel Corporation
+; Copyright (C) 2017-2026 Intel Corporation
+; SPDX-License-Identifier: (BSD-3-Clause OR GPL-2.0-only)
 
-  SPDX-License-Identifier: GPL-2.0-only OR BSD-3-Clause
-@
 
 ;;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; ;;; Intel Processor Trace Marker Functionality
