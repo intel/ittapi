@@ -1,8 +1,7 @@
 #!/usr/bin/env python
 #
 # Copyright (C) 2005-2026 Intel Corporation
-#
-# SPDX-License-Identifier: GPL-2.0-only OR BSD-3-Clause
+# SPDX-License-Identifier: (BSD-3-Clause OR GPL-2.0-only)
 #
 
 import os

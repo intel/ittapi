@@ -1,10 +1,10 @@
 /*
- * Copyright (C) 2005-2019 Intel Corporation
- * SPDX-License-Identifier: GPL-2.0-only OR BSD-3-Clause
+ * Copyright (C) 2005-2026 Intel Corporation
+ * SPDX-License-Identifier: (BSD-3-Clause OR GPL-2.0-only)
  */
 
 /* This file defines macros and inline functions used by
- * the Intel(R) Advisor XE "Dependencies Modeling" and
+ * the Intel(R) Advisor "Dependencies Modeling" and
  * "Suitability Modeling" analysis, and are in described
  * in the "Annotations" section of the help.
  *
