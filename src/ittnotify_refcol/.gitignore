@@ -1,2 +1,5 @@
 *.o
 *.so
+*.dll
+*.lib
+build/

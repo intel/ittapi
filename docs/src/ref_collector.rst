@@ -14,20 +14,25 @@ full library path to the `INTEL_LIBITTNOTIFY64` environment variable.
 Building
 --------
 
-Use CMake from the repository root, enabling the ``ITT_API_REFERENCE_COLLECTOR`` option:
+There are two ways to build the ITT API reference collector shared library.
+
+**Standalone** — run this single CMake build command from the
+``src/ittnotify_refcol`` directory (the library is written into the ``./build``
+directory):
 
 .. code-block:: console
 
-    cmake -B <build_dir> -DITT_API_REFERENCE_COLLECTOR=ON
-    cmake --build <build_dir>
+    cmake -B build && cmake --build build --config Release
 
-Alternatively, use the provided ``buildall.py`` script:
+**From the ittapi repository** — use the ``buildall.py`` script in the
+repository root (the library is written into the ``build_linux/bin`` or
+``build_win/bin`` directory):
 
 .. code-block:: console
 
     python buildall.py --refcol
 
-The shared library is placed in the ``bin/`` subdirectory of the build directory:
+Resulting library name:
 
 .. list-table::
    :header-rows: 1
@@ -43,13 +48,15 @@ The shared library is placed in the ``bin/`` subdirectory of the build directory
 Usage
 -----
 
+Point the ``INTEL_LIBITTNOTIFY64`` environment variable to the full path of the
+library you built above (adjust the path to your build directory).
 
 **On Linux**
 
 
 .. code-block:: bash
 
-    export INTEL_LIBITTNOTIFY64=<build_dir>/bin/libittnotify_refcol.so
+    export INTEL_LIBITTNOTIFY64=<build_dir>/libittnotify_refcol.so
 
 
 **On FreeBSD**
@@ -57,7 +64,7 @@ Usage
 
 .. code-block:: bash
 
-    setenv INTEL_LIBITTNOTIFY64 <build_dir>/bin/libittnotify_refcol.so
+    setenv INTEL_LIBITTNOTIFY64 <build_dir>/libittnotify_refcol.so
 
 
 **On Windows**
@@ -65,7 +72,7 @@ Usage
 
 .. code-block:: bat
 
-    set INTEL_LIBITTNOTIFY64=<build_dir>\bin\libittnotify_refcol.dll
+    set INTEL_LIBITTNOTIFY64=<build_dir>\libittnotify_refcol.dll
 
 
 Log File Location
