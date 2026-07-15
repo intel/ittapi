@@ -1,10 +1,19 @@
 # Instrumentation and Tracing Technology (ITT) API Reference Collector
 
-This is a reference implementation of the ITT API *dynamic* part that
-translates ITT API function calls into a
-[Perfetto / Chrome Trace Event](https://ui.perfetto.dev) trace written in JSON.
-The resulting file can be opened directly in <https://ui.perfetto.dev> or
-`chrome://tracing`.
+This is a reference implementation of the ITT API *dynamic* part. It records the
+ITT API function calls made by an instrumented application and can produce the
+output in one of two modes:
+
+1. **Text log (default)** — a human-readable `.log` file with one line per ITT
+   API call, describing the call and its arguments.
+2. **JSON trace** — a
+   [Perfetto / Chrome Trace Event](https://ui.perfetto.dev) trace written in
+   JSON, which can be opened directly in <https://ui.perfetto.dev> or
+   `chrome://tracing`.
+
+The mode is selected with the `EXP_LIBITTNOTIFY_GEN_JSON` environment variable
+(see [Output modes](#output-modes) below). By default the collector produces the
+plain-text log.
 
 To use this solution, build the collector as a shared library and point the
 full library path to the `INTEL_LIBITTNOTIFY64` environment variable.
@@ -76,9 +85,44 @@ setenv INTEL_LIBITTNOTIFY_LOG_DIR <log_dir>
 set INTEL_LIBITTNOTIFY_LOG_DIR=<log_dir>
 ```
 
-The collector writes one trace file per run named
-`libittnotify_refcol_<timestamp>.json`. It is a Chrome Trace Event trace in the
-streaming-friendly "JSON Array Format", so it loads directly into
+The collector writes one output file per run in the log directory. The file name
+and contents depend on the selected mode (see below).
+
+## Output modes
+
+The output mode is controlled by the `EXP_LIBITTNOTIFY_GEN_JSON` environment
+variable:
+
+| `EXP_LIBITTNOTIFY_GEN_JSON` | Mode        | Output file                             |
+|-----------------------------|-------------|-----------------------------------------|
+| unset or `0` (default)      | Text log    | `libittnotify_refcol_<timestamp>.log`   |
+| `1` (or any non-zero value) | JSON trace  | `libittnotify_refcol_<timestamp>.json`  |
+
+**On Linux / FreeBSD**
+
+```
+export EXP_LIBITTNOTIFY_GEN_JSON=1
+```
+
+**On Windows**
+
+```
+set EXP_LIBITTNOTIFY_GEN_JSON=1
+```
+
+### Text log mode (default)
+
+Each ITT API call is written as a single human-readable line, for example:
+
+```
+[INFO] __itt_task_begin(...) - function args: domain=sample.app name=startup taskid=...
+[INFO] __itt_domain_create(...) - function args: name=sample.app (created new domain)
+```
+
+### JSON trace mode
+
+When `EXP_LIBITTNOTIFY_GEN_JSON=1`, the collector writes a Chrome Trace Event
+trace in the streaming-friendly "JSON Array Format", so it loads directly into
 <https://ui.perfetto.dev> or `chrome://tracing`. ITT API calls are mapped to
 trace events as follows:
 
@@ -95,3 +139,8 @@ Each event carries an `itt_api` argument identifying the originating ITT call.
 Adding support for other ITT API calls is welcome: emit events with the
 `trace_emit()` helper, which takes a phase, category, name, timestamp, and an
 optional raw-JSON `extra` field (for `args`, `id`, `dur`, etc.).
+
+The two modes are kept as separate as possible within the single source file:
+JSON emission lives in the `json_*` helper functions, while each ITT API entry
+point dispatches to the JSON helper when `EXP_LIBITTNOTIFY_GEN_JSON` is set and
+otherwise falls back to the plain-text logger.
