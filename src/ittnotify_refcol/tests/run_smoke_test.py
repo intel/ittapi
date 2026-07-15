@@ -6,13 +6,14 @@
 
 import argparse
 import glob
+import json
 import os
 import subprocess
 import sys
 import tempfile
 
 
-EXPECTED_SYMBOLS = [
+EXPECTED_ITT_APIS = [
     "__itt_task_begin",
     "__itt_task_end",
     "__itt_metadata_add",
@@ -52,21 +53,36 @@ def main():
         print(f"ERROR: smoke test executable exited with code {result.returncode}")
         return 1
 
-    logs = glob.glob(os.path.join(log_dir, "libittnotify_refcol_*.log"))
+    logs = glob.glob(os.path.join(log_dir, "libittnotify_refcol_*.json"))
     if not logs:
-        print("ERROR: no log file found in", log_dir)
+        print("ERROR: no trace file found in", log_dir)
         return 1
 
-    log_path = logs[0]
-    print(f"Log file: {log_path}")
+    trace_path = logs[0]
+    print(f"Trace file: {trace_path}")
 
-    with open(log_path, encoding="utf-8", errors="replace") as f:
+    with open(trace_path, encoding="utf-8", errors="replace") as f:
         content = f.read()
 
-    missing = [sym for sym in EXPECTED_SYMBOLS if sym not in content]
+    try:
+        events = json.loads(content)
+    except json.JSONDecodeError as exc:
+        print(f"ERROR: trace file is not valid JSON: {exc}")
+        return 1
+
+    if not isinstance(events, list) or not events:
+        print("ERROR: trace file does not contain a non-empty JSON array of events")
+        return 1
+
+    seen_apis = {
+        e.get("args", {}).get("itt_api")
+        for e in events
+        if isinstance(e, dict) and isinstance(e.get("args"), dict)
+    }
+    missing = [api for api in EXPECTED_ITT_APIS if api not in seen_apis]
     if missing:
-        for sym in missing:
-            print(f"ERROR: '{sym}' not found in log")
+        for api in missing:
+            print(f"ERROR: '{api}' event not found in trace")
         return 1
 
     print("Smoke test passed.")

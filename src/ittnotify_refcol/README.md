@@ -1,7 +1,10 @@
 # Instrumentation and Tracing Technology (ITT) API Reference Collector
 
 This is a reference implementation of the ITT API *dynamic* part that
-performs tracing data from ITT API function calls to log files.
+translates ITT API function calls into a
+[Perfetto / Chrome Trace Event](https://ui.perfetto.dev) trace written in JSON.
+The resulting file can be opened directly in <https://ui.perfetto.dev> or
+`chrome://tracing`.
 
 To use this solution, build the collector as a shared library and point the
 full library path to the `INTEL_LIBITTNOTIFY64` environment variable.
@@ -54,7 +57,7 @@ setenv INTEL_LIBITTNOTIFY64 <build_dir>/libittnotify_refcol.so
 set INTEL_LIBITTNOTIFY64=<build_dir>\libittnotify_refcol.dll
 ```
 
-By default, log files are saved in the system temporary directory. To change
+By default, trace files are saved in the system temporary directory. To change
 the location, use the `INTEL_LIBITTNOTIFY_LOG_DIR` environment variable:
 
 **On Linux**
@@ -73,13 +76,22 @@ setenv INTEL_LIBITTNOTIFY_LOG_DIR <log_dir>
 set INTEL_LIBITTNOTIFY_LOG_DIR=<log_dir>
 ```
 
-This implementation adds logging of some of the ITT API function calls. Adding
-logging of other ITT API function calls is welcome. The solution provides 4
-functions with different log levels that take `printf` format for logging:
+The collector writes one trace file per run named
+`libittnotify_refcol_<timestamp>.json`. It is a Chrome Trace Event trace in the
+streaming-friendly "JSON Array Format", so it loads directly into
+<https://ui.perfetto.dev> or `chrome://tracing`. ITT API calls are mapped to
+trace events as follows:
 
-```c
-LOG_FUNC_CALL_INFO(const char *msg_format, ...);
-LOG_FUNC_CALL_WARN(const char *msg_format, ...);
-LOG_FUNC_CALL_ERROR(const char *msg_format, ...);
-LOG_FUNC_CALL_FATAL(const char *msg_format, ...);
-```
+| ITT API                     | Trace event phase                          |
+|-----------------------------|--------------------------------------------|
+| `__itt_task_begin` / `_end` | `B` / `E` (synchronous, per-thread)        |
+| `__itt_region_begin`/`_end` | `b` / `e` (asynchronous, matched by id)    |
+| `__itt_frame_begin`/`_end`  | `b` / `e` (asynchronous, matched by id)    |
+| `__itt_frame_submit_v3`     | `X` (complete event with explicit duration)|
+| `__itt_counter_set_value`   | `C` (counter series)                       |
+| metadata / pause / resume   | `i` (thread-scoped instant marker)         |
+
+Each event carries an `itt_api` argument identifying the originating ITT call.
+Adding support for other ITT API calls is welcome: emit events with the
+`trace_emit()` helper, which takes a phase, category, name, timestamp, and an
+optional raw-JSON `extra` field (for `args`, `id`, `dur`, etc.).

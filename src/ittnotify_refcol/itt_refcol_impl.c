@@ -10,6 +10,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#ifndef _WIN32
+#include <unistd.h>
+#endif
 
 #define INTEL_NO_MACRO_BODY
 #define INTEL_ITTNOTIFY_API_PRIVATE
@@ -19,19 +22,16 @@
 #define LOG_BUFFER_MAX_SIZE 256
 
 static const char* env_log_dir = "INTEL_LIBITTNOTIFY_LOG_DIR";
-static const char* log_level_str[] = {"INFO", "WARN", "ERROR", "FATAL_ERROR"};
 
-enum {
-    LOG_LVL_INFO,
-    LOG_LVL_WARN,
-    LOG_LVL_ERROR,
-    LOG_LVL_FATAL
-};
-
+// The collector emits a Perfetto / Chrome Trace Event trace in the streaming
+// friendly "JSON Array Format": the file is a single JSON array of event
+// objects. It can be opened directly in https://ui.perfetto.dev or
+// chrome://tracing.
 static struct ref_collector_logger {
-    FILE* log_fp;
+    FILE*   log_fp;
     uint8_t init_state;
-} g_ref_collector_logger = {NULL, 0};
+    uint8_t first_event;  // false once the first event has been written (controls comma separators)
+} g_ref_collector_logger = {NULL, 0, 1};
 
 // Collector maintains its own object lists instead of relying on __itt_global*,
 // because traced apps may contain multiple static ITT parts, each with its own __itt_global*.
@@ -71,7 +71,7 @@ static char* log_file_name_generate()
         return NULL;
     }
 
-    snprintf(log_file_name, LOG_BUFFER_MAX_SIZE/2, "libittnotify_refcol_%d%d%d%d%d%d.log",
+    snprintf(log_file_name, LOG_BUFFER_MAX_SIZE/2, "libittnotify_refcol_%d%d%d%d%d%d.json",
              time_info.tm_year+1900, time_info.tm_mon+1, time_info.tm_mday,
              time_info.tm_hour, time_info.tm_min, time_info.tm_sec);
 
@@ -115,13 +115,16 @@ static void ref_collector_init()
         }
         free(log_file);
 
-        g_ref_collector_logger.log_fp = fopen(file_name_buffer, "a");
+        g_ref_collector_logger.log_fp = fopen(file_name_buffer, "w");
         if (!g_ref_collector_logger.log_fp)
         {
-            printf("ERROR: Cannot open log file: %s\n", file_name_buffer);
+            printf("ERROR: Cannot open trace file: %s\n", file_name_buffer);
             return;
         }
 
+        // Open the Chrome Trace Event JSON array.
+        fprintf(g_ref_collector_logger.log_fp, "[\n");
+        g_ref_collector_logger.first_event = 1;
         g_ref_collector_logger.init_state = 1;
     }
 }
@@ -154,6 +157,8 @@ static void ref_collector_release(void)
 
     if (g_ref_collector_logger.log_fp)
     {
+        // Close the Chrome Trace Event JSON array.
+        fprintf(g_ref_collector_logger.log_fp, "\n]\n");
         fclose(g_ref_collector_logger.log_fp);
         g_ref_collector_logger.log_fp = NULL;
     }
@@ -273,32 +278,111 @@ ITT_EXTERN_C void ITTAPI __itt_api_init(__itt_global* p, __itt_group_id init_gro
     }
 }
 
-static void log_func_call(uint8_t log_level, const char* function_name, const char* message_format, ...)
+// ----------------------------------------------------------------------------
+// Perfetto / Chrome Trace Event writer
+//
+// Every instrumented ITT API call is translated into one or more trace events
+// and appended to the JSON array opened in ref_collector_init(). The resulting
+// file loads directly in https://ui.perfetto.dev or chrome://tracing.
+//
+// Event phase mapping:
+//   task begin / end     -> "B" / "E"  (synchronous, per-thread, nestable)
+//   region begin / end   -> "b" / "e"  (asynchronous, matched by id)
+//   frame begin / end    -> "b" / "e"  (asynchronous, matched by id)
+//   frame submit         -> "X"        (complete event with explicit duration)
+//   counter set value    -> "C"        (counter series)
+//   everything else      -> "i"        (thread-scoped instant marker)
+// ----------------------------------------------------------------------------
+
+#ifdef _WIN32
+static uint64_t get_timestamp_us(void)
 {
-    if (!g_ref_collector_logger.init_state || !g_ref_collector_logger.log_fp)
-    {
-        printf("ERROR: Failed to log function call\n");
-        return;
-    }
+    LARGE_INTEGER freq, cnt;
+    QueryPerformanceFrequency(&freq);
+    QueryPerformanceCounter(&cnt);
+    if (freq.QuadPart == 0) return 0;
+    return (uint64_t)((cnt.QuadPart * 1000000ULL) / (uint64_t)freq.QuadPart);
+}
+static int get_process_id(void) { return (int)GetCurrentProcessId(); }
+#else
+static uint64_t get_timestamp_us(void)
+{
+    struct timespec ts;
+    clock_gettime(CLOCK_MONOTONIC, &ts);
+    return (uint64_t)ts.tv_sec * 1000000ULL + (uint64_t)ts.tv_nsec / 1000ULL;
+}
+static int get_process_id(void) { return (int)getpid(); }
+#endif
 
-    char log_buffer[LOG_BUFFER_MAX_SIZE];
-    uint32_t result_len = 0;
-    va_list message_args;
-
-    result_len += snprintf(log_buffer, LOG_BUFFER_MAX_SIZE, "[%s] %s(...) - ", log_level_str[log_level], function_name);
-    if (result_len >= LOG_BUFFER_MAX_SIZE)
-        result_len = LOG_BUFFER_MAX_SIZE - 1;
-    va_start(message_args, message_format);
-    vsnprintf(log_buffer + result_len, LOG_BUFFER_MAX_SIZE - result_len, message_format, message_args);
-    va_end(message_args);
-
-    fprintf(g_ref_collector_logger.log_fp, "%s\n", log_buffer);
+static unsigned long long get_thread_id(void)
+{
+    return (unsigned long long)(uintptr_t)__itt_thread_id();
 }
 
-#define LOG_FUNC_CALL_INFO(...)  log_func_call(LOG_LVL_INFO, __FUNCTION__, __VA_ARGS__)
-#define LOG_FUNC_CALL_WARN(...)  log_func_call(LOG_LVL_WARN, __FUNCTION__, __VA_ARGS__)
-#define LOG_FUNC_CALL_ERROR(...) log_func_call(LOG_LVL_ERROR, __FUNCTION__, __VA_ARGS__)
-#define LOG_FUNC_CALL_FATAL(...) log_func_call(LOG_LVL_FATAL, __FUNCTION__, __VA_ARGS__)
+// Escape a string so it can be safely embedded inside a JSON string literal.
+static void json_escape(const char* src, char* dst, size_t dst_size)
+{
+    size_t j = 0;
+    if (dst_size == 0) return;
+    if (src == NULL) { dst[0] = '\0'; return; }
+
+    for (size_t i = 0; src[i] != '\0' && j + 1 < dst_size; i++)
+    {
+        unsigned char c = (unsigned char)src[i];
+        switch (c)
+        {
+            case '\"': if (j + 2 < dst_size) { dst[j++] = '\\'; dst[j++] = '\"'; } break;
+            case '\\': if (j + 2 < dst_size) { dst[j++] = '\\'; dst[j++] = '\\'; } break;
+            case '\n': if (j + 2 < dst_size) { dst[j++] = '\\'; dst[j++] = 'n';  } break;
+            case '\r': if (j + 2 < dst_size) { dst[j++] = '\\'; dst[j++] = 'r';  } break;
+            case '\t': if (j + 2 < dst_size) { dst[j++] = '\\'; dst[j++] = 't';  } break;
+            default:
+                if (c < 0x20)
+                {
+                    if (j + 6 < dst_size)
+                        j += (size_t)snprintf(dst + j, dst_size - j, "\\u%04x", c);
+                }
+                else
+                {
+                    dst[j++] = (char)c;
+                }
+                break;
+        }
+    }
+    dst[j] = '\0';
+}
+
+// Append a single trace event object to the JSON array. Thread-safe.
+// `extra` (may be NULL) is raw JSON appended after the mandatory fields, e.g.
+// ",\"dur\":123", ",\"id\":\"0x1\"", ",\"s\":\"t\"", ",\"args\":{...}".
+static void trace_emit(const char* phase, const char* cat, const char* name,
+                       uint64_t ts, const char* extra)
+{
+    if (!g_ref_collector_logger.init_state || !g_ref_collector_logger.log_fp)
+        return;
+    if (!g_ref_collector_global.mutex_initialized)
+        return;
+
+    char name_esc[LOG_BUFFER_MAX_SIZE];
+    char cat_esc[LOG_BUFFER_MAX_SIZE];
+    json_escape(name, name_esc, sizeof(name_esc));
+    json_escape(cat, cat_esc, sizeof(cat_esc));
+
+    __itt_mutex_lock(&g_ref_collector_global.mutex);
+
+    fprintf(g_ref_collector_logger.log_fp,
+            "%s{\"name\":\"%s\",\"cat\":\"%s\",\"ph\":\"%s\",\"ts\":%" PRIu64
+            ",\"pid\":%d,\"tid\":%llu",
+            g_ref_collector_logger.first_event ? "" : ",\n",
+            name_esc, cat_esc, phase, ts, get_process_id(), get_thread_id());
+    if (extra != NULL)
+        fputs(extra, g_ref_collector_logger.log_fp);
+    fputc('}', g_ref_collector_logger.log_fp);
+
+    g_ref_collector_logger.first_event = 0;
+
+    __itt_mutex_unlock(&g_ref_collector_global.mutex);
+}
 
 // ----------------------------------------------------------------------------
 // The code below is a reference implementation of the ITT API functions.
@@ -435,7 +519,6 @@ ITT_EXTERN_C __itt_domain* ITTAPI __itt_domain_create(const char *name)
 {
     if (!g_ref_collector_global.mutex_initialized || name == NULL)
     {
-        LOG_FUNC_CALL_WARN("Cannot create domain object");
         return NULL;
     }
 
@@ -451,11 +534,6 @@ ITT_EXTERN_C __itt_domain* ITTAPI __itt_domain_create(const char *name)
     if (h == NULL)
     {
         NEW_DOMAIN_A(&g_ref_collector_global, h, h_tail, name);
-        LOG_FUNC_CALL_INFO("function args: name=%s (created new domain)", name);
-    }
-    else
-    {
-        LOG_FUNC_CALL_INFO("function args: name=%s (domain already exists)", name);
     }
 
     __itt_mutex_unlock(&g_ref_collector_global.mutex);
@@ -478,7 +556,6 @@ ITT_EXTERN_C __itt_string_handle* ITTAPI __itt_string_handle_create(const char* 
 {
     if (!g_ref_collector_global.mutex_initialized || name == NULL)
     {
-        LOG_FUNC_CALL_WARN("Cannot create string handle object");
         return NULL;
     }
 
@@ -494,11 +571,6 @@ ITT_EXTERN_C __itt_string_handle* ITTAPI __itt_string_handle_create(const char* 
     if (h == NULL)
     {
         NEW_STRING_HANDLE_A(&g_ref_collector_global, h, h_tail, name);
-        LOG_FUNC_CALL_INFO("function args: name=%s (created new string handle)", name);
-    }
-    else
-    {
-        LOG_FUNC_CALL_INFO("function args: name=%s (string handle already exists)", name);
     }
 
     __itt_mutex_unlock(&g_ref_collector_global.mutex);
@@ -521,7 +593,6 @@ ITT_EXTERN_C __itt_counter ITTAPI __itt_counter_createA(const char *name, const 
 ITT_EXTERN_C __itt_counter ITTAPI __itt_counter_create(const char *name, const char *domain)
 #endif
 {
-    LOG_FUNC_CALL_INFO("function call");
     return __itt_counter_create_typed(name, domain, __itt_metadata_u64);
 }
 
@@ -545,10 +616,8 @@ ITT_EXTERN_C __itt_counter ITTAPI __itt_counter_create_v3(
 {
     if (domain == NULL)
     {
-        LOG_FUNC_CALL_WARN("domain is NULL");
         return NULL;
     }
-    LOG_FUNC_CALL_INFO("function call");
     return __itt_counter_create_typed(name, domain->nameA, type);
 }
 
@@ -572,7 +641,6 @@ ITT_EXTERN_C __itt_counter ITTAPI __itt_counter_create_typed(
 {
     if (!g_ref_collector_global.mutex_initialized || name == NULL || domain == NULL)
     {
-        LOG_FUNC_CALL_WARN("Cannot create counter object");
         return NULL;
     }
 
@@ -590,13 +658,6 @@ ITT_EXTERN_C __itt_counter ITTAPI __itt_counter_create_typed(
     if (h == NULL)
     {
         NEW_COUNTER_A(&g_ref_collector_global, h, h_tail, name, domain, type);
-        LOG_FUNC_CALL_INFO("function args: name=%s, domain=%s, type=%d (created new counter)",
-                            name, domain, (int)type);
-    }
-    else
-    {
-        LOG_FUNC_CALL_INFO("function args: name=%s, domain=%s, type=%d (counter already exists)",
-                            name, domain, (int)type);
     }
 
     __itt_mutex_unlock(&g_ref_collector_global.mutex);
@@ -622,7 +683,6 @@ ITT_EXTERN_C __itt_histogram* ITTAPI __itt_histogram_create(
 {
     if (!g_ref_collector_global.mutex_initialized || name == NULL || domain == NULL)
     {
-        LOG_FUNC_CALL_WARN("Cannot create histogram object");
         return NULL;
     }
 
@@ -638,13 +698,6 @@ ITT_EXTERN_C __itt_histogram* ITTAPI __itt_histogram_create(
     if (h == NULL)
     {
         NEW_HISTOGRAM_A(&g_ref_collector_global, h, h_tail, domain, name, x_type, y_type);
-        LOG_FUNC_CALL_INFO("function args: domain=%s, name=%s, x_type=%d, y_type=%d (created new histogram)",
-            domain->nameA, name, x_type, y_type);
-    }
-    else
-    {
-        LOG_FUNC_CALL_INFO("function args: domain=%s, name=%s, x_type=%d, y_type=%d (histogram already exists)",
-            domain->nameA, name, x_type, y_type);
     }
 
     __itt_mutex_unlock(&g_ref_collector_global.mutex);
@@ -654,234 +707,235 @@ ITT_EXTERN_C __itt_histogram* ITTAPI __itt_histogram_create(
 
 ITT_EXTERN_C void ITTAPI __itt_pause(void)
 {
-    LOG_FUNC_CALL_INFO("function call");
+    trace_emit("i", "itt", "__itt_pause", get_timestamp_us(),
+               ",\"s\":\"t\",\"args\":{\"itt_api\":\"__itt_pause\"}");
 }
 
 ITT_EXTERN_C void ITTAPI __itt_pause_scoped(__itt_collection_scope scope)
 {
-    LOG_FUNC_CALL_INFO("function args: scope=%d", scope);
+    char extra[LOG_BUFFER_MAX_SIZE];
+    snprintf(extra, sizeof(extra),
+             ",\"s\":\"t\",\"args\":{\"itt_api\":\"__itt_pause_scoped\",\"scope\":%d}", (int)scope);
+    trace_emit("i", "itt", "__itt_pause_scoped", get_timestamp_us(), extra);
 }
 
 ITT_EXTERN_C void ITTAPI __itt_resume(void)
 {
-    LOG_FUNC_CALL_INFO("function call");
+    trace_emit("i", "itt", "__itt_resume", get_timestamp_us(),
+               ",\"s\":\"t\",\"args\":{\"itt_api\":\"__itt_resume\"}");
 }
 
 ITT_EXTERN_C void ITTAPI __itt_resume_scoped(__itt_collection_scope scope)
 {
-    LOG_FUNC_CALL_INFO("function args: scope=%d", scope);
+    char extra[LOG_BUFFER_MAX_SIZE];
+    snprintf(extra, sizeof(extra),
+             ",\"s\":\"t\",\"args\":{\"itt_api\":\"__itt_resume_scoped\",\"scope\":%d}", (int)scope);
+    trace_emit("i", "itt", "__itt_resume_scoped", get_timestamp_us(), extra);
 }
 
 ITT_EXTERN_C void ITTAPI __itt_detach(void)
 {
-    LOG_FUNC_CALL_INFO("function call");
+    trace_emit("i", "itt", "__itt_detach", get_timestamp_us(),
+               ",\"s\":\"t\",\"args\":{\"itt_api\":\"__itt_detach\"}");
 }
 
 ITT_EXTERN_C void ITTAPI __itt_frame_begin_v3(const __itt_domain *domain, __itt_id *id)
 {
-    if (domain != NULL)
-    {
-        (void)id;
-        LOG_FUNC_CALL_INFO("function args: domain=%s", domain->nameA);
-    }
-    else
-    {
-        LOG_FUNC_CALL_WARN("Incorrect function call");
-    }
+    if (domain == NULL) return;
+
+    unsigned long long fid = (id != NULL) ? id->d1 : 0;
+    char extra[LOG_BUFFER_MAX_SIZE];
+    snprintf(extra, sizeof(extra),
+             ",\"id\":\"0x%llx\",\"args\":{\"itt_api\":\"__itt_frame_begin_v3\"}", fid);
+    trace_emit("b", domain->nameA, domain->nameA, get_timestamp_us(), extra);
 }
 
 ITT_EXTERN_C void ITTAPI __itt_frame_end_v3(const __itt_domain *domain, __itt_id *id)
 {
-    if (domain != NULL)
-    {
-        (void)id;
-        LOG_FUNC_CALL_INFO("function args: domain=%s", domain->nameA);
-    }
-    else
-    {
-        LOG_FUNC_CALL_WARN("Incorrect function call");
-    }
+    if (domain == NULL) return;
+
+    unsigned long long fid = (id != NULL) ? id->d1 : 0;
+    char extra[LOG_BUFFER_MAX_SIZE];
+    snprintf(extra, sizeof(extra),
+             ",\"id\":\"0x%llx\",\"args\":{\"itt_api\":\"__itt_frame_end_v3\"}", fid);
+    trace_emit("e", domain->nameA, domain->nameA, get_timestamp_us(), extra);
 }
 
 ITT_EXTERN_C void ITTAPI __itt_frame_submit_v3(const __itt_domain *domain, __itt_id *id,
     __itt_timestamp begin, __itt_timestamp end)
 {
-    if (domain != NULL)
-    {
-        (void)id;
-        LOG_FUNC_CALL_INFO("function args: domain=%s, time_begin=%llu, time_end=%llu",
-                        domain->nameA, begin, end);
-    }
-    else
-    {
-        LOG_FUNC_CALL_WARN("Incorrect function call");
-    }
+    if (domain == NULL) return;
+
+    (void)id;
+    uint64_t dur = (end > begin) ? (uint64_t)(end - begin) : 0;
+    char extra[LOG_BUFFER_MAX_SIZE];
+    snprintf(extra, sizeof(extra),
+             ",\"dur\":%" PRIu64 ",\"args\":{\"itt_api\":\"__itt_frame_submit_v3\","
+             "\"time_begin\":%llu,\"time_end\":%llu}",
+             dur, (unsigned long long)begin, (unsigned long long)end);
+    trace_emit("X", domain->nameA, domain->nameA, (uint64_t)begin, extra);
 }
 
 ITT_EXTERN_C void ITTAPI __itt_task_begin(
     const __itt_domain *domain, __itt_id taskid, __itt_id parentid, __itt_string_handle *name)
 {
-    if (domain != NULL && name != NULL)
-    {
-        LOG_FUNC_CALL_INFO("function args: domain=%s name=%s taskid=%llu,%llu,%llu parentid=%llu,%llu,%llu",
-                            domain->nameA, name->strA,
-                            taskid.d1, taskid.d2, taskid.d3,
-                            parentid.d1, parentid.d2, parentid.d3);
-    }
-    else
-    {
-        LOG_FUNC_CALL_WARN("Incorrect function call");
-    }
+    if (domain == NULL || name == NULL) return;
+
+    char extra[LOG_BUFFER_MAX_SIZE];
+    snprintf(extra, sizeof(extra),
+             ",\"args\":{\"itt_api\":\"__itt_task_begin\","
+             "\"taskid\":\"%llu,%llu,%llu\",\"parentid\":\"%llu,%llu,%llu\"}",
+             taskid.d1, taskid.d2, taskid.d3,
+             parentid.d1, parentid.d2, parentid.d3);
+    trace_emit("B", domain->nameA, name->strA, get_timestamp_us(), extra);
 }
 
 ITT_EXTERN_C void ITTAPI __itt_task_end(const __itt_domain *domain)
 {
-    if (domain != NULL)
-    {
-        LOG_FUNC_CALL_INFO("function args: domain=%s", domain->nameA);
-    }
-    else
-    {
-        LOG_FUNC_CALL_WARN("Incorrect function call");
-    }
+    if (domain == NULL) return;
+
+    trace_emit("E", domain->nameA, "", get_timestamp_us(),
+               ",\"args\":{\"itt_api\":\"__itt_task_end\"}");
 }
 
 ITT_EXTERN_C void ITTAPI __itt_region_begin(
     const __itt_domain *domain, __itt_id id, __itt_id parentid, __itt_string_handle *name)
 {
-    if (domain != NULL && name != NULL)
-    {
-        LOG_FUNC_CALL_INFO("function args: domain=%s name=%s id=%llu,%llu,%llu parentid=%llu,%llu,%llu",
-                            domain->nameA, name->strA,
-                            id.d1, id.d2, id.d3,
-                            parentid.d1, parentid.d2, parentid.d3);
-    }
-    else
-    {
-        LOG_FUNC_CALL_WARN("Incorrect function call");
-    }
+    if (domain == NULL || name == NULL) return;
+
+    (void)parentid;
+    char extra[LOG_BUFFER_MAX_SIZE];
+    snprintf(extra, sizeof(extra),
+             ",\"id\":\"0x%llx\",\"args\":{\"itt_api\":\"__itt_region_begin\"}", id.d1);
+    trace_emit("b", domain->nameA, name->strA, get_timestamp_us(), extra);
 }
 
 ITT_EXTERN_C void ITTAPI __itt_region_end(const __itt_domain *domain, __itt_id id)
 {
-    if (domain != NULL)
-    {
-        LOG_FUNC_CALL_INFO("function args: domain=%s id=%llu,%llu,%llu",
-                            domain->nameA, id.d1, id.d2, id.d3);
-    }
-    else
-    {
-        LOG_FUNC_CALL_WARN("Incorrect function call");
-    }
+    if (domain == NULL) return;
+
+    char extra[LOG_BUFFER_MAX_SIZE];
+    snprintf(extra, sizeof(extra),
+             ",\"id\":\"0x%llx\",\"args\":{\"itt_api\":\"__itt_region_end\"}", id.d1);
+    trace_emit("e", domain->nameA, "", get_timestamp_us(), extra);
 }
 
 ITT_EXTERN_C void __itt_metadata_add(const __itt_domain *domain, __itt_id id,
     __itt_string_handle *key, __itt_metadata_type type, size_t count, void *data)
 {
-    if (domain != NULL && count != 0)
-    {
-        (void)id;
-        (void)key;
-        char* metadata_str = get_metadata_elements(count, type, data);
-        LOG_FUNC_CALL_INFO("function args: domain=%s metadata_size=%zu metadata[]=%s",
-                            domain->nameA, count, metadata_str);
-        free(metadata_str);
-    }
-    else
-    {
-        LOG_FUNC_CALL_WARN("Incorrect function call");
-    }
+    if (domain == NULL || count == 0) return;
+
+    (void)id;
+    char* metadata_str = get_metadata_elements(count, type, data);
+    char key_esc[LOG_BUFFER_MAX_SIZE];
+    char data_esc[LOG_BUFFER_MAX_SIZE];
+    json_escape((key != NULL) ? key->strA : "", key_esc, sizeof(key_esc));
+    json_escape(metadata_str, data_esc, sizeof(data_esc));
+
+    char extra[LOG_BUFFER_MAX_SIZE * 2];
+    snprintf(extra, sizeof(extra),
+             ",\"s\":\"t\",\"args\":{\"itt_api\":\"__itt_metadata_add\","
+             "\"key\":\"%s\",\"count\":%zu,\"data\":\"%s\"}",
+             key_esc, count, data_esc);
+    trace_emit("i", domain->nameA, (key != NULL) ? key->strA : "metadata",
+               get_timestamp_us(), extra);
+    free(metadata_str);
 }
 
 ITT_EXTERN_C void __itt_formatted_metadata_add(const __itt_domain *domain, __itt_string_handle *format, ...)
 {
-    if (domain == NULL || format == NULL)
-    {
-        LOG_FUNC_CALL_WARN("Incorrect function call");
-        return;
-    }
+    if (domain == NULL || format == NULL) return;
 
     va_list args;
     va_start(args, format);
-
     char formatted_metadata[LOG_BUFFER_MAX_SIZE];
     vsnprintf(formatted_metadata, LOG_BUFFER_MAX_SIZE, format->strA, args);
-
-    LOG_FUNC_CALL_INFO("function args: domain=%s formatted_metadata=%s",
-                        domain->nameA, formatted_metadata);
-
     va_end(args);
+
+    char data_esc[LOG_BUFFER_MAX_SIZE];
+    json_escape(formatted_metadata, data_esc, sizeof(data_esc));
+
+    char extra[LOG_BUFFER_MAX_SIZE * 2];
+    snprintf(extra, sizeof(extra),
+             ",\"s\":\"t\",\"args\":{\"itt_api\":\"__itt_formatted_metadata_add\",\"data\":\"%s\"}",
+             data_esc);
+    trace_emit("i", domain->nameA, "__itt_formatted_metadata_add", get_timestamp_us(), extra);
 }
 
 ITT_EXTERN_C void __itt_histogram_submit(__itt_histogram* hist, size_t length, void* x_data, void* y_data)
 {
-    if (hist == NULL)
+    if (hist == NULL || hist->domain == NULL || hist->domain->nameA == NULL ||
+        hist->nameA == NULL || length == 0 || y_data == NULL)
     {
-        LOG_FUNC_CALL_WARN("Histogram is NULL");
+        return;
     }
-    else if (hist->domain == NULL)
+
+    char* y_str = get_metadata_elements(length, hist->y_type, y_data);
+    char y_esc[LOG_BUFFER_MAX_SIZE];
+    json_escape(y_str, y_esc, sizeof(y_esc));
+    free(y_str);
+
+    char extra[LOG_BUFFER_MAX_SIZE * 3];
+    if (x_data != NULL)
     {
-        LOG_FUNC_CALL_WARN("Histogram domain is NULL");
-    }
-    else if (hist->domain->nameA != NULL && hist->nameA != NULL && length != 0 && y_data != NULL)
-    {
-        if (x_data != NULL)
-        {
-            char* x_data_str = get_metadata_elements(length, hist->x_type, x_data);
-            char* y_data_str = get_metadata_elements(length, hist->y_type, y_data);
-            LOG_FUNC_CALL_INFO("function args: domain=%s name=%s histogram_size=%zu x[]=%s y[]=%s",
-                                hist->domain->nameA, hist->nameA, length, x_data_str, y_data_str);
-            free(x_data_str);
-            free(y_data_str);
-        }
-        else
-        {
-            char* y_data_str = get_metadata_elements(length, hist->y_type, y_data);
-            LOG_FUNC_CALL_INFO("function args: domain=%s name=%s histogram_size=%zu y[]=%s",
-                                hist->domain->nameA, hist->nameA, length, y_data_str);
-            free(y_data_str);
-        }
+        char* x_str = get_metadata_elements(length, hist->x_type, x_data);
+        char x_esc[LOG_BUFFER_MAX_SIZE];
+        json_escape(x_str, x_esc, sizeof(x_esc));
+        free(x_str);
+        snprintf(extra, sizeof(extra),
+                 ",\"s\":\"t\",\"args\":{\"itt_api\":\"__itt_histogram_submit\","
+                 "\"length\":%zu,\"x\":\"%s\",\"y\":\"%s\"}",
+                 length, x_esc, y_esc);
     }
     else
     {
-        LOG_FUNC_CALL_WARN("Incorrect function call");
+        snprintf(extra, sizeof(extra),
+                 ",\"s\":\"t\",\"args\":{\"itt_api\":\"__itt_histogram_submit\","
+                 "\"length\":%zu,\"y\":\"%s\"}",
+                 length, y_esc);
     }
+    trace_emit("i", hist->domain->nameA, hist->nameA, get_timestamp_us(), extra);
 }
 
 ITT_EXTERN_C void __itt_bind_context_metadata_to_counter(__itt_counter counter, size_t length, __itt_context_metadata* metadata)
 {
-    if (counter != NULL && metadata != NULL && length != 0)
+    if (counter == NULL || metadata == NULL || length == 0) return;
+
+    __itt_counter_info_t* counter_info = (__itt_counter_info_t*)counter;
+    char context_metadata[LOG_BUFFER_MAX_SIZE];
+    context_metadata[0] = '\0';
+    uint16_t offset = 0;
+    for (size_t i = 0; i < length && offset < LOG_BUFFER_MAX_SIZE - 1; i++)
     {
-        __itt_counter_info_t* counter_info = (__itt_counter_info_t*)counter;
-        char context_metadata[LOG_BUFFER_MAX_SIZE];
-        context_metadata[0] = '\0';
-        uint16_t offset = 0;
-        for(size_t i=0; i<length && offset < LOG_BUFFER_MAX_SIZE - 1; i++)
-        {
-            char* context_metadata_element = get_context_metadata_element(metadata[i].type, metadata[i].value);
-            offset += snprintf(context_metadata + offset, LOG_BUFFER_MAX_SIZE - offset, "%s", context_metadata_element);
-            free(context_metadata_element);
-        }
-        LOG_FUNC_CALL_INFO("function args: counter_name=%s context_metadata_size=%zu context_metadata[]=%s",
-                            counter_info->nameA, length, context_metadata);
+        char* elem = get_context_metadata_element(metadata[i].type, metadata[i].value);
+        offset += (uint16_t)snprintf(context_metadata + offset, LOG_BUFFER_MAX_SIZE - offset, "%s", elem);
+        free(elem);
     }
-    else
-    {
-        LOG_FUNC_CALL_WARN("Incorrect function call");
-    }
+
+    char ctx_esc[LOG_BUFFER_MAX_SIZE];
+    json_escape(context_metadata, ctx_esc, sizeof(ctx_esc));
+
+    char extra[LOG_BUFFER_MAX_SIZE * 2];
+    snprintf(extra, sizeof(extra),
+             ",\"s\":\"t\",\"args\":{\"itt_api\":\"__itt_bind_context_metadata_to_counter\","
+             "\"length\":%zu,\"context\":\"%s\"}",
+             length, ctx_esc);
+    trace_emit("i", "counter", (counter_info->nameA != NULL) ? counter_info->nameA : "",
+               get_timestamp_us(), extra);
 }
 
 ITT_EXTERN_C void __itt_counter_set_value_v3(__itt_counter counter, void* value_ptr)
 {
-    if (counter != NULL && value_ptr != NULL)
-    {
-        __itt_counter_info_t* counter_info = (__itt_counter_info_t*)counter;
-        uint64_t value = *(uint64_t*)value_ptr;
-        LOG_FUNC_CALL_INFO("function args: counter_name=%s counter_value=%" PRIu64,
-                            counter_info->nameA, value);
-    }
-    else
-    {
-        LOG_FUNC_CALL_WARN("Incorrect function call");
-    }
+    if (counter == NULL || value_ptr == NULL) return;
+
+    __itt_counter_info_t* counter_info = (__itt_counter_info_t*)counter;
+    uint64_t value = *(uint64_t*)value_ptr;
+    const char* series = (counter_info->nameA != NULL) ? counter_info->nameA : "value";
+
+    char series_esc[LOG_BUFFER_MAX_SIZE];
+    json_escape(series, series_esc, sizeof(series_esc));
+
+    char extra[LOG_BUFFER_MAX_SIZE * 2];
+    snprintf(extra, sizeof(extra), ",\"args\":{\"%s\":%" PRIu64 "}", series_esc, value);
+    trace_emit("C", "counter", series, get_timestamp_us(), extra);
 }
