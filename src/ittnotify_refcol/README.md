@@ -95,4 +95,4 @@ set EXP_LIBITTNOTIFY_GEN_JSON=1
 
 When enabled, the collector writes a `libittnotify_refcol_<timestamp>.json` file
 (instead of the text log) into the log directory. The file can be opened
-directly in <https://ui.perfetto.dev> or `chrome://tracing`.
+directly in <https://ui.perfetto.dev>.
