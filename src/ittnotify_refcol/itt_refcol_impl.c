@@ -116,19 +116,7 @@ static void ref_collector_init(void)
         }
         else
         {
-            #ifdef _WIN32
-                char* temp_dir = getenv("TEMP");
-                if (temp_dir != NULL)
-                {
-                    snprintf(file_name_buffer, sizeof(file_name_buffer), "%s\\%s", temp_dir, log_file);
-                }
-                else
-                {
-                    snprintf(file_name_buffer, sizeof(file_name_buffer), "%s", log_file);
-                }
-            #else
-                snprintf(file_name_buffer, sizeof(file_name_buffer), "/tmp/%s", log_file);
-            #endif
+            snprintf(file_name_buffer, sizeof(file_name_buffer), "%s", log_file);
         }
         free(log_file);
 

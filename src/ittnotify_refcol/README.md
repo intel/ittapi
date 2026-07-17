@@ -48,7 +48,7 @@ export INTEL_LIBITTNOTIFY64=<build_dir>/libittnotify_refcol.so
 set INTEL_LIBITTNOTIFY64=<build_dir>\libittnotify_refcol.dll
 ```
 
-By default, log files are saved in the system temporary directory. To change
+By default, log files are saved in the current working directory. To change
 the location, use the `INTEL_LIBITTNOTIFY_LOG_DIR` environment variable:
 
 **On Linux**
@@ -75,8 +75,8 @@ LOG_FUNC_CALL_FATAL(const char *msg_format, ...);
 
 ## Experimental: JSON trace generation
 
-In addition to the default text log, the collector can produce a
-[Perfetto / Chrome Trace Event](https://ui.perfetto.dev) trace in JSON format.
+In addition to the default text log, the collector can produce a trace in
+JSON format (Perfetto).
 This mode is experimental and is disabled by default.
 
 To enable it, set the `EXP_LIBITTNOTIFY_GEN_JSON` environment variable to `1`:
