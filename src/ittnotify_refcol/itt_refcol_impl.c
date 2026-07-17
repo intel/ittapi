@@ -24,9 +24,9 @@
 
 #define LOG_BUFFER_MAX_SIZE 256
 
-static const char* env_log_dir  = "INTEL_LIBITTNOTIFY_LOG_DIR";
-static const char* log_level_str[] = {"INFO", "WARN", "ERROR", "FATAL_ERROR"};
+static const char* env_log_dir = "INTEL_LIBITTNOTIFY_LOG_DIR";
 static const char* env_gen_json = "EXP_LIBITTNOTIFY_GEN_JSON";
+static const char* log_level_str[] = {"INFO", "WARN", "ERROR", "FATAL_ERROR"};
 
 enum {
     LOG_LVL_INFO,
@@ -538,12 +538,13 @@ static char* wchar2char(const wchar_t* wide_str)
 #endif
 
 // Write one line per instrumented ITT API call to a .log file.
-// No-op in JSON mode, so callers can log unconditionally.
 static void log_func_call(
     uint8_t log_level, const char* function_name, const char* message_format, ...)
 {
     if (g_ref_collector_logger.gen_json)
+    {
         return;
+    }
 
     if (!g_ref_collector_logger.init_state || !g_ref_collector_logger.log_fp)
     {
@@ -564,7 +565,16 @@ static void log_func_call(
         message_format, message_args);
     va_end(message_args);
 
-    fprintf(g_ref_collector_logger.log_fp, "%s\n", log_buffer);
+    if (g_ref_collector_global.mutex_initialized)
+    {
+        __itt_mutex_lock(&g_ref_collector_global.mutex);
+        fprintf(g_ref_collector_logger.log_fp, "%s\n", log_buffer);
+        __itt_mutex_unlock(&g_ref_collector_global.mutex);
+    }
+    else
+    {
+        printf("ERROR: Failed to log function call\n");
+    }
 }
 
 static void log_api_call(
@@ -641,6 +651,7 @@ ITT_EXTERN_C __itt_domain* ITTAPI __itt_domain_create(const char *name)
     }
 
     __itt_domain *h_tail = NULL, *h = NULL;
+    int created = 0;
 
     __itt_mutex_lock(&g_ref_collector_global.mutex);
 
@@ -652,14 +663,15 @@ ITT_EXTERN_C __itt_domain* ITTAPI __itt_domain_create(const char *name)
     if (h == NULL)
     {
         NEW_DOMAIN_A(&g_ref_collector_global, h, h_tail, name);
-        LOG_FUNC_CALL_INFO("name=%s (created new domain)", name);
-    }
-    else
-    {
-        LOG_FUNC_CALL_INFO("name=%s (domain already exists)", name);
+        created = 1;
     }
 
     __itt_mutex_unlock(&g_ref_collector_global.mutex);
+
+    if (created)
+        LOG_FUNC_CALL_INFO("name=%s (created new domain)", name);
+    else
+        LOG_FUNC_CALL_INFO("name=%s (domain already exists)", name);
 
     return h;
 }
@@ -684,6 +696,7 @@ ITT_EXTERN_C __itt_string_handle* ITTAPI __itt_string_handle_create(const char* 
     }
 
     __itt_string_handle *h_tail = NULL, *h = NULL;
+    int created = 0;
 
     __itt_mutex_lock(&g_ref_collector_global.mutex);
 
@@ -695,14 +708,15 @@ ITT_EXTERN_C __itt_string_handle* ITTAPI __itt_string_handle_create(const char* 
     if (h == NULL)
     {
         NEW_STRING_HANDLE_A(&g_ref_collector_global, h, h_tail, name);
-        LOG_FUNC_CALL_INFO("name=%s (created new string handle)", name);
-    }
-    else
-    {
-        LOG_FUNC_CALL_INFO("name=%s (string handle already exists)", name);
+        created = 1;
     }
 
     __itt_mutex_unlock(&g_ref_collector_global.mutex);
+
+    if (created)
+        LOG_FUNC_CALL_INFO("name=%s (created new string handle)", name);
+    else
+        LOG_FUNC_CALL_INFO("name=%s (string handle already exists)", name);
 
     return h;
 }
@@ -729,7 +743,11 @@ ITT_EXTERN_C __itt_counter ITTAPI __itt_counter_create(const char *name, const c
 ITT_EXTERN_C __itt_counter ITTAPI __itt_counter_createW_v3(
     const __itt_domain* domain, const wchar_t* name, __itt_metadata_type type)
 {
-    if (domain == NULL) return NULL;
+    if (domain == NULL)
+    {
+        LOG_FUNC_CALL_WARN("domain is NULL");
+        return NULL;
+    }
     char* name_a = wchar2char(name);
     if (name_a == NULL) return NULL;
     __itt_counter result = __itt_counter_create_typed(name_a, domain->nameA, type);
@@ -776,6 +794,7 @@ ITT_EXTERN_C __itt_counter ITTAPI __itt_counter_create_typed(
     }
 
     __itt_counter_info_t *h_tail = NULL, *h = NULL;
+    int created = 0;
 
     __itt_mutex_lock(&g_ref_collector_global.mutex);
 
@@ -789,16 +808,17 @@ ITT_EXTERN_C __itt_counter ITTAPI __itt_counter_create_typed(
     if (h == NULL)
     {
         NEW_COUNTER_A(&g_ref_collector_global, h, h_tail, name, domain, type);
-        LOG_FUNC_CALL_INFO("name=%s, domain=%s, type=%d (created new counter)",
-                            name, domain, (int)type);
-    }
-    else
-    {
-        LOG_FUNC_CALL_INFO("name=%s, domain=%s, type=%d (counter already exists)",
-                            name, domain, (int)type);
+        created = 1;
     }
 
     __itt_mutex_unlock(&g_ref_collector_global.mutex);
+
+    if (created)
+        LOG_FUNC_CALL_INFO("name=%s, domain=%s, type=%d (created new counter)",
+                            name, domain, (int)type);
+    else
+        LOG_FUNC_CALL_INFO("name=%s, domain=%s, type=%d (counter already exists)",
+                            name, domain, (int)type);
 
     return (__itt_counter)h;
 }
@@ -826,6 +846,7 @@ ITT_EXTERN_C __itt_histogram* ITTAPI __itt_histogram_create(const __itt_domain* 
     }
 
     __itt_histogram *h_tail = NULL, *h = NULL;
+    int created = 0;
 
     __itt_mutex_lock(&g_ref_collector_global.mutex);
 
@@ -837,16 +858,17 @@ ITT_EXTERN_C __itt_histogram* ITTAPI __itt_histogram_create(const __itt_domain* 
     if (h == NULL)
     {
         NEW_HISTOGRAM_A(&g_ref_collector_global, h, h_tail, domain, name, x_type, y_type);
-        LOG_FUNC_CALL_INFO("domain=%s, name=%s, x_type=%d, y_type=%d (created new histogram)",
-            domain->nameA, name, x_type, y_type);
-    }
-    else
-    {
-        LOG_FUNC_CALL_INFO("domain=%s, name=%s, x_type=%d, y_type=%d (histogram already exists)",
-            domain->nameA, name, x_type, y_type);
+        created = 1;
     }
 
     __itt_mutex_unlock(&g_ref_collector_global.mutex);
+
+    if (created)
+        LOG_FUNC_CALL_INFO("domain=%s, name=%s, x_type=%d, y_type=%d (created new histogram)",
+            domain->nameA, name, x_type, y_type);
+    else
+        LOG_FUNC_CALL_INFO("domain=%s, name=%s, x_type=%d, y_type=%d (histogram already exists)",
+            domain->nameA, name, x_type, y_type);
 
     return h;
 }

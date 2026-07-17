@@ -42,12 +42,6 @@ library you built above (adjust the path to your build directory).
 export INTEL_LIBITTNOTIFY64=<build_dir>/libittnotify_refcol.so
 ```
 
-**On FreeBSD**
-
-```
-setenv INTEL_LIBITTNOTIFY64 <build_dir>/libittnotify_refcol.so
-```
-
 **On Windows**
 
 ```
@@ -61,11 +55,6 @@ the location, use the `INTEL_LIBITTNOTIFY_LOG_DIR` environment variable:
 
 ```
 export INTEL_LIBITTNOTIFY_LOG_DIR=<log_dir>
-```
-
-**On FreeBSD**
-```
-setenv INTEL_LIBITTNOTIFY_LOG_DIR <log_dir>
 ```
 
 **On Windows**
@@ -92,7 +81,7 @@ This mode is experimental and is disabled by default.
 
 To enable it, set the `EXP_LIBITTNOTIFY_GEN_JSON` environment variable to `1`:
 
-**On Linux / FreeBSD**
+**On Linux**
 
 ```
 export EXP_LIBITTNOTIFY_GEN_JSON=1

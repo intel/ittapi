@@ -37,6 +37,12 @@ target_include_directories(ittnotify_refcol PRIVATE
 
 target_link_libraries(ittnotify_refcol PRIVATE ${CMAKE_DL_LIBS})
 
+if(MSVC)
+    target_compile_options(ittnotify_refcol PRIVATE /W4)
+else()
+    target_compile_options(ittnotify_refcol PRIVATE -Wall -Wextra)
+endif()
+
 if(WIN32)
     target_compile_definitions(ittnotify_refcol PRIVATE _CRT_SECURE_NO_WARNINGS)
     set_target_properties(ittnotify_refcol PROPERTIES
