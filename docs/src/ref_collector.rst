@@ -109,7 +109,7 @@ functions with different log levels that take `printf` format for logging:
 Experimental: JSON trace generation
 ------------------------------------
 
-In addition to the default text log, the collector can produce a trace in
+As an alternative to the default text log, the collector can produce a trace in
 JSON format (Perfetto). This mode is experimental and is disabled by default.
 
 To enable it, set the ``EXP_LIBITTNOTIFY_GEN_JSON`` environment variable to ``1``:
@@ -130,7 +130,6 @@ To enable it, set the ``EXP_LIBITTNOTIFY_GEN_JSON`` environment variable to ``1`
     set EXP_LIBITTNOTIFY_GEN_JSON=1
 
 
-When enabled, the collector writes a ``libittnotify_refcol_<timestamp>.json``
-file (instead of the text log) into the log directory. The file can be opened
-directly in https://ui.perfetto.dev.
+When enabled, the collector writes a ``libittnotify_refcol_<timestamp>.json`` file
+into the log directory. The file can be opened directly in https://ui.perfetto.dev.
 

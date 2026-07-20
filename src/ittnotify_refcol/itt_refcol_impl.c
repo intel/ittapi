@@ -61,7 +61,7 @@ static struct ref_collector_global {
     #define REFCOL_LOCALTIME(out_tm, in_time) (localtime_r((in_time), (out_tm)) != NULL)
 #endif
 
-static char* output_file_name_generate(void)
+static char* generate_output_file_name(void)
 {
     time_t time_now = time(NULL);
     struct tm time_info;
@@ -100,7 +100,7 @@ static void ref_collector_init(void)
         g_ref_collector_logger.gen_json = (gen_json != NULL && atoi(gen_json) != 0);
 
         char* log_dir = getenv(env_log_dir);
-        char* log_file = output_file_name_generate();
+        char* log_file = generate_output_file_name();
         if (log_file == NULL)
         {
             return;
