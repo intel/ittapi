@@ -291,6 +291,12 @@ ITT_EXTERN_C void ITTAPI __itt_api_init(__itt_global* p, __itt_group_id init_gro
 // The code section with a set of different utility helper functions.
 // ----------------------------------------------------------------------------
 
+#if defined(_WIN32)
+    #define REFCOL_THREAD_LOCAL __declspec(thread)
+#else
+    #define REFCOL_THREAD_LOCAL __thread
+#endif
+
 #ifdef _WIN32
 static uint64_t get_timestamp_us(void)
 {
@@ -616,6 +622,7 @@ static void log_api_call(
 //     frame begin / end    -> "b" / "e"  (asynchronous, matched by id)
 //     frame submit         -> "X"        (complete event with explicit duration)
 //     counter set value    -> "C"        (counter series)
+//     formatted metadata   -> task args  (pinned to the enclosing task_end)
 //     everything else      -> "i"        (thread-scoped instant marker)
 // ----------------------------------------------------------------------------
 
@@ -865,6 +872,8 @@ ITT_EXTERN_C __itt_histogram* ITTAPI __itt_histogram_create(const __itt_domain* 
 // JSON event handlers (mode 2)
 // ----------------------------------------------------------------------------
 
+static REFCOL_THREAD_LOCAL char g_pending_metadata[LOG_BUFFER_MAX_SIZE * 2] = {0};
+
 static void json_pause(void)
 {
     json_write("i", "itt", "__itt_pause", get_timestamp_us(),
@@ -914,6 +923,7 @@ static void json_thread_set_name(const char* name)
 static void json_frame_begin_v3(const __itt_domain *domain, __itt_id *id)
 {
     if (domain == NULL) return;
+
     unsigned long long fid = (id != NULL) ? id->d1 : 0;
     char extra[LOG_BUFFER_MAX_SIZE];
     snprintf(extra, sizeof(extra),
@@ -924,6 +934,7 @@ static void json_frame_begin_v3(const __itt_domain *domain, __itt_id *id)
 static void json_frame_end_v3(const __itt_domain *domain, __itt_id *id)
 {
     if (domain == NULL) return;
+
     unsigned long long fid = (id != NULL) ? id->d1 : 0;
     char extra[LOG_BUFFER_MAX_SIZE];
     snprintf(extra, sizeof(extra),
@@ -935,6 +946,7 @@ static void json_frame_submit_v3(const __itt_domain *domain,
     __itt_timestamp begin, __itt_timestamp end)
 {
     if (domain == NULL) return;
+
     uint64_t dur = (end > begin) ? (uint64_t)(end - begin) : 0;
     char extra[LOG_BUFFER_MAX_SIZE];
     snprintf(extra, sizeof(extra),
@@ -948,6 +960,7 @@ static void json_task_begin(
     const __itt_domain *domain, __itt_id taskid, __itt_id parentid, __itt_string_handle *name)
 {
     if (domain == NULL || name == NULL) return;
+
     char extra[LOG_BUFFER_MAX_SIZE];
     snprintf(extra, sizeof(extra),
              ",\"args\":{\"api\":\"task\","
@@ -960,14 +973,27 @@ static void json_task_begin(
 static void json_task_end(const __itt_domain *domain)
 {
     if (domain == NULL) return;
-    json_write("E", domain->nameA, "", get_timestamp_us(),
-               ",\"args\":{\"api\":\"task\"}");
+
+    if (g_pending_metadata[0] != '\0')
+    {
+        char extra[LOG_BUFFER_MAX_SIZE * 3];
+        snprintf(extra, sizeof(extra),
+                 ",\"args\":{\"api\":\"task\",\"metadata\":\"%s\"}", g_pending_metadata);
+        g_pending_metadata[0] = '\0';
+        json_write("E", domain->nameA, "", get_timestamp_us(), extra);
+    }
+    else
+    {
+        json_write("E", domain->nameA, "", get_timestamp_us(),
+                   ",\"args\":{\"api\":\"task\"}");
+    }
 }
 
 static void json_region_begin(
     const __itt_domain *domain, __itt_id id, __itt_string_handle *name)
 {
     if (domain == NULL || name == NULL) return;
+
     char extra[LOG_BUFFER_MAX_SIZE];
     snprintf(extra, sizeof(extra),
              ",\"id\":\"0x%llx\",\"args\":{\"api\":\"region\"}", id.d1);
@@ -977,6 +1003,7 @@ static void json_region_begin(
 static void json_region_end(const __itt_domain *domain, __itt_id id)
 {
     if (domain == NULL) return;
+
     char extra[LOG_BUFFER_MAX_SIZE];
     snprintf(extra, sizeof(extra),
              ",\"id\":\"0x%llx\",\"args\":{\"api\":\"region\"}", id.d1);
@@ -987,6 +1014,7 @@ static void json_metadata_add(const __itt_domain *domain,
     __itt_string_handle *key, __itt_metadata_type type, size_t count, void *data)
 {
     if (domain == NULL || count == 0) return;
+
     char* metadata_str = get_metadata_elements(count, type, data);
     char key_esc[LOG_BUFFER_MAX_SIZE];
     char data_esc[LOG_BUFFER_MAX_SIZE];
@@ -1006,25 +1034,13 @@ static void json_metadata_add(const __itt_domain *domain,
 static void json_formatted_metadata_add(
     const __itt_domain *domain, const char* formatted_metadata)
 {
-    if (domain == NULL) return;
-    char data_esc[LOG_BUFFER_MAX_SIZE];
-    json_escape(formatted_metadata, data_esc, sizeof(data_esc));
-
-    char extra[LOG_BUFFER_MAX_SIZE * 2];
-    snprintf(extra, sizeof(extra),
-             ",\"s\":\"t\",\"args\":{\"api\":\"metadata\",\"data\":\"%s\"}",
-             data_esc);
-    json_write("i", domain->nameA, "__itt_formatted_metadata_add",
-                get_timestamp_us(), extra);
+    json_escape(formatted_metadata, g_pending_metadata, sizeof(g_pending_metadata));
 }
 
 static void json_histogram_submit(__itt_histogram* hist, size_t length, void* x_data, void* y_data)
 {
     if (hist == NULL || hist->domain == NULL || hist->domain->nameA == NULL ||
-        hist->nameA == NULL || length == 0 || y_data == NULL)
-    {
-        return;
-    }
+        hist->nameA == NULL || length == 0 || y_data == NULL) return;
 
     char* y_str = get_metadata_elements(length, hist->y_type, y_data);
     char y_esc[LOG_BUFFER_MAX_SIZE];
@@ -1057,6 +1073,7 @@ static void json_bind_context_metadata_to_counter(
     __itt_counter counter, size_t length, __itt_context_metadata* metadata)
 {
     if (counter == NULL || metadata == NULL || length == 0) return;
+
     __itt_counter_info_t* counter_info = (__itt_counter_info_t*)counter;
     char context_metadata[LOG_BUFFER_MAX_SIZE];
     build_context_metadata_str(context_metadata, sizeof(context_metadata), length, metadata);
@@ -1076,6 +1093,7 @@ static void json_bind_context_metadata_to_counter(
 static void json_counter_set_value_v3(__itt_counter counter, void* value_ptr)
 {
     if (counter == NULL || value_ptr == NULL) return;
+
     __itt_counter_info_t* counter_info = (__itt_counter_info_t*)counter;
     uint64_t value = *(uint64_t*)value_ptr;
     const char* series = (counter_info->nameA != NULL) ? counter_info->nameA : "value";
