@@ -10,6 +10,12 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#ifndef _WIN32
+#include <unistd.h>
+#if defined(__linux__)
+#include <sys/syscall.h>
+#endif
+#endif
 
 #define INTEL_NO_MACRO_BODY
 #define INTEL_ITTNOTIFY_API_PRIVATE
@@ -19,6 +25,7 @@
 #define LOG_BUFFER_MAX_SIZE 256
 
 static const char* env_log_dir = "INTEL_LIBITTNOTIFY_LOG_DIR";
+static const char* env_gen_json = "EXP_LIBITTNOTIFY_GEN_JSON";
 static const char* log_level_str[] = {"INFO", "WARN", "ERROR", "FATAL_ERROR"};
 
 enum {
@@ -29,9 +36,11 @@ enum {
 };
 
 static struct ref_collector_logger {
-    FILE* log_fp;
+    FILE*   log_fp;
     uint8_t init_state;
-} g_ref_collector_logger = {NULL, 0};
+    uint8_t first_event;
+    uint8_t gen_json;
+} g_ref_collector_logger = {NULL, 0, 1, 0};
 
 // Collector maintains its own object lists instead of relying on __itt_global*,
 // because traced apps may contain multiple static ITT parts, each with its own __itt_global*.
@@ -52,7 +61,7 @@ static struct ref_collector_global {
     #define REFCOL_LOCALTIME(out_tm, in_time) (localtime_r((in_time), (out_tm)) != NULL)
 #endif
 
-static char* log_file_name_generate()
+static char* generate_output_file_name(void)
 {
     time_t time_now = time(NULL);
     struct tm time_info;
@@ -71,23 +80,31 @@ static char* log_file_name_generate()
         return NULL;
     }
 
-    snprintf(log_file_name, LOG_BUFFER_MAX_SIZE/2, "libittnotify_refcol_%d%d%d%d%d%d.log",
-             time_info.tm_year+1900, time_info.tm_mon+1, time_info.tm_mday,
-             time_info.tm_hour, time_info.tm_min, time_info.tm_sec);
+    char time_str[32];
+    strftime(time_str, sizeof(time_str), "%Y%m%d_%H%M%S", &time_info);
+    snprintf(log_file_name, LOG_BUFFER_MAX_SIZE/2, "libittnotify_refcol_%s.%s",
+             time_str, g_ref_collector_logger.gen_json ? "json" : "log");
 
     return log_file_name;
 }
 
-// This reference implementation opens a log file for recording ITT API calls.
+// This reference collector implementation opens an output file for recording ITT API calls.
 // Custom collectors can replace this with their own initialization logic
 // (e.g., opening trace files, connecting to profiler backends, allocating buffers).
-static void ref_collector_init()
+static void ref_collector_init(void)
 {
     if (!g_ref_collector_logger.init_state)
     {
         static char file_name_buffer[LOG_BUFFER_MAX_SIZE*2];
+        char* gen_json = getenv(env_gen_json);
+        g_ref_collector_logger.gen_json = (gen_json != NULL && atoi(gen_json) != 0);
+
         char* log_dir = getenv(env_log_dir);
-        char* log_file = log_file_name_generate();
+        char* log_file = generate_output_file_name();
+        if (log_file == NULL)
+        {
+            return;
+        }
 
         if (log_dir != NULL)
         {
@@ -99,29 +116,22 @@ static void ref_collector_init()
         }
         else
         {
-            #ifdef _WIN32
-                char* temp_dir = getenv("TEMP");
-                if (temp_dir != NULL)
-                {
-                    snprintf(file_name_buffer, sizeof(file_name_buffer), "%s\\%s", temp_dir, log_file);
-                }
-                else
-                {
-                    snprintf(file_name_buffer, sizeof(file_name_buffer), "%s", log_file);
-                }
-            #else
-                snprintf(file_name_buffer, sizeof(file_name_buffer), "/tmp/%s", log_file);
-            #endif
+            snprintf(file_name_buffer, sizeof(file_name_buffer), "%s", log_file);
         }
         free(log_file);
 
-        g_ref_collector_logger.log_fp = fopen(file_name_buffer, "a");
+        g_ref_collector_logger.log_fp = fopen(file_name_buffer, g_ref_collector_logger.gen_json ? "w" : "a");
         if (!g_ref_collector_logger.log_fp)
         {
-            printf("ERROR: Cannot open log file: %s\n", file_name_buffer);
+            printf("ERROR: Cannot open output file: %s\n", file_name_buffer);
             return;
         }
 
+        if (g_ref_collector_logger.gen_json)
+        {
+            fprintf(g_ref_collector_logger.log_fp, "[\n");
+            g_ref_collector_logger.first_event = 1;
+        }
         g_ref_collector_logger.init_state = 1;
     }
 }
@@ -135,7 +145,7 @@ static void __itt_report_error(int code, ...)
 
 // Initialize the collector's mutex for thread-safe access to object lists.
 // Must be called before any ITT API functions that access the lists.
-static void ref_collector_init_mutex()
+static void ref_collector_init_mutex(void)
 {
     if (!g_ref_collector_global.mutex_initialized)
     {
@@ -145,7 +155,7 @@ static void ref_collector_init_mutex()
 }
 
 // Cleanup hook called at program exit via atexit().
-// Releases all resources: closes log file, frees all ITT objects.
+// Releases all resources: closes output file, frees all ITT objects.
 static void ref_collector_release(void)
 {
     static int released = 0;
@@ -154,6 +164,10 @@ static void ref_collector_release(void)
 
     if (g_ref_collector_logger.log_fp)
     {
+        if (g_ref_collector_logger.gen_json)
+        {
+            fprintf(g_ref_collector_logger.log_fp, "\n]\n");
+        }
         fclose(g_ref_collector_logger.log_fp);
         g_ref_collector_logger.log_fp = NULL;
     }
@@ -273,81 +287,160 @@ ITT_EXTERN_C void ITTAPI __itt_api_init(__itt_global* p, __itt_group_id init_gro
     }
 }
 
-static void log_func_call(uint8_t log_level, const char* function_name, const char* message_format, ...)
+// ----------------------------------------------------------------------------
+// The code section with a set of different utility helper functions.
+// ----------------------------------------------------------------------------
+
+#if defined(_WIN32)
+    #define REFCOL_THREAD_LOCAL __declspec(thread)
+#else
+    #define REFCOL_THREAD_LOCAL __thread
+#endif
+
+#ifdef _WIN32
+static uint64_t get_timestamp_us(void)
 {
-    if (!g_ref_collector_logger.init_state || !g_ref_collector_logger.log_fp)
-    {
-        printf("ERROR: Failed to log function call\n");
-        return;
-    }
+    static LARGE_INTEGER freq = {0};
+    LARGE_INTEGER cnt;
+    if (freq.QuadPart == 0)
+        QueryPerformanceFrequency(&freq);
+    if (freq.QuadPart == 0) return 0;
+    QueryPerformanceCounter(&cnt);
+    return (uint64_t)((cnt.QuadPart * 1000000ULL) / (uint64_t)freq.QuadPart);
+}
+static int get_process_id(void)
+{
+    return (int)GetCurrentProcessId();
+}
+#else
+static uint64_t get_timestamp_us(void)
+{
+    struct timespec ts;
+    clock_gettime(CLOCK_MONOTONIC, &ts);
+    return (uint64_t)ts.tv_sec * 1000000ULL + (uint64_t)ts.tv_nsec / 1000ULL;
+}
+static int get_process_id(void)
+{
+    return (int)getpid();
+}
+#endif
 
-    char log_buffer[LOG_BUFFER_MAX_SIZE];
-    uint32_t result_len = 0;
-    va_list message_args;
-
-    result_len += snprintf(log_buffer, LOG_BUFFER_MAX_SIZE, "[%s] %s(...) - ", log_level_str[log_level], function_name);
-    if (result_len >= LOG_BUFFER_MAX_SIZE)
-        result_len = LOG_BUFFER_MAX_SIZE - 1;
-    va_start(message_args, message_format);
-    vsnprintf(log_buffer + result_len, LOG_BUFFER_MAX_SIZE - result_len, message_format, message_args);
-    va_end(message_args);
-
-    fprintf(g_ref_collector_logger.log_fp, "%s\n", log_buffer);
+static unsigned long long get_thread_id(void)
+{
+#if defined(_WIN32)
+    return (unsigned long long)GetCurrentThreadId();
+#else
+    return (unsigned long long)syscall(SYS_gettid);
+#endif
 }
 
-#define LOG_FUNC_CALL_INFO(...)  log_func_call(LOG_LVL_INFO, __FUNCTION__, __VA_ARGS__)
-#define LOG_FUNC_CALL_WARN(...)  log_func_call(LOG_LVL_WARN, __FUNCTION__, __VA_ARGS__)
-#define LOG_FUNC_CALL_ERROR(...) log_func_call(LOG_LVL_ERROR, __FUNCTION__, __VA_ARGS__)
-#define LOG_FUNC_CALL_FATAL(...) log_func_call(LOG_LVL_FATAL, __FUNCTION__, __VA_ARGS__)
+// Escape a string so it can be safely embedded inside a JSON string literal.
+static void json_escape(const char* src, char* dst, size_t dst_size)
+{
+    size_t j = 0;
+    if (dst_size == 0) return;
+    if (src == NULL) { dst[0] = '\0'; return; }
 
-// ----------------------------------------------------------------------------
-// The code below is a reference implementation of the ITT API functions.
-// These functions are bound to static parts via fill_func_ptr_per_lib()
-// and log all ITT API calls to a file for reference/debugging purposes.
-// In a real collector, these functions could save trace data to a file,
-// forward events to a profiler, or perform any other instrumentation work.
-// ----------------------------------------------------------------------------
+    for (size_t i = 0; src[i] != '\0' && j + 1 < dst_size; i++)
+    {
+        unsigned char c = (unsigned char)src[i];
+        switch (c)
+        {
+            case '\"': if (j + 2 < dst_size) { dst[j++] = '\\'; dst[j++] = '\"'; } break;
+            case '\\': if (j + 2 < dst_size) { dst[j++] = '\\'; dst[j++] = '\\'; } break;
+            case '\n': if (j + 2 < dst_size) { dst[j++] = '\\'; dst[j++] = 'n';  } break;
+            case '\r': if (j + 2 < dst_size) { dst[j++] = '\\'; dst[j++] = 'r';  } break;
+            case '\t': if (j + 2 < dst_size) { dst[j++] = '\\'; dst[j++] = 't';  } break;
+            default:
+                if (c < 0x20)
+                {
+                    if (j + 6 < dst_size)
+                        j += (size_t)snprintf(dst + j, dst_size - j, "\\u%04x", c);
+                }
+                else
+                {
+                    dst[j++] = (char)c;
+                }
+                break;
+        }
+    }
+    dst[j] = '\0';
+}
+
+// Append a single trace event object to the JSON array.
+static void json_write(const char* phase, const char* cat, const char* name,
+                       uint64_t ts, const char* extra)
+{
+    if (!g_ref_collector_logger.init_state || !g_ref_collector_logger.log_fp)
+        return;
+    if (!g_ref_collector_global.mutex_initialized)
+        return;
+
+    char name_esc[LOG_BUFFER_MAX_SIZE];
+    char cat_esc[LOG_BUFFER_MAX_SIZE];
+    json_escape(name, name_esc, sizeof(name_esc));
+    json_escape(cat, cat_esc, sizeof(cat_esc));
+
+    __itt_mutex_lock(&g_ref_collector_global.mutex);
+
+    fprintf(g_ref_collector_logger.log_fp,
+            "%s{\"name\":\"%s\",\"cat\":\"%s\",\"ph\":\"%s\",\"ts\":%" PRIu64
+            ",\"pid\":%d,\"tid\":%llu",
+            g_ref_collector_logger.first_event ? "" : ",\n",
+            name_esc, cat_esc, phase, ts, get_process_id(), get_thread_id());
+    if (extra != NULL)
+        fputs(extra, g_ref_collector_logger.log_fp);
+    fputc('}', g_ref_collector_logger.log_fp);
+
+    g_ref_collector_logger.first_event = 0;
+
+    __itt_mutex_unlock(&g_ref_collector_global.mutex);
+}
+
+// Bounded append into metadata_str
+#define APPEND_METADATA(fmt, val)                                              \
+    do {                                                                       \
+        if (offset >= LOG_BUFFER_MAX_SIZE - 1) break;                          \
+        int _n = snprintf(metadata_str + offset, LOG_BUFFER_MAX_SIZE - offset, \
+                            fmt ";", (val));                                   \
+        if (_n < 0) break;                                                     \
+        offset += ((size_t)_n < LOG_BUFFER_MAX_SIZE - offset)                  \
+                        ? (size_t)_n : (LOG_BUFFER_MAX_SIZE - offset - 1);     \
+    } while (0)
 
 // Remember to call free() after using get_metadata_elements()
 static char* get_metadata_elements(size_t size, __itt_metadata_type type, void* metadata)
 {
     char* metadata_str = malloc(sizeof(char) * LOG_BUFFER_MAX_SIZE);
-    *metadata_str = '\0';
-    uint16_t offset = 0;
+    if (metadata_str == NULL) return NULL;
+    metadata_str[0] = '\0';
+    size_t offset = 0;
 
     switch (type)
     {
     case __itt_metadata_u64:
-        for (uint16_t i = 0; i < size && offset < LOG_BUFFER_MAX_SIZE - 1; i++)
-            offset += snprintf(metadata_str + offset, LOG_BUFFER_MAX_SIZE - offset, "%" PRIu64 ";", ((uint64_t*)metadata)[i]);
+        for (size_t i = 0; i < size; i++) APPEND_METADATA("%" PRIu64, ((uint64_t*)metadata)[i]);
         break;
     case __itt_metadata_s64:
-        for (uint16_t i = 0; i < size && offset < LOG_BUFFER_MAX_SIZE - 1; i++)
-            offset += snprintf(metadata_str + offset, LOG_BUFFER_MAX_SIZE - offset, "%" PRId64 ";", ((int64_t*)metadata)[i]);
+        for (size_t i = 0; i < size; i++) APPEND_METADATA("%" PRId64, ((int64_t*)metadata)[i]);
         break;
     case __itt_metadata_u32:
-        for (uint16_t i = 0; i < size && offset < LOG_BUFFER_MAX_SIZE - 1; i++)
-            offset += snprintf(metadata_str + offset, LOG_BUFFER_MAX_SIZE - offset, "%u;", ((uint32_t*)metadata)[i]);
+        for (size_t i = 0; i < size; i++) APPEND_METADATA("%u", ((uint32_t*)metadata)[i]);
         break;
     case __itt_metadata_s32:
-        for (uint16_t i = 0; i < size && offset < LOG_BUFFER_MAX_SIZE - 1; i++)
-            offset += snprintf(metadata_str + offset, LOG_BUFFER_MAX_SIZE - offset, "%d;", ((int32_t*)metadata)[i]);
+        for (size_t i = 0; i < size; i++) APPEND_METADATA("%d", ((int32_t*)metadata)[i]);
         break;
     case __itt_metadata_u16:
-        for (uint16_t i = 0; i < size && offset < LOG_BUFFER_MAX_SIZE - 1; i++)
-            offset += snprintf(metadata_str + offset, LOG_BUFFER_MAX_SIZE - offset, "%u;", ((uint16_t*)metadata)[i]);
+        for (size_t i = 0; i < size; i++) APPEND_METADATA("%u", ((uint16_t*)metadata)[i]);
         break;
     case __itt_metadata_s16:
-        for (uint16_t i = 0; i < size && offset < LOG_BUFFER_MAX_SIZE - 1; i++)
-            offset += snprintf(metadata_str + offset, LOG_BUFFER_MAX_SIZE - offset, "%d;", ((int16_t*)metadata)[i]);
+        for (size_t i = 0; i < size; i++) APPEND_METADATA("%d", ((int16_t*)metadata)[i]);
         break;
     case __itt_metadata_float:
-        for (uint16_t i = 0; i < size && offset < LOG_BUFFER_MAX_SIZE - 1; i++)
-            offset += snprintf(metadata_str + offset, LOG_BUFFER_MAX_SIZE - offset, "%f;", ((float*)metadata)[i]);
+        for (size_t i = 0; i < size; i++) APPEND_METADATA("%f", ((float*)metadata)[i]);
         break;
     case __itt_metadata_double:
-        for (uint16_t i = 0; i < size && offset < LOG_BUFFER_MAX_SIZE - 1; i++)
-            offset += snprintf(metadata_str + offset, LOG_BUFFER_MAX_SIZE - offset, "%lf;", ((double*)metadata)[i]);
+        for (size_t i = 0; i < size; i++) APPEND_METADATA("%lf", ((double*)metadata)[i]);
         break;
     default:
         printf("ERROR: Unknown metadata type\n");
@@ -360,7 +453,8 @@ static char* get_metadata_elements(size_t size, __itt_metadata_type type, void* 
 // Remember to call free() after using get_context_metadata_element()
 static char* get_context_metadata_element(__itt_context_type type, void* metadata)
 {
-    char* metadata_str = malloc(sizeof(char) * LOG_BUFFER_MAX_SIZE/4);
+    char* metadata_str = malloc(sizeof(char) * (LOG_BUFFER_MAX_SIZE/4));
+    if (metadata_str == NULL) return NULL;
     *metadata_str = '\0';
 
     switch(type)
@@ -388,6 +482,23 @@ static char* get_context_metadata_element(__itt_context_type type, void* metadat
     }
 
     return metadata_str;
+}
+
+// Concatenate context-metadata elements into `buf` (bounded by `cap`).
+static void build_context_metadata_str(char* buf, size_t cap, size_t length, __itt_context_metadata* metadata)
+{
+    if (cap == 0) return;
+    buf[0] = '\0';
+    size_t offset = 0;
+    for (size_t i = 0; i < length && offset < cap - 1; i++)
+    {
+        char* elem = get_context_metadata_element(metadata[i].type, metadata[i].value);
+        if (elem == NULL) break;
+        int n = snprintf(buf + offset, cap - offset, "%s", elem);
+        free(elem);
+        if (n < 0) break;
+        offset += ((size_t)n < cap - offset) ? (size_t)n : (cap - offset - 1);
+    }
 }
 
 #ifdef _WIN32
@@ -420,6 +531,101 @@ static char* wchar2char(const wchar_t* wide_str)
 }
 #endif
 
+// Write one line per instrumented ITT API call to a .log file.
+static void log_func_call(
+    uint8_t log_level, const char* function_name, const char* message_format, ...)
+{
+    if (g_ref_collector_logger.gen_json)
+    {
+        return;
+    }
+
+    if (!g_ref_collector_logger.init_state || !g_ref_collector_logger.log_fp)
+    {
+        printf("ERROR: Failed to log function call\n");
+        return;
+    }
+
+    char log_buffer[LOG_BUFFER_MAX_SIZE];
+    uint32_t result_len = 0;
+    va_list message_args;
+
+    result_len += snprintf(log_buffer, LOG_BUFFER_MAX_SIZE,
+        "[%s] %s(...) - ", log_level_str[log_level], function_name);
+    if (result_len >= LOG_BUFFER_MAX_SIZE)
+        result_len = LOG_BUFFER_MAX_SIZE - 1;
+    va_start(message_args, message_format);
+    vsnprintf(log_buffer + result_len, LOG_BUFFER_MAX_SIZE - result_len,
+        message_format, message_args);
+    va_end(message_args);
+
+    if (g_ref_collector_global.mutex_initialized)
+    {
+        __itt_mutex_lock(&g_ref_collector_global.mutex);
+        fprintf(g_ref_collector_logger.log_fp, "%s\n", log_buffer);
+        __itt_mutex_unlock(&g_ref_collector_global.mutex);
+    }
+    else
+    {
+        printf("ERROR: Failed to log function call\n");
+    }
+}
+
+static void log_api_call(
+    uint8_t log_level, const char* function_name, const char* args_format, ...)
+{
+    if (g_ref_collector_logger.gen_json)
+    {
+        return;
+    }
+
+    if (args_format == NULL || args_format[0] == '\0')
+    {
+        log_func_call(log_level, function_name, "function call");
+        return;
+    }
+
+    char formatted[LOG_BUFFER_MAX_SIZE];
+    va_list message_args;
+    va_start(message_args, args_format);
+    vsnprintf(formatted, sizeof(formatted), args_format, message_args);
+    va_end(message_args);
+
+    log_func_call(log_level, function_name, "function args: %s", formatted);
+}
+
+#define LOG_FUNC_CALL_INFO(...)  log_api_call(LOG_LVL_INFO, __FUNCTION__, "" __VA_ARGS__)
+#define LOG_FUNC_CALL_WARN(...)  log_func_call(LOG_LVL_WARN, __FUNCTION__, "" __VA_ARGS__)
+#define LOG_FUNC_CALL_ERROR(...) log_func_call(LOG_LVL_ERROR, __FUNCTION__, "" __VA_ARGS__)
+#define LOG_FUNC_CALL_FATAL(...) log_func_call(LOG_LVL_FATAL, __FUNCTION__, "" __VA_ARGS__)
+
+// ----------------------------------------------------------------------------
+// The code below is a reference implementation of the ITT API tracing.
+// The ITT API functions are bound to static parts via fill_func_ptr_per_lib()
+// and trace all ITT API calls to a file for reference/debugging purposes.
+// 
+// This reference collector implementation supports two output modes:
+//
+// - Mode 1 (default): plain-text call logger
+//   Writes one human-readable line per instrumented ITT API call to a .log file.
+//   This is the original reference-collector behavior and is used by default.
+//
+// - Mode 2 (experimental): trace event writer in JSON format (Perfetto)
+//   (enabled by setting EXP_LIBITTNOTIFY_GEN_JSON to a non-zero value)
+//   Every instrumented ITT API call is translated into one or more trace events
+//   and appended to the JSON array opened in ref_collector_init(). The resulting
+//   file could be loaded in https://ui.perfetto.dev.
+//
+//   Event phase mapping:
+//     task begin / end     -> "B" / "E"  (synchronous, per-thread, nestable)
+//     region begin / end   -> "b" / "e"  (asynchronous, matched by id)
+//     frame begin / end    -> "b" / "e"  (asynchronous, matched by id)
+//     frame submit         -> "X"        (complete event with explicit duration)
+//     counter set value    -> "C"        (counter series)
+//     formatted metadata   -> task args  (pinned to the enclosing task_end)
+//     everything else      -> "i"        (thread-scoped instant marker)
+// ----------------------------------------------------------------------------
+
 #ifdef _WIN32
 ITT_EXTERN_C __itt_domain* ITTAPI __itt_domain_createW(const wchar_t *name)
 {
@@ -440,6 +646,7 @@ ITT_EXTERN_C __itt_domain* ITTAPI __itt_domain_create(const char *name)
     }
 
     __itt_domain *h_tail = NULL, *h = NULL;
+    int created = 0;
 
     __itt_mutex_lock(&g_ref_collector_global.mutex);
 
@@ -451,14 +658,15 @@ ITT_EXTERN_C __itt_domain* ITTAPI __itt_domain_create(const char *name)
     if (h == NULL)
     {
         NEW_DOMAIN_A(&g_ref_collector_global, h, h_tail, name);
-        LOG_FUNC_CALL_INFO("function args: name=%s (created new domain)", name);
-    }
-    else
-    {
-        LOG_FUNC_CALL_INFO("function args: name=%s (domain already exists)", name);
+        created = 1;
     }
 
     __itt_mutex_unlock(&g_ref_collector_global.mutex);
+
+    if (created)
+        LOG_FUNC_CALL_INFO("name=%s (created new domain)", name);
+    else
+        LOG_FUNC_CALL_INFO("name=%s (domain already exists)", name);
 
     return h;
 }
@@ -483,6 +691,7 @@ ITT_EXTERN_C __itt_string_handle* ITTAPI __itt_string_handle_create(const char* 
     }
 
     __itt_string_handle *h_tail = NULL, *h = NULL;
+    int created = 0;
 
     __itt_mutex_lock(&g_ref_collector_global.mutex);
 
@@ -494,14 +703,15 @@ ITT_EXTERN_C __itt_string_handle* ITTAPI __itt_string_handle_create(const char* 
     if (h == NULL)
     {
         NEW_STRING_HANDLE_A(&g_ref_collector_global, h, h_tail, name);
-        LOG_FUNC_CALL_INFO("function args: name=%s (created new string handle)", name);
-    }
-    else
-    {
-        LOG_FUNC_CALL_INFO("function args: name=%s (string handle already exists)", name);
+        created = 1;
     }
 
     __itt_mutex_unlock(&g_ref_collector_global.mutex);
+
+    if (created)
+        LOG_FUNC_CALL_INFO("name=%s (created new string handle)", name);
+    else
+        LOG_FUNC_CALL_INFO("name=%s (string handle already exists)", name);
 
     return h;
 }
@@ -521,7 +731,6 @@ ITT_EXTERN_C __itt_counter ITTAPI __itt_counter_createA(const char *name, const 
 ITT_EXTERN_C __itt_counter ITTAPI __itt_counter_create(const char *name, const char *domain)
 #endif
 {
-    LOG_FUNC_CALL_INFO("function call");
     return __itt_counter_create_typed(name, domain, __itt_metadata_u64);
 }
 
@@ -529,7 +738,11 @@ ITT_EXTERN_C __itt_counter ITTAPI __itt_counter_create(const char *name, const c
 ITT_EXTERN_C __itt_counter ITTAPI __itt_counter_createW_v3(
     const __itt_domain* domain, const wchar_t* name, __itt_metadata_type type)
 {
-    if (domain == NULL) return NULL;
+    if (domain == NULL)
+    {
+        LOG_FUNC_CALL_WARN("domain is NULL");
+        return NULL;
+    }
     char* name_a = wchar2char(name);
     if (name_a == NULL) return NULL;
     __itt_counter result = __itt_counter_create_typed(name_a, domain->nameA, type);
@@ -548,7 +761,6 @@ ITT_EXTERN_C __itt_counter ITTAPI __itt_counter_create_v3(
         LOG_FUNC_CALL_WARN("domain is NULL");
         return NULL;
     }
-    LOG_FUNC_CALL_INFO("function call");
     return __itt_counter_create_typed(name, domain->nameA, type);
 }
 
@@ -577,6 +789,7 @@ ITT_EXTERN_C __itt_counter ITTAPI __itt_counter_create_typed(
     }
 
     __itt_counter_info_t *h_tail = NULL, *h = NULL;
+    int created = 0;
 
     __itt_mutex_lock(&g_ref_collector_global.mutex);
 
@@ -590,34 +803,35 @@ ITT_EXTERN_C __itt_counter ITTAPI __itt_counter_create_typed(
     if (h == NULL)
     {
         NEW_COUNTER_A(&g_ref_collector_global, h, h_tail, name, domain, type);
-        LOG_FUNC_CALL_INFO("function args: name=%s, domain=%s, type=%d (created new counter)",
-                            name, domain, (int)type);
-    }
-    else
-    {
-        LOG_FUNC_CALL_INFO("function args: name=%s, domain=%s, type=%d (counter already exists)",
-                            name, domain, (int)type);
+        created = 1;
     }
 
     __itt_mutex_unlock(&g_ref_collector_global.mutex);
+
+    if (created)
+        LOG_FUNC_CALL_INFO("name=%s, domain=%s, type=%d (created new counter)",
+                            name, domain, (int)type);
+    else
+        LOG_FUNC_CALL_INFO("name=%s, domain=%s, type=%d (counter already exists)",
+                            name, domain, (int)type);
 
     return (__itt_counter)h;
 }
 
 #ifdef _WIN32
-ITT_EXTERN_C __itt_histogram* ITTAPI __itt_histogram_createW(
-    const __itt_domain* domain, const wchar_t* name, __itt_metadata_type x_type, __itt_metadata_type y_type)
+ITT_EXTERN_C __itt_histogram* ITTAPI __itt_histogram_createW(const __itt_domain* domain,
+    const wchar_t* name, __itt_metadata_type x_type, __itt_metadata_type y_type)
 {
     char* name_a = wchar2char(name);
     __itt_histogram* result = __itt_histogram_createA(domain, name_a, x_type, y_type);
     free(name_a);
     return result;
 }
-ITT_EXTERN_C __itt_histogram* ITTAPI __itt_histogram_createA(
-    const __itt_domain* domain, const char* name, __itt_metadata_type x_type, __itt_metadata_type y_type)
+ITT_EXTERN_C __itt_histogram* ITTAPI __itt_histogram_createA(const __itt_domain* domain,
+    const char* name, __itt_metadata_type x_type, __itt_metadata_type y_type)
 #else
-ITT_EXTERN_C __itt_histogram* ITTAPI __itt_histogram_create(
-    const __itt_domain* domain, const char* name, __itt_metadata_type x_type, __itt_metadata_type y_type)
+ITT_EXTERN_C __itt_histogram* ITTAPI __itt_histogram_create(const __itt_domain* domain,
+    const char* name, __itt_metadata_type x_type, __itt_metadata_type y_type)
 #endif
 {
     if (!g_ref_collector_global.mutex_initialized || name == NULL || domain == NULL)
@@ -627,6 +841,7 @@ ITT_EXTERN_C __itt_histogram* ITTAPI __itt_histogram_create(
     }
 
     __itt_histogram *h_tail = NULL, *h = NULL;
+    int created = 0;
 
     __itt_mutex_lock(&g_ref_collector_global.mutex);
 
@@ -638,162 +853,480 @@ ITT_EXTERN_C __itt_histogram* ITTAPI __itt_histogram_create(
     if (h == NULL)
     {
         NEW_HISTOGRAM_A(&g_ref_collector_global, h, h_tail, domain, name, x_type, y_type);
-        LOG_FUNC_CALL_INFO("function args: domain=%s, name=%s, x_type=%d, y_type=%d (created new histogram)",
-            domain->nameA, name, x_type, y_type);
-    }
-    else
-    {
-        LOG_FUNC_CALL_INFO("function args: domain=%s, name=%s, x_type=%d, y_type=%d (histogram already exists)",
-            domain->nameA, name, x_type, y_type);
+        created = 1;
     }
 
     __itt_mutex_unlock(&g_ref_collector_global.mutex);
 
+    if (created)
+        LOG_FUNC_CALL_INFO("domain=%s, name=%s, x_type=%d, y_type=%d (created new histogram)",
+            domain->nameA, name, x_type, y_type);
+    else
+        LOG_FUNC_CALL_INFO("domain=%s, name=%s, x_type=%d, y_type=%d (histogram already exists)",
+            domain->nameA, name, x_type, y_type);
+
     return h;
 }
 
+// ----------------------------------------------------------------------------
+// JSON event handlers (mode 2)
+// ----------------------------------------------------------------------------
+
+static REFCOL_THREAD_LOCAL char g_pending_metadata[LOG_BUFFER_MAX_SIZE * 2] = {0};
+
+static void json_pause(void)
+{
+    json_write("i", "itt", "__itt_pause", get_timestamp_us(),
+               ",\"s\":\"t\",\"args\":{\"api\":\"pause\"}");
+}
+
+static void json_pause_scoped(__itt_collection_scope scope)
+{
+    char extra[LOG_BUFFER_MAX_SIZE];
+    snprintf(extra, sizeof(extra),
+             ",\"s\":\"t\",\"args\":{\"api\":\"pause\",\"scope\":%d}", (int)scope);
+    json_write("i", "itt", "__itt_pause_scoped", get_timestamp_us(), extra);
+}
+
+static void json_resume(void)
+{
+    json_write("i", "itt", "__itt_resume", get_timestamp_us(),
+               ",\"s\":\"t\",\"args\":{\"api\":\"resume\"}");
+}
+
+static void json_resume_scoped(__itt_collection_scope scope)
+{
+    char extra[LOG_BUFFER_MAX_SIZE];
+    snprintf(extra, sizeof(extra),
+             ",\"s\":\"t\",\"args\":{\"api\":\"resume\",\"scope\":%d}", (int)scope);
+    json_write("i", "itt", "__itt_resume_scoped", get_timestamp_us(), extra);
+}
+
+static void json_detach(void)
+{
+    json_write("i", "itt", "__itt_detach", get_timestamp_us(),
+               ",\"s\":\"t\",\"args\":{\"api\":\"detach\"}");
+}
+
+static void json_thread_set_name(const char* name)
+{
+    if (name == NULL) return;
+
+    char name_esc[LOG_BUFFER_MAX_SIZE];
+    json_escape(name, name_esc, sizeof(name_esc));
+
+    char extra[LOG_BUFFER_MAX_SIZE * 2];
+    snprintf(extra, sizeof(extra), ",\"args\":{\"name\":\"%s\"}", name_esc);
+    json_write("M", "__metadata", "thread_name", get_timestamp_us(), extra);
+}
+
+static void json_frame_begin_v3(const __itt_domain *domain, __itt_id *id)
+{
+    if (domain == NULL) return;
+
+    unsigned long long fid = (id != NULL) ? id->d1 : 0;
+    char extra[LOG_BUFFER_MAX_SIZE];
+    snprintf(extra, sizeof(extra),
+             ",\"id\":\"0x%llx\",\"args\":{\"api\":\"frame\"}", fid);
+    json_write("b", domain->nameA, domain->nameA, get_timestamp_us(), extra);
+}
+
+static void json_frame_end_v3(const __itt_domain *domain, __itt_id *id)
+{
+    if (domain == NULL) return;
+
+    unsigned long long fid = (id != NULL) ? id->d1 : 0;
+    char extra[LOG_BUFFER_MAX_SIZE];
+    snprintf(extra, sizeof(extra),
+             ",\"id\":\"0x%llx\",\"args\":{\"api\":\"frame\"}", fid);
+    json_write("e", domain->nameA, domain->nameA, get_timestamp_us(), extra);
+}
+
+static void json_frame_submit_v3(const __itt_domain *domain,
+    __itt_timestamp begin, __itt_timestamp end)
+{
+    if (domain == NULL) return;
+
+    uint64_t dur = (end > begin) ? (uint64_t)(end - begin) : 0;
+    char extra[LOG_BUFFER_MAX_SIZE];
+    snprintf(extra, sizeof(extra),
+             ",\"dur\":%" PRIu64 ",\"args\":{\"api\":\"frame\","
+             "\"time_begin\":%llu,\"time_end\":%llu}",
+             dur, (unsigned long long)begin, (unsigned long long)end);
+    json_write("X", domain->nameA, domain->nameA, (uint64_t)begin, extra);
+}
+
+static void json_task_begin(
+    const __itt_domain *domain, __itt_id taskid, __itt_id parentid, __itt_string_handle *name)
+{
+    if (domain == NULL || name == NULL) return;
+
+    char extra[LOG_BUFFER_MAX_SIZE];
+    snprintf(extra, sizeof(extra),
+             ",\"args\":{\"api\":\"task\","
+             "\"taskid\":\"%llu,%llu,%llu\",\"parentid\":\"%llu,%llu,%llu\"}",
+             taskid.d1, taskid.d2, taskid.d3,
+             parentid.d1, parentid.d2, parentid.d3);
+    json_write("B", domain->nameA, name->strA, get_timestamp_us(), extra);
+}
+
+static void json_task_end(const __itt_domain *domain)
+{
+    if (domain == NULL) return;
+
+    if (g_pending_metadata[0] != '\0')
+    {
+        char extra[LOG_BUFFER_MAX_SIZE * 3];
+        snprintf(extra, sizeof(extra),
+                 ",\"args\":{\"api\":\"task\",\"metadata\":\"%s\"}", g_pending_metadata);
+        g_pending_metadata[0] = '\0';
+        json_write("E", domain->nameA, "", get_timestamp_us(), extra);
+    }
+    else
+    {
+        json_write("E", domain->nameA, "", get_timestamp_us(),
+                   ",\"args\":{\"api\":\"task\"}");
+    }
+}
+
+static void json_region_begin(
+    const __itt_domain *domain, __itt_id id, __itt_string_handle *name)
+{
+    if (domain == NULL || name == NULL) return;
+
+    char extra[LOG_BUFFER_MAX_SIZE];
+    snprintf(extra, sizeof(extra),
+             ",\"id\":\"0x%llx\",\"args\":{\"api\":\"region\"}", id.d1);
+    json_write("b", domain->nameA, name->strA, get_timestamp_us(), extra);
+}
+
+static void json_region_end(const __itt_domain *domain, __itt_id id)
+{
+    if (domain == NULL) return;
+
+    char extra[LOG_BUFFER_MAX_SIZE];
+    snprintf(extra, sizeof(extra),
+             ",\"id\":\"0x%llx\",\"args\":{\"api\":\"region\"}", id.d1);
+    json_write("e", domain->nameA, "", get_timestamp_us(), extra);
+}
+
+static void json_metadata_add(const __itt_domain *domain,
+    __itt_string_handle *key, __itt_metadata_type type, size_t count, void *data)
+{
+    if (domain == NULL || count == 0) return;
+
+    char* metadata_str = get_metadata_elements(count, type, data);
+    char key_esc[LOG_BUFFER_MAX_SIZE];
+    char data_esc[LOG_BUFFER_MAX_SIZE];
+    json_escape((key != NULL) ? key->strA : "", key_esc, sizeof(key_esc));
+    json_escape(metadata_str, data_esc, sizeof(data_esc));
+
+    char extra[LOG_BUFFER_MAX_SIZE * 2];
+    snprintf(extra, sizeof(extra),
+             ",\"s\":\"t\",\"args\":{\"api\":\"metadata\","
+             "\"key\":\"%s\",\"count\":%zu,\"data\":\"%s\"}",
+             key_esc, count, data_esc);
+    json_write("i", domain->nameA, (key != NULL) ? key->strA : "metadata",
+               get_timestamp_us(), extra);
+    free(metadata_str);
+}
+
+static void json_formatted_metadata_add(
+    const __itt_domain *domain, const char* formatted_metadata)
+{
+    json_escape(formatted_metadata, g_pending_metadata, sizeof(g_pending_metadata));
+}
+
+static void json_histogram_submit(__itt_histogram* hist, size_t length, void* x_data, void* y_data)
+{
+    if (hist == NULL || hist->domain == NULL || hist->domain->nameA == NULL ||
+        hist->nameA == NULL || length == 0 || y_data == NULL) return;
+
+    char* y_str = get_metadata_elements(length, hist->y_type, y_data);
+    char y_esc[LOG_BUFFER_MAX_SIZE];
+    json_escape(y_str, y_esc, sizeof(y_esc));
+    free(y_str);
+
+    char extra[LOG_BUFFER_MAX_SIZE * 3];
+    if (x_data != NULL)
+    {
+        char* x_str = get_metadata_elements(length, hist->x_type, x_data);
+        char x_esc[LOG_BUFFER_MAX_SIZE];
+        json_escape(x_str, x_esc, sizeof(x_esc));
+        free(x_str);
+        snprintf(extra, sizeof(extra),
+                 ",\"s\":\"t\",\"args\":{\"api\":\"histogram\","
+                 "\"length\":%zu,\"x\":\"%s\",\"y\":\"%s\"}",
+                 length, x_esc, y_esc);
+    }
+    else
+    {
+        snprintf(extra, sizeof(extra),
+                 ",\"s\":\"t\",\"args\":{\"api\":\"histogram\","
+                 "\"length\":%zu,\"y\":\"%s\"}",
+                 length, y_esc);
+    }
+    json_write("i", hist->domain->nameA, hist->nameA, get_timestamp_us(), extra);
+}
+
+static void json_bind_context_metadata_to_counter(
+    __itt_counter counter, size_t length, __itt_context_metadata* metadata)
+{
+    if (counter == NULL || metadata == NULL || length == 0) return;
+
+    __itt_counter_info_t* counter_info = (__itt_counter_info_t*)counter;
+    char context_metadata[LOG_BUFFER_MAX_SIZE];
+    build_context_metadata_str(context_metadata, sizeof(context_metadata), length, metadata);
+
+    char ctx_esc[LOG_BUFFER_MAX_SIZE];
+    json_escape(context_metadata, ctx_esc, sizeof(ctx_esc));
+
+    char extra[LOG_BUFFER_MAX_SIZE * 2];
+    snprintf(extra, sizeof(extra),
+             ",\"s\":\"t\",\"args\":{\"api\":\"counter\","
+             "\"length\":%zu,\"context\":\"%s\"}",
+             length, ctx_esc);
+    json_write("i", "counter", (counter_info->nameA != NULL) ? counter_info->nameA : "",
+               get_timestamp_us(), extra);
+}
+
+static void json_counter_set_value_v3(__itt_counter counter, void* value_ptr)
+{
+    if (counter == NULL || value_ptr == NULL) return;
+
+    __itt_counter_info_t* counter_info = (__itt_counter_info_t*)counter;
+    uint64_t value = *(uint64_t*)value_ptr;
+    const char* series = (counter_info->nameA != NULL) ? counter_info->nameA : "value";
+
+    char series_esc[LOG_BUFFER_MAX_SIZE];
+    json_escape(series, series_esc, sizeof(series_esc));
+
+    char extra[LOG_BUFFER_MAX_SIZE * 2];
+    snprintf(extra, sizeof(extra), ",\"args\":{\"%s\":%" PRIu64 "}", series_esc, value);
+    json_write("C", "counter", series, get_timestamp_us(), extra);
+}
+
+// ----------------------------------------------------------------------------
+// ITT API entry points (traced events)
+//
+// Each entry point writes the plain-text log line (mode 1)
+// or delegates to the matching json_* handler (mode 2) instead.
+// ----------------------------------------------------------------------------
+
 ITT_EXTERN_C void ITTAPI __itt_pause(void)
 {
-    LOG_FUNC_CALL_INFO("function call");
+    if (g_ref_collector_logger.gen_json)
+    {
+        json_pause();
+        return;
+    }
+    LOG_FUNC_CALL_INFO();
 }
 
 ITT_EXTERN_C void ITTAPI __itt_pause_scoped(__itt_collection_scope scope)
 {
-    LOG_FUNC_CALL_INFO("function args: scope=%d", scope);
+    if (g_ref_collector_logger.gen_json)
+    {
+        json_pause_scoped(scope);
+        return;
+    }
+    LOG_FUNC_CALL_INFO("scope=%d", scope);
 }
 
 ITT_EXTERN_C void ITTAPI __itt_resume(void)
 {
-    LOG_FUNC_CALL_INFO("function call");
+    if (g_ref_collector_logger.gen_json)
+    {
+        json_resume();
+        return;
+    }
+    LOG_FUNC_CALL_INFO();
 }
 
 ITT_EXTERN_C void ITTAPI __itt_resume_scoped(__itt_collection_scope scope)
 {
-    LOG_FUNC_CALL_INFO("function args: scope=%d", scope);
+    if (g_ref_collector_logger.gen_json)
+    {
+        json_resume_scoped(scope);
+        return;
+    }
+    LOG_FUNC_CALL_INFO("scope=%d", scope);
 }
 
 ITT_EXTERN_C void ITTAPI __itt_detach(void)
 {
-    LOG_FUNC_CALL_INFO("function call");
+    if (g_ref_collector_logger.gen_json)
+    {
+        json_detach();
+        return;
+    }
+    LOG_FUNC_CALL_INFO();
+}
+
+#ifdef _WIN32
+ITT_EXTERN_C void ITTAPI __itt_thread_set_nameW(const wchar_t *name)
+{
+    char* name_a = wchar2char(name);
+    __itt_thread_set_nameA(name_a);
+    free(name_a);
+}
+ITT_EXTERN_C void ITTAPI __itt_thread_set_nameA(const char *name)
+#else
+ITT_EXTERN_C void ITTAPI __itt_thread_set_name(const char *name)
+#endif
+{
+    if (g_ref_collector_logger.gen_json)
+    {
+        json_thread_set_name(name);
+        return;
+    }
+    if (name == NULL)
+    {
+        LOG_FUNC_CALL_WARN("Incorrect function call");
+        return;
+    }
+    LOG_FUNC_CALL_INFO("name=%s", name);
 }
 
 ITT_EXTERN_C void ITTAPI __itt_frame_begin_v3(const __itt_domain *domain, __itt_id *id)
 {
-    if (domain != NULL)
+    if (g_ref_collector_logger.gen_json)
     {
-        (void)id;
-        LOG_FUNC_CALL_INFO("function args: domain=%s", domain->nameA);
+        json_frame_begin_v3(domain, id);
+        return;
     }
-    else
+    if (domain == NULL)
     {
         LOG_FUNC_CALL_WARN("Incorrect function call");
+        return;
     }
+    LOG_FUNC_CALL_INFO("domain=%s", domain->nameA);
 }
 
 ITT_EXTERN_C void ITTAPI __itt_frame_end_v3(const __itt_domain *domain, __itt_id *id)
 {
-    if (domain != NULL)
+    if (g_ref_collector_logger.gen_json)
     {
-        (void)id;
-        LOG_FUNC_CALL_INFO("function args: domain=%s", domain->nameA);
+        json_frame_end_v3(domain, id);
+        return;
     }
-    else
+    if (domain == NULL)
     {
         LOG_FUNC_CALL_WARN("Incorrect function call");
+        return;
     }
+    LOG_FUNC_CALL_INFO("domain=%s", domain->nameA);
 }
 
 ITT_EXTERN_C void ITTAPI __itt_frame_submit_v3(const __itt_domain *domain, __itt_id *id,
     __itt_timestamp begin, __itt_timestamp end)
 {
-    if (domain != NULL)
+    (void)id;
+    if (g_ref_collector_logger.gen_json)
     {
-        (void)id;
-        LOG_FUNC_CALL_INFO("function args: domain=%s, time_begin=%llu, time_end=%llu",
-                        domain->nameA, begin, end);
+        json_frame_submit_v3(domain, begin, end);
+        return;
     }
-    else
+    if (domain == NULL)
     {
         LOG_FUNC_CALL_WARN("Incorrect function call");
+        return;
     }
+    LOG_FUNC_CALL_INFO("domain=%s, time_begin=%llu, time_end=%llu",
+                  domain->nameA, begin, end);
 }
 
 ITT_EXTERN_C void ITTAPI __itt_task_begin(
     const __itt_domain *domain, __itt_id taskid, __itt_id parentid, __itt_string_handle *name)
 {
-    if (domain != NULL && name != NULL)
+    if (g_ref_collector_logger.gen_json)
     {
-        LOG_FUNC_CALL_INFO("function args: domain=%s name=%s taskid=%llu,%llu,%llu parentid=%llu,%llu,%llu",
-                            domain->nameA, name->strA,
-                            taskid.d1, taskid.d2, taskid.d3,
-                            parentid.d1, parentid.d2, parentid.d3);
+        json_task_begin(domain, taskid, parentid, name);
+        return;
     }
-    else
+    if (domain == NULL || name == NULL)
     {
         LOG_FUNC_CALL_WARN("Incorrect function call");
+        return;
     }
+    LOG_FUNC_CALL_INFO("domain=%s name=%s taskid=%llu,%llu,%llu parentid=%llu,%llu,%llu",
+                  domain->nameA, name->strA,
+                  taskid.d1, taskid.d2, taskid.d3,
+                  parentid.d1, parentid.d2, parentid.d3);
 }
 
 ITT_EXTERN_C void ITTAPI __itt_task_end(const __itt_domain *domain)
 {
-    if (domain != NULL)
+    if (g_ref_collector_logger.gen_json)
     {
-        LOG_FUNC_CALL_INFO("function args: domain=%s", domain->nameA);
+        json_task_end(domain);
+        return;
     }
-    else
+    if (domain == NULL)
     {
         LOG_FUNC_CALL_WARN("Incorrect function call");
+        return;
     }
+    LOG_FUNC_CALL_INFO("domain=%s", domain->nameA);
 }
 
 ITT_EXTERN_C void ITTAPI __itt_region_begin(
     const __itt_domain *domain, __itt_id id, __itt_id parentid, __itt_string_handle *name)
 {
-    if (domain != NULL && name != NULL)
+    if (g_ref_collector_logger.gen_json)
     {
-        LOG_FUNC_CALL_INFO("function args: domain=%s name=%s id=%llu,%llu,%llu parentid=%llu,%llu,%llu",
-                            domain->nameA, name->strA,
-                            id.d1, id.d2, id.d3,
-                            parentid.d1, parentid.d2, parentid.d3);
+        json_region_begin(domain, id, name);
+        return;
     }
-    else
+    if (domain == NULL || name == NULL)
     {
         LOG_FUNC_CALL_WARN("Incorrect function call");
+        return;
     }
+    LOG_FUNC_CALL_INFO("domain=%s name=%s id=%llu,%llu,%llu parentid=%llu,%llu,%llu",
+                  domain->nameA, name->strA,
+                  id.d1, id.d2, id.d3,
+                  parentid.d1, parentid.d2, parentid.d3);
 }
 
 ITT_EXTERN_C void ITTAPI __itt_region_end(const __itt_domain *domain, __itt_id id)
 {
-    if (domain != NULL)
+    if (g_ref_collector_logger.gen_json)
     {
-        LOG_FUNC_CALL_INFO("function args: domain=%s id=%llu,%llu,%llu",
-                            domain->nameA, id.d1, id.d2, id.d3);
+        json_region_end(domain, id);
+        return;
     }
-    else
+    if (domain == NULL)
     {
         LOG_FUNC_CALL_WARN("Incorrect function call");
+        return;
     }
+    LOG_FUNC_CALL_INFO("domain=%s id=%llu,%llu,%llu",
+                  domain->nameA, id.d1, id.d2, id.d3);
 }
 
 ITT_EXTERN_C void __itt_metadata_add(const __itt_domain *domain, __itt_id id,
     __itt_string_handle *key, __itt_metadata_type type, size_t count, void *data)
 {
-    if (domain != NULL && count != 0)
+    (void)id;
+    if (g_ref_collector_logger.gen_json)
     {
-        (void)id;
-        (void)key;
-        char* metadata_str = get_metadata_elements(count, type, data);
-        LOG_FUNC_CALL_INFO("function args: domain=%s metadata_size=%zu metadata[]=%s",
-                            domain->nameA, count, metadata_str);
-        free(metadata_str);
+        json_metadata_add(domain, key, type, count, data);
+        return;
     }
-    else
+    if (domain == NULL || count == 0)
     {
         LOG_FUNC_CALL_WARN("Incorrect function call");
+        return;
     }
+    char* metadata_str = get_metadata_elements(count, type, data);
+    LOG_FUNC_CALL_INFO("domain=%s metadata_size=%zu metadata[]=%s",
+                  domain->nameA, count, (metadata_str != NULL) ? metadata_str : "");
+    free(metadata_str);
 }
 
-ITT_EXTERN_C void __itt_formatted_metadata_add(const __itt_domain *domain, __itt_string_handle *format, ...)
+ITT_EXTERN_C void __itt_formatted_metadata_add(
+    const __itt_domain *domain, __itt_string_handle *format, ...)
 {
     if (domain == NULL || format == NULL)
     {
@@ -803,85 +1336,92 @@ ITT_EXTERN_C void __itt_formatted_metadata_add(const __itt_domain *domain, __itt
 
     va_list args;
     va_start(args, format);
-
     char formatted_metadata[LOG_BUFFER_MAX_SIZE];
     vsnprintf(formatted_metadata, LOG_BUFFER_MAX_SIZE, format->strA, args);
-
-    LOG_FUNC_CALL_INFO("function args: domain=%s formatted_metadata=%s",
-                        domain->nameA, formatted_metadata);
-
     va_end(args);
+
+    if (g_ref_collector_logger.gen_json)
+    {
+        json_formatted_metadata_add(domain, formatted_metadata);
+        return;
+    }
+    LOG_FUNC_CALL_INFO("domain=%s formatted_metadata=%s", domain->nameA, formatted_metadata);
 }
 
-ITT_EXTERN_C void __itt_histogram_submit(__itt_histogram* hist, size_t length, void* x_data, void* y_data)
+ITT_EXTERN_C void __itt_histogram_submit(
+    __itt_histogram* hist, size_t length, void* x_data, void* y_data)
 {
+    if (g_ref_collector_logger.gen_json)
+    {
+        json_histogram_submit(hist, length, x_data, y_data);
+        return;
+    }
     if (hist == NULL)
     {
         LOG_FUNC_CALL_WARN("Histogram is NULL");
+        return;
     }
-    else if (hist->domain == NULL)
+    if (hist->domain == NULL)
     {
         LOG_FUNC_CALL_WARN("Histogram domain is NULL");
+        return;
     }
-    else if (hist->domain->nameA != NULL && hist->nameA != NULL && length != 0 && y_data != NULL)
+    if (hist->domain->nameA == NULL || hist->nameA == NULL || length == 0 || y_data == NULL)
     {
-        if (x_data != NULL)
-        {
-            char* x_data_str = get_metadata_elements(length, hist->x_type, x_data);
-            char* y_data_str = get_metadata_elements(length, hist->y_type, y_data);
-            LOG_FUNC_CALL_INFO("function args: domain=%s name=%s histogram_size=%zu x[]=%s y[]=%s",
-                                hist->domain->nameA, hist->nameA, length, x_data_str, y_data_str);
-            free(x_data_str);
-            free(y_data_str);
-        }
-        else
-        {
-            char* y_data_str = get_metadata_elements(length, hist->y_type, y_data);
-            LOG_FUNC_CALL_INFO("function args: domain=%s name=%s histogram_size=%zu y[]=%s",
-                                hist->domain->nameA, hist->nameA, length, y_data_str);
-            free(y_data_str);
-        }
+        LOG_FUNC_CALL_WARN("Incorrect function call");
+        return;
+    }
+    char* y_str = get_metadata_elements(length, hist->y_type, y_data);
+    if (x_data != NULL)
+    {
+        char* x_str = get_metadata_elements(length, hist->x_type, x_data);
+        LOG_FUNC_CALL_INFO("histogram_name=%s length=%zu x_data[]=%s y_data[]=%s",
+                      hist->nameA, length,
+                      (x_str != NULL) ? x_str : "", (y_str != NULL) ? y_str : "");
+        free(x_str);
     }
     else
     {
-        LOG_FUNC_CALL_WARN("Incorrect function call");
+        LOG_FUNC_CALL_INFO("histogram_name=%s length=%zu y_data[]=%s",
+                      hist->nameA, length, (y_str != NULL) ? y_str : "");
     }
+    free(y_str);
 }
 
-ITT_EXTERN_C void __itt_bind_context_metadata_to_counter(__itt_counter counter, size_t length, __itt_context_metadata* metadata)
+ITT_EXTERN_C void __itt_bind_context_metadata_to_counter(
+    __itt_counter counter, size_t length, __itt_context_metadata* metadata)
 {
-    if (counter != NULL && metadata != NULL && length != 0)
+    if (g_ref_collector_logger.gen_json)
     {
-        __itt_counter_info_t* counter_info = (__itt_counter_info_t*)counter;
-        char context_metadata[LOG_BUFFER_MAX_SIZE];
-        context_metadata[0] = '\0';
-        uint16_t offset = 0;
-        for(size_t i=0; i<length && offset < LOG_BUFFER_MAX_SIZE - 1; i++)
-        {
-            char* context_metadata_element = get_context_metadata_element(metadata[i].type, metadata[i].value);
-            offset += snprintf(context_metadata + offset, LOG_BUFFER_MAX_SIZE - offset, "%s", context_metadata_element);
-            free(context_metadata_element);
-        }
-        LOG_FUNC_CALL_INFO("function args: counter_name=%s context_metadata_size=%zu context_metadata[]=%s",
-                            counter_info->nameA, length, context_metadata);
+        json_bind_context_metadata_to_counter(counter, length, metadata);
+        return;
     }
-    else
+    if (counter == NULL || metadata == NULL || length == 0)
     {
         LOG_FUNC_CALL_WARN("Incorrect function call");
+        return;
     }
+    __itt_counter_info_t* counter_info = (__itt_counter_info_t*)counter;
+    char context_metadata[LOG_BUFFER_MAX_SIZE];
+    build_context_metadata_str(context_metadata, sizeof(context_metadata), length, metadata);
+    LOG_FUNC_CALL_INFO("counter_name=%s context_metadata_size=%zu context_metadata[]=%s",
+        (counter_info->nameA != NULL) ? counter_info->nameA : "", length, context_metadata);
 }
 
 ITT_EXTERN_C void __itt_counter_set_value_v3(__itt_counter counter, void* value_ptr)
 {
-    if (counter != NULL && value_ptr != NULL)
+    if (g_ref_collector_logger.gen_json)
     {
-        __itt_counter_info_t* counter_info = (__itt_counter_info_t*)counter;
-        uint64_t value = *(uint64_t*)value_ptr;
-        LOG_FUNC_CALL_INFO("function args: counter_name=%s counter_value=%" PRIu64,
-                            counter_info->nameA, value);
+        json_counter_set_value_v3(counter, value_ptr);
+        return;
     }
-    else
+    if (counter == NULL || value_ptr == NULL)
     {
         LOG_FUNC_CALL_WARN("Incorrect function call");
+        return;
     }
+    __itt_counter_info_t* counter_info = (__itt_counter_info_t*)counter;
+    uint64_t value = *(uint64_t*)value_ptr;
+    LOG_FUNC_CALL_INFO("counter_name=%s counter_value=%" PRIu64,
+                  (counter_info->nameA != NULL) ? counter_info->nameA : "", value);
 }

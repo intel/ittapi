@@ -42,30 +42,19 @@ library you built above (adjust the path to your build directory).
 export INTEL_LIBITTNOTIFY64=<build_dir>/libittnotify_refcol.so
 ```
 
-**On FreeBSD**
-
-```
-setenv INTEL_LIBITTNOTIFY64 <build_dir>/libittnotify_refcol.so
-```
-
 **On Windows**
 
 ```
 set INTEL_LIBITTNOTIFY64=<build_dir>\libittnotify_refcol.dll
 ```
 
-By default, log files are saved in the system temporary directory. To change
+By default, log files are saved in the current working directory. To change
 the location, use the `INTEL_LIBITTNOTIFY_LOG_DIR` environment variable:
 
 **On Linux**
 
 ```
 export INTEL_LIBITTNOTIFY_LOG_DIR=<log_dir>
-```
-
-**On FreeBSD**
-```
-setenv INTEL_LIBITTNOTIFY_LOG_DIR <log_dir>
 ```
 
 **On Windows**
@@ -83,3 +72,26 @@ LOG_FUNC_CALL_WARN(const char *msg_format, ...);
 LOG_FUNC_CALL_ERROR(const char *msg_format, ...);
 LOG_FUNC_CALL_FATAL(const char *msg_format, ...);
 ```
+
+## Experimental: JSON trace generation
+
+As an alternative to the default text log, the collector can produce a trace in
+JSON format (Perfetto).
+This mode is experimental and is disabled by default.
+
+To enable it, set the `EXP_LIBITTNOTIFY_GEN_JSON` environment variable to `1`:
+
+**On Linux**
+
+```
+export EXP_LIBITTNOTIFY_GEN_JSON=1
+```
+
+**On Windows**
+
+```
+set EXP_LIBITTNOTIFY_GEN_JSON=1
+```
+
+When enabled, the collector writes a `libittnotify_refcol_<timestamp>.json` file
+into the log directory. The file can be opened directly in <https://ui.perfetto.dev>.
