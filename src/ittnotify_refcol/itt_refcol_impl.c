@@ -40,7 +40,8 @@ static struct ref_collector_logger {
     uint8_t init_state;
     uint8_t first_event;
     uint8_t gen_json;
-} g_ref_collector_logger = {NULL, 0, 1, 0};
+    uint8_t paused;
+} g_ref_collector_logger = {NULL, 0, 1, 0, 0};
 
 // Collector maintains its own object lists instead of relying on __itt_global*,
 // because traced apps may contain multiple static ITT parts, each with its own __itt_global*.
@@ -372,6 +373,8 @@ static void json_write(const char* phase, const char* cat, const char* name,
                        uint64_t ts, const char* extra)
 {
     if (!g_ref_collector_logger.init_state || !g_ref_collector_logger.log_fp)
+        return;
+    if (g_ref_collector_logger.paused)
         return;
     if (!g_ref_collector_global.mutex_initialized)
         return;
@@ -878,6 +881,7 @@ static void json_pause(void)
 {
     json_write("i", "itt", "__itt_pause", get_timestamp_us(),
                ",\"s\":\"t\",\"args\":{\"api\":\"pause\"}");
+    g_ref_collector_logger.paused = 1;
 }
 
 static void json_pause_scoped(__itt_collection_scope scope)
@@ -886,16 +890,19 @@ static void json_pause_scoped(__itt_collection_scope scope)
     snprintf(extra, sizeof(extra),
              ",\"s\":\"t\",\"args\":{\"api\":\"pause\",\"scope\":%d}", (int)scope);
     json_write("i", "itt", "__itt_pause_scoped", get_timestamp_us(), extra);
+    g_ref_collector_logger.paused = 1;
 }
 
 static void json_resume(void)
 {
+    g_ref_collector_logger.paused = 0;
     json_write("i", "itt", "__itt_resume", get_timestamp_us(),
                ",\"s\":\"t\",\"args\":{\"api\":\"resume\"}");
 }
 
 static void json_resume_scoped(__itt_collection_scope scope)
 {
+    g_ref_collector_logger.paused = 0;
     char extra[LOG_BUFFER_MAX_SIZE];
     snprintf(extra, sizeof(extra),
              ",\"s\":\"t\",\"args\":{\"api\":\"resume\",\"scope\":%d}", (int)scope);
@@ -906,6 +913,8 @@ static void json_detach(void)
 {
     json_write("i", "itt", "__itt_detach", get_timestamp_us(),
                ",\"s\":\"t\",\"args\":{\"api\":\"detach\"}");
+    g_ref_collector_logger.paused = 1;
+    ref_collector_release();
 }
 
 static void json_thread_set_name(const char* name)
