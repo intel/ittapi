@@ -37,13 +37,13 @@ def run_exe(exe, lib, log_dir, gen_json):
     """Run the smoke test executable with the collector attached.
 
     gen_json selects the collector output mode: False -> plain-text log,
-    True -> JSON trace (EXP_LIBITTNOTIFY_GEN_JSON=1).
+    True -> JSON trace (INTEL_LIBITTNOTIFY_GEN_JSON=1).
     """
     env = os.environ.copy()
     env["INTEL_LIBITTNOTIFY64"] = lib
     env["INTEL_LIBITTNOTIFY_LOG_DIR"] = log_dir
     if gen_json:
-        env["EXP_LIBITTNOTIFY_GEN_JSON"] = "1"
+        env["INTEL_LIBITTNOTIFY_GEN_JSON"] = "1"
 
     result = subprocess.run([exe], env=env)
     if result.returncode != 0:
@@ -149,7 +149,7 @@ def main():
     if not check_text_log(text_dir):
         return 1
 
-    print("\n=== Scenario 2: JSON trace (EXP_LIBITTNOTIFY_GEN_JSON=1) ===")
+    print("\n=== Scenario 2: JSON trace (INTEL_LIBITTNOTIFY_GEN_JSON=1) ===")
     if not run_exe(exe, lib, json_dir, gen_json=True):
         return 1
     if not check_json_trace(json_dir):

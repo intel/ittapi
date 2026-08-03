@@ -25,7 +25,7 @@
 #define LOG_BUFFER_MAX_SIZE 256
 
 static const char* env_log_dir = "INTEL_LIBITTNOTIFY_LOG_DIR";
-static const char* env_gen_json = "EXP_LIBITTNOTIFY_GEN_JSON";
+static const char* env_gen_json = "INTEL_LIBITTNOTIFY_GEN_JSON";
 static const char* log_level_str[] = {"INFO", "WARN", "ERROR", "FATAL_ERROR"};
 
 enum {
@@ -613,11 +613,11 @@ static void log_api_call(
 //   Writes one human-readable line per instrumented ITT API call to a .log file.
 //   This is the original reference-collector behavior and is used by default.
 //
-// - Mode 2 (experimental): trace event writer in JSON format (Perfetto)
-//   (enabled by setting EXP_LIBITTNOTIFY_GEN_JSON to a non-zero value)
+// - Mode 2 : trace event writer in JSON format (Perfetto)
+//   (enabled by setting INTEL_LIBITTNOTIFY_GEN_JSON to a non-zero value)
 //   Every instrumented ITT API call is translated into one or more trace events
 //   and appended to the JSON array opened in ref_collector_init(). The resulting
-//   file could be loaded in https://ui.perfetto.dev.
+//   file could be loaded in Perfetto UI.
 //
 //   Event phase mapping:
 //     task begin / end     -> "B" / "E"  (synchronous, per-thread, nestable)
@@ -627,6 +627,11 @@ static void log_api_call(
 //     counter set value    -> "C"        (counter series)
 //     formatted metadata   -> task args  (pinned to the enclosing task_end)
 //     everything else      -> "i"        (thread-scoped instant marker)
+//
+//   Task and region ids are additionally emitted as flow events so Perfetto
+//   draws arrows connecting related work:
+//     flow start           -> "s"        (keyed by the task/region id)
+//     flow finish          -> "f"        (keyed by the parent id)
 // ----------------------------------------------------------------------------
 
 #ifdef _WIN32
@@ -879,7 +884,7 @@ static REFCOL_THREAD_LOCAL char g_pending_metadata[LOG_BUFFER_MAX_SIZE * 2] = {0
 
 static void json_pause(void)
 {
-    json_write("i", "itt", "__itt_pause", get_timestamp_us(),
+    json_write("i", "ittapi", "pause", get_timestamp_us(),
                ",\"s\":\"t\",\"args\":{\"api\":\"pause\"}");
     g_ref_collector_logger.paused = 1;
 }
@@ -889,14 +894,14 @@ static void json_pause_scoped(__itt_collection_scope scope)
     char extra[LOG_BUFFER_MAX_SIZE];
     snprintf(extra, sizeof(extra),
              ",\"s\":\"t\",\"args\":{\"api\":\"pause\",\"scope\":%d}", (int)scope);
-    json_write("i", "itt", "__itt_pause_scoped", get_timestamp_us(), extra);
+    json_write("i", "ittapi", "pause_scoped", get_timestamp_us(), extra);
     g_ref_collector_logger.paused = 1;
 }
 
 static void json_resume(void)
 {
     g_ref_collector_logger.paused = 0;
-    json_write("i", "itt", "__itt_resume", get_timestamp_us(),
+    json_write("i", "ittapi", "resume", get_timestamp_us(),
                ",\"s\":\"t\",\"args\":{\"api\":\"resume\"}");
 }
 
@@ -906,12 +911,12 @@ static void json_resume_scoped(__itt_collection_scope scope)
     char extra[LOG_BUFFER_MAX_SIZE];
     snprintf(extra, sizeof(extra),
              ",\"s\":\"t\",\"args\":{\"api\":\"resume\",\"scope\":%d}", (int)scope);
-    json_write("i", "itt", "__itt_resume_scoped", get_timestamp_us(), extra);
+    json_write("i", "ittapi", "resume_scoped", get_timestamp_us(), extra);
 }
 
 static void json_detach(void)
 {
-    json_write("i", "itt", "__itt_detach", get_timestamp_us(),
+    json_write("i", "ittapi", "detach", get_timestamp_us(),
                ",\"s\":\"t\",\"args\":{\"api\":\"detach\"}");
     g_ref_collector_logger.paused = 1;
     ref_collector_release();
@@ -926,7 +931,7 @@ static void json_thread_set_name(const char* name)
 
     char extra[LOG_BUFFER_MAX_SIZE * 2];
     snprintf(extra, sizeof(extra), ",\"args\":{\"name\":\"%s\"}", name_esc);
-    json_write("M", "__metadata", "thread_name", get_timestamp_us(), extra);
+    json_write("M", "ittapi", "set_thread_name", get_timestamp_us(), extra);
 }
 
 static void json_frame_begin_v3(const __itt_domain *domain, __itt_id *id)
@@ -970,13 +975,28 @@ static void json_task_begin(
 {
     if (domain == NULL || name == NULL) return;
 
+    uint64_t ts = get_timestamp_us();
+
     char extra[LOG_BUFFER_MAX_SIZE];
     snprintf(extra, sizeof(extra),
              ",\"args\":{\"api\":\"task\","
              "\"taskid\":\"%llu,%llu,%llu\",\"parentid\":\"%llu,%llu,%llu\"}",
              taskid.d1, taskid.d2, taskid.d3,
              parentid.d1, parentid.d2, parentid.d3);
-    json_write("B", domain->nameA, name->strA, get_timestamp_us(), extra);
+    json_write("B", domain->nameA, name->strA, ts, extra);
+
+    if (parentid.d1)
+    {
+        snprintf(extra, sizeof(extra),
+                 ",\"id\":%llu,\"bp\":\"e\",\"args\":{\"api\":\"flow\"}", parentid.d1);
+        json_write("f", domain->nameA, "", ts, extra);
+    }
+    if (taskid.d1)
+    {
+        snprintf(extra, sizeof(extra),
+                 ",\"id\":%llu,\"args\":{\"api\":\"flow\"}", taskid.d1);
+        json_write("s", domain->nameA, "", ts, extra);
+    }
 }
 
 static void json_task_end(const __itt_domain *domain)
@@ -1003,10 +1023,20 @@ static void json_region_begin(
 {
     if (domain == NULL || name == NULL) return;
 
+    uint64_t ts = get_timestamp_us();
+
     char extra[LOG_BUFFER_MAX_SIZE];
     snprintf(extra, sizeof(extra),
-             ",\"id\":\"0x%llx\",\"args\":{\"api\":\"region\"}", id.d1);
-    json_write("b", domain->nameA, name->strA, get_timestamp_us(), extra);
+             ",\"id\":\"%llu,%llu,%llu\",\"args\":{\"api\":\"region\"}",
+             id.d1, id.d2, id.d3);
+    json_write("b", domain->nameA, name->strA, ts, extra);
+
+    if (id.d1)
+    {
+        snprintf(extra, sizeof(extra),
+                 ",\"id\":%llu,\"args\":{\"api\":\"flow\"}", id.d1);
+        json_write("s", domain->nameA, "", ts, extra);
+    }
 }
 
 static void json_region_end(const __itt_domain *domain, __itt_id id)
@@ -1015,7 +1045,8 @@ static void json_region_end(const __itt_domain *domain, __itt_id id)
 
     char extra[LOG_BUFFER_MAX_SIZE];
     snprintf(extra, sizeof(extra),
-             ",\"id\":\"0x%llx\",\"args\":{\"api\":\"region\"}", id.d1);
+             ",\"id\":\"%llu,%llu,%llu\",\"args\":{\"api\":\"region\"}",
+             id.d1, id.d2, id.d3);
     json_write("e", domain->nameA, "", get_timestamp_us(), extra);
 }
 
