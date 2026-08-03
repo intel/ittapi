@@ -621,6 +621,7 @@ static void log_api_call(
 //
 //   Event phase mapping:
 //     task begin / end     -> "B" / "E"  (synchronous, per-thread, nestable)
+//     overlapped task      -> "b" / "e"  (asynchronous, matched by id)
 //     region begin / end   -> "b" / "e"  (asynchronous, matched by id)
 //     frame begin / end    -> "b" / "e"  (asynchronous, matched by id)
 //     frame submit         -> "X"        (complete event with explicit duration)
@@ -1023,6 +1024,46 @@ static void json_task_end(const __itt_domain *domain)
     }
 }
 
+static void json_task_begin_overlapped(
+    const __itt_domain *domain, __itt_id taskid, __itt_id parentid, __itt_string_handle *name)
+{
+    if (domain == NULL || name == NULL || taskid.d1 == 0) return;
+
+    uint64_t ts = get_timestamp_us();
+
+    char extra[LOG_BUFFER_MAX_SIZE];
+    snprintf(extra, sizeof(extra),
+             ",\"id\":\"%llu,%llu,%llu\",\"args\":{\"api\":\"task\","
+             "\"taskid\":\"%llu,%llu,%llu\",\"parentid\":\"%llu,%llu,%llu\"}",
+             taskid.d1, taskid.d2, taskid.d3,
+             taskid.d1, taskid.d2, taskid.d3,
+             parentid.d1, parentid.d2, parentid.d3);
+    json_write("b", domain->nameA, name->strA, ts, extra);
+
+    if (parentid.d1)
+    {
+        snprintf(extra, sizeof(extra),
+                 ",\"id\":\"%llu,%llu,%llu\",\"bp\":\"e\",\"args\":{\"api\":\"flow\"}",
+                 parentid.d1, parentid.d2, parentid.d3);
+        json_write("f", domain->nameA, "", ts, extra);
+    }
+    snprintf(extra, sizeof(extra),
+             ",\"id\":\"%llu,%llu,%llu\",\"args\":{\"api\":\"flow\"}",
+             taskid.d1, taskid.d2, taskid.d3);
+    json_write("s", domain->nameA, "", ts, extra);
+}
+
+static void json_task_end_overlapped(const __itt_domain *domain, __itt_id taskid)
+{
+    if (domain == NULL || taskid.d1 == 0) return;
+
+    char extra[LOG_BUFFER_MAX_SIZE];
+    snprintf(extra, sizeof(extra),
+             ",\"id\":\"%llu,%llu,%llu\",\"args\":{\"api\":\"task\"}",
+             taskid.d1, taskid.d2, taskid.d3);
+    json_write("e", domain->nameA, "", get_timestamp_us(), extra);
+}
+
 static void json_region_begin(
     const __itt_domain *domain, __itt_id id, __itt_string_handle *name)
 {
@@ -1315,6 +1356,41 @@ ITT_EXTERN_C void ITTAPI __itt_task_end(const __itt_domain *domain)
         return;
     }
     LOG_FUNC_CALL_INFO("domain=%s", domain->nameA);
+}
+
+ITT_EXTERN_C void ITTAPI __itt_task_begin_overlapped(
+    const __itt_domain *domain, __itt_id taskid, __itt_id parentid, __itt_string_handle *name)
+{
+    if (g_ref_collector_logger.gen_json)
+    {
+        json_task_begin_overlapped(domain, taskid, parentid, name);
+        return;
+    }
+    if (domain == NULL || name == NULL || taskid.d1 == 0)
+    {
+        LOG_FUNC_CALL_WARN("Incorrect function call");
+        return;
+    }
+    LOG_FUNC_CALL_INFO("domain=%s name=%s taskid=%llu,%llu,%llu parentid=%llu,%llu,%llu",
+                  domain->nameA, name->strA,
+                  taskid.d1, taskid.d2, taskid.d3,
+                  parentid.d1, parentid.d2, parentid.d3);
+}
+
+ITT_EXTERN_C void ITTAPI __itt_task_end_overlapped(const __itt_domain *domain, __itt_id taskid)
+{
+    if (g_ref_collector_logger.gen_json)
+    {
+        json_task_end_overlapped(domain, taskid);
+        return;
+    }
+    if (domain == NULL || taskid.d1 == 0)
+    {
+        LOG_FUNC_CALL_WARN("Incorrect function call");
+        return;
+    }
+    LOG_FUNC_CALL_INFO("domain=%s taskid=%llu,%llu,%llu",
+                  domain->nameA, taskid.d1, taskid.d2, taskid.d3);
 }
 
 ITT_EXTERN_C void ITTAPI __itt_region_begin(
