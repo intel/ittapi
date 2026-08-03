@@ -934,25 +934,28 @@ static void json_thread_set_name(const char* name)
     json_write("M", "ittapi", "set_thread_name", get_timestamp_us(), extra);
 }
 
-static void json_frame_begin_v3(const __itt_domain *domain, __itt_id *id)
+static void json_frame_begin_v3(const __itt_domain *domain, const __itt_id *id)
 {
     if (domain == NULL) return;
+    if (id == NULL) id = &__itt_null;
 
-    unsigned long long fid = (id != NULL) ? id->d1 : 0;
     char extra[LOG_BUFFER_MAX_SIZE];
     snprintf(extra, sizeof(extra),
-             ",\"id\":\"0x%llx\",\"args\":{\"api\":\"frame\"}", fid);
+             ",\"id\":\"%llu,%llu,%llu\",\"args\":{\"api\":\"frame\","
+             "\"id\":\"%llu,%llu,%llu\"}",
+             id->d1, id->d2, id->d3, id->d1, id->d2, id->d3);
     json_write("b", domain->nameA, domain->nameA, get_timestamp_us(), extra);
 }
 
-static void json_frame_end_v3(const __itt_domain *domain, __itt_id *id)
+static void json_frame_end_v3(const __itt_domain *domain, const __itt_id *id)
 {
     if (domain == NULL) return;
+    if (id == NULL) id = &__itt_null;
 
-    unsigned long long fid = (id != NULL) ? id->d1 : 0;
     char extra[LOG_BUFFER_MAX_SIZE];
     snprintf(extra, sizeof(extra),
-             ",\"id\":\"0x%llx\",\"args\":{\"api\":\"frame\"}", fid);
+             ",\"id\":\"%llu,%llu,%llu\",\"args\":{\"api\":\"frame\"}",
+             id->d1, id->d2, id->d3);
     json_write("e", domain->nameA, domain->nameA, get_timestamp_us(), extra);
 }
 
@@ -988,13 +991,15 @@ static void json_task_begin(
     if (parentid.d1)
     {
         snprintf(extra, sizeof(extra),
-                 ",\"id\":%llu,\"bp\":\"e\",\"args\":{\"api\":\"flow\"}", parentid.d1);
+                 ",\"id\":\"%llu,%llu,%llu\",\"bp\":\"e\",\"args\":{\"api\":\"flow\"}",
+                 parentid.d1, parentid.d2, parentid.d3);
         json_write("f", domain->nameA, "", ts, extra);
     }
     if (taskid.d1)
     {
         snprintf(extra, sizeof(extra),
-                 ",\"id\":%llu,\"args\":{\"api\":\"flow\"}", taskid.d1);
+                 ",\"id\":\"%llu,%llu,%llu\",\"args\":{\"api\":\"flow\"}",
+                 taskid.d1, taskid.d2, taskid.d3);
         json_write("s", domain->nameA, "", ts, extra);
     }
 }
@@ -1027,14 +1032,16 @@ static void json_region_begin(
 
     char extra[LOG_BUFFER_MAX_SIZE];
     snprintf(extra, sizeof(extra),
-             ",\"id\":\"%llu,%llu,%llu\",\"args\":{\"api\":\"region\"}",
-             id.d1, id.d2, id.d3);
+             ",\"id\":\"%llu,%llu,%llu\",\"args\":{\"api\":\"region\","
+             "\"id\":\"%llu,%llu,%llu\"}",
+             id.d1, id.d2, id.d3, id.d1, id.d2, id.d3);
     json_write("b", domain->nameA, name->strA, ts, extra);
 
     if (id.d1)
     {
         snprintf(extra, sizeof(extra),
-                 ",\"id\":%llu,\"args\":{\"api\":\"flow\"}", id.d1);
+                 ",\"id\":\"%llu,%llu,%llu\",\"args\":{\"api\":\"flow\"}",
+                 id.d1, id.d2, id.d3);
         json_write("s", domain->nameA, "", ts, extra);
     }
 }
