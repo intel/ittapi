@@ -613,32 +613,34 @@ static void log_api_call(
 // The ITT API functions are bound to static parts via fill_func_ptr_per_lib()
 // and trace all ITT API calls to a file for reference/debugging purposes.
 // 
-// This reference collector implementation supports two output modes:
+// The reference collector implementation supports two output modes:
 //
 // - Mode 1 (default): plain-text call logger
 //   Writes one human-readable line per instrumented ITT API call to a .log file.
-//   This is the original reference-collector behavior and is used by default.
+//   This reference collector mode provides 4 functions with different log levels
+//   that take printf format string for logging:
+//     LOG_FUNC_CALL_INFO(const char *msg_format, ...);
+//     LOG_FUNC_CALL_WARN(const char *msg_format, ...);
+//     LOG_FUNC_CALL_ERROR(const char *msg_format, ...);
+//     LOG_FUNC_CALL_FATAL(const char *msg_format, ...);
 //
 // - Mode 2 : trace event writer in JSON format (Perfetto)
-//   (enabled by setting INTEL_LIBITTNOTIFY_GEN_JSON to a non-zero value)
+//   Enabled by setting INTEL_LIBITTNOTIFY_GEN_JSON to a non-zero value.
 //   Every instrumented ITT API call is translated into one or more trace events
 //   and appended to the JSON array opened in ref_collector_init(). The resulting
 //   file could be loaded in Perfetto UI.
 //
 //   Event phase mapping:
 //     task begin / end     -> "B" / "E"  (synchronous, per-thread, nestable)
-//     region begin / end   -> "B" / "E"  (synchronous, matched by id)
-//     overlapped task      -> "b" / "e"  (asynchronous, matched by id)
-//     frame begin / end    -> "b" / "e"  (asynchronous, matched by id)
+//     region begin / end   -> "B" / "E"  (synchronous, per-thread, matched by id)
+//     overlapped task      -> "b" / "e"  (asynchronous, global, matched by id)
+//     frame begin / end    -> "b" / "e"  (asynchronous, global, matched by id)
 //     frame submit         -> "X"        (complete event with explicit duration)
 //     counter set value    -> "C"        (counter series)
 //     formatted metadata   -> task args  (pinned to the enclosing task_end)
+//     flow start           -> "s"        (connection keyed by the task/region id)
+//     flow finish          -> "f"        (connection keyed by the parent id)
 //     everything else      -> "i"        (thread-scoped instant marker)
-//
-//   Task and region ids are additionally emitted as flow events so Perfetto
-//   draws arrows connecting related work:
-//     flow start           -> "s"        (keyed by the task/region id)
-//     flow finish          -> "f"        (keyed by the parent id)
 // ----------------------------------------------------------------------------
 
 #ifdef _WIN32
@@ -1035,8 +1037,6 @@ static void json_task_begin_overlapped(
 {
     if (domain == NULL || name == NULL || taskid.d1 == 0) return;
 
-    uint64_t ts = get_timestamp_us();
-
     char extra[LOG_BUFFER_MAX_SIZE];
     snprintf(extra, sizeof(extra),
              ",\"id\":\"%llu,%llu,%llu\",\"args\":{\"api\":\"task\","
@@ -1044,19 +1044,7 @@ static void json_task_begin_overlapped(
              taskid.d1, taskid.d2, taskid.d3,
              taskid.d1, taskid.d2, taskid.d3,
              parentid.d1, parentid.d2, parentid.d3);
-    json_write("b", domain->nameA, name->strA, ts, extra);
-
-    if (parentid.d1)
-    {
-        snprintf(extra, sizeof(extra),
-                 ",\"id\":%llu,\"bp\":\"e\",\"args\":{\"api\":\"flow\"}",
-                 get_flow_id(&parentid));
-        json_write("f", domain->nameA, "", ts, extra);
-    }
-    snprintf(extra, sizeof(extra),
-             ",\"id\":%llu,\"args\":{\"api\":\"flow\"}",
-             get_flow_id(&taskid));
-    json_write("s", domain->nameA, "", ts, extra);
+    json_write("b", domain->nameA, name->strA, get_timestamp_us(), extra);
 }
 
 static void json_task_end_overlapped(const __itt_domain *domain, __itt_id taskid)
