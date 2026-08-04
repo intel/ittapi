@@ -38,11 +38,12 @@ EXPECTED_SYMBOLS = [
 # Friendly "api" values expected in the JSON trace args (mode 2).
 # Note: __itt_counter_set_value_v3 emits a "C" event whose args are the series
 # value directly (no "api" tag); counters are validated by check_counter.
+# Note: regions are traced identically to tasks (api "task"), so there is no
+# separate "region" api value.
 EXPECTED_JSON_APIS = [
     "task",
     "metadata",
     "frame",
-    "region",
     "histogram",
     "flow",
     "pause",

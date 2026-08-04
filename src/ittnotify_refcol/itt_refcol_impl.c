@@ -631,16 +631,15 @@ static void log_api_call(
 //   file could be loaded in Perfetto UI.
 //
 //   Event phase mapping:
-//     task begin / end     -> "B" / "E"  (synchronous, per-thread, nestable)
-//     region begin / end   -> "B" / "E"  (synchronous, per-thread, matched by id)
-//     overlapped task      -> "b" / "e"  (asynchronous, global, matched by id)
-//     frame begin / end    -> "b" / "e"  (asynchronous, global, matched by id)
-//     frame submit         -> "X"        (complete event with explicit duration)
-//     counter set value    -> "C"        (counter series)
-//     formatted metadata   -> task args  (pinned to the enclosing task_end)
-//     flow start           -> "s"        (connection keyed by the task/region id)
-//     flow finish          -> "f"        (connection keyed by the parent id)
-//     everything else      -> "i"        (thread-scoped instant marker)
+//     task(region) begin / end -> "B" / "E"  (sync, per-thread, nestable)
+//     overlapped task          -> "b" / "e"  (async, global, matched by id)
+//     frame begin / end        -> "b" / "e"  (async, global, matched by id)
+//     frame submit             -> "X"        (complete event with duration)
+//     counter set value        -> "C"        (counter series)
+//     formatted metadata       -> task args  (pinned to the enclosing task end)
+//     flow start               -> "s"        (connection keyed by the task id)
+//     flow finish              -> "f"        (connection keyed by the parent id)
+//     everything else          -> "i"        (thread-scoped instant marker)
 // ----------------------------------------------------------------------------
 
 #ifdef _WIN32
@@ -1058,40 +1057,6 @@ static void json_task_end_overlapped(const __itt_domain *domain, __itt_id taskid
     json_write("e", domain->nameA, "", get_timestamp_us(), extra);
 }
 
-static void json_region_begin(
-    const __itt_domain *domain, __itt_id id, __itt_string_handle *name)
-{
-    if (domain == NULL || name == NULL) return;
-
-    uint64_t ts = get_timestamp_us();
-
-    char extra[LOG_BUFFER_MAX_SIZE];
-    snprintf(extra, sizeof(extra),
-             ",\"id\":\"%llu,%llu,%llu\",\"args\":{\"api\":\"region\","
-             "\"id\":\"%llu,%llu,%llu\"}",
-             id.d1, id.d2, id.d3, id.d1, id.d2, id.d3);
-    json_write("B", domain->nameA, name->strA, ts, extra);
-
-    if (id.d1)
-    {
-        snprintf(extra, sizeof(extra),
-                 ",\"id\":%llu,\"args\":{\"api\":\"flow\"}",
-                 get_flow_id(&id));
-        json_write("s", domain->nameA, "", ts, extra);
-    }
-}
-
-static void json_region_end(const __itt_domain *domain, __itt_id id)
-{
-    if (domain == NULL) return;
-
-    char extra[LOG_BUFFER_MAX_SIZE];
-    snprintf(extra, sizeof(extra),
-             ",\"id\":\"%llu,%llu,%llu\",\"args\":{\"api\":\"region\"}",
-             id.d1, id.d2, id.d3);
-    json_write("E", domain->nameA, "", get_timestamp_us(), extra);
-}
-
 static void json_metadata_add(const __itt_domain *domain,
     __itt_string_handle *key, __itt_metadata_type type, size_t count, void *data)
 {
@@ -1392,7 +1357,7 @@ ITT_EXTERN_C void ITTAPI __itt_region_begin(
 {
     if (g_ref_collector_logger.gen_json)
     {
-        json_region_begin(domain, id, name);
+        json_task_begin(domain, id, parentid, name);
         return;
     }
     if (domain == NULL || name == NULL)
@@ -1410,7 +1375,7 @@ ITT_EXTERN_C void ITTAPI __itt_region_end(const __itt_domain *domain, __itt_id i
 {
     if (g_ref_collector_logger.gen_json)
     {
-        json_region_end(domain, id);
+        json_task_end(domain);
         return;
     }
     if (domain == NULL)
