@@ -335,6 +335,12 @@ static unsigned long long get_thread_id(void)
 #endif
 }
 
+static unsigned long long get_flow_id(const __itt_id *id)
+{
+    if (!id->d2) return id->d1;
+    return id->d1 + ((id->d2 << 19) | (id->d2 >> 45));
+}
+
 // Escape a string so it can be safely embedded inside a JSON string literal.
 static void json_escape(const char* src, char* dst, size_t dst_size)
 {
@@ -621,8 +627,8 @@ static void log_api_call(
 //
 //   Event phase mapping:
 //     task begin / end     -> "B" / "E"  (synchronous, per-thread, nestable)
+//     region begin / end   -> "B" / "E"  (synchronous, matched by id)
 //     overlapped task      -> "b" / "e"  (asynchronous, matched by id)
-//     region begin / end   -> "b" / "e"  (asynchronous, matched by id)
 //     frame begin / end    -> "b" / "e"  (asynchronous, matched by id)
 //     frame submit         -> "X"        (complete event with explicit duration)
 //     counter set value    -> "C"        (counter series)
@@ -992,15 +998,15 @@ static void json_task_begin(
     if (parentid.d1)
     {
         snprintf(extra, sizeof(extra),
-                 ",\"id\":\"%llu,%llu,%llu\",\"bp\":\"e\",\"args\":{\"api\":\"flow\"}",
-                 parentid.d1, parentid.d2, parentid.d3);
+                 ",\"id\":%llu,\"bp\":\"e\",\"args\":{\"api\":\"flow\"}",
+                 get_flow_id(&parentid));
         json_write("f", domain->nameA, "", ts, extra);
     }
     if (taskid.d1)
     {
         snprintf(extra, sizeof(extra),
-                 ",\"id\":\"%llu,%llu,%llu\",\"args\":{\"api\":\"flow\"}",
-                 taskid.d1, taskid.d2, taskid.d3);
+                 ",\"id\":%llu,\"args\":{\"api\":\"flow\"}",
+                 get_flow_id(&taskid));
         json_write("s", domain->nameA, "", ts, extra);
     }
 }
@@ -1043,13 +1049,13 @@ static void json_task_begin_overlapped(
     if (parentid.d1)
     {
         snprintf(extra, sizeof(extra),
-                 ",\"id\":\"%llu,%llu,%llu\",\"bp\":\"e\",\"args\":{\"api\":\"flow\"}",
-                 parentid.d1, parentid.d2, parentid.d3);
+                 ",\"id\":%llu,\"bp\":\"e\",\"args\":{\"api\":\"flow\"}",
+                 get_flow_id(&parentid));
         json_write("f", domain->nameA, "", ts, extra);
     }
     snprintf(extra, sizeof(extra),
-             ",\"id\":\"%llu,%llu,%llu\",\"args\":{\"api\":\"flow\"}",
-             taskid.d1, taskid.d2, taskid.d3);
+             ",\"id\":%llu,\"args\":{\"api\":\"flow\"}",
+             get_flow_id(&taskid));
     json_write("s", domain->nameA, "", ts, extra);
 }
 
@@ -1076,13 +1082,13 @@ static void json_region_begin(
              ",\"id\":\"%llu,%llu,%llu\",\"args\":{\"api\":\"region\","
              "\"id\":\"%llu,%llu,%llu\"}",
              id.d1, id.d2, id.d3, id.d1, id.d2, id.d3);
-    json_write("b", domain->nameA, name->strA, ts, extra);
+    json_write("B", domain->nameA, name->strA, ts, extra);
 
     if (id.d1)
     {
         snprintf(extra, sizeof(extra),
-                 ",\"id\":\"%llu,%llu,%llu\",\"args\":{\"api\":\"flow\"}",
-                 id.d1, id.d2, id.d3);
+                 ",\"id\":%llu,\"args\":{\"api\":\"flow\"}",
+                 get_flow_id(&id));
         json_write("s", domain->nameA, "", ts, extra);
     }
 }
@@ -1095,7 +1101,7 @@ static void json_region_end(const __itt_domain *domain, __itt_id id)
     snprintf(extra, sizeof(extra),
              ",\"id\":\"%llu,%llu,%llu\",\"args\":{\"api\":\"region\"}",
              id.d1, id.d2, id.d3);
-    json_write("e", domain->nameA, "", get_timestamp_us(), extra);
+    json_write("E", domain->nameA, "", get_timestamp_us(), extra);
 }
 
 static void json_metadata_add(const __itt_domain *domain,
