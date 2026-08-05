@@ -1,0 +1,211 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ITT API Reference Collector &mdash; ITT/JIT APIs Documentation  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+
+  
+    <link rel="canonical" href="https://intel.github.io/ittapi/src/ref_collector.html" />
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="prev" title="ITT API C++ Wrapper" href="itt-api-cpp-wrapper.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            ITT/JIT APIs Documentation
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="build.html">Build from Source Code</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api-support.html">Use the ITT/JIT APIs</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">ITT API Reference Collector</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#building">Building</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#usage">Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#log-file-location">Log File Location</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#extending">Extending</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#json-format-trace-generation">JSON format trace generation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/intel/ittapi">GitHub Project</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">ITT/JIT APIs Documentation</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content style-external-links">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">ITT API Reference Collector</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/src/ref_collector.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="itt-api-reference-collector">
+<span id="ref-collector"></span><h1>ITT API Reference Collector<a class="headerlink" href="#itt-api-reference-collector" title="Link to this heading"></a></h1>
+<p>This is a reference implementation of the ITT API <strong>dynamic</strong> part that
+performs tracing data from ITT API function calls to log files.</p>
+<p>To use this solution, build the collector as a shared library and point the
+full library path to the <cite>INTEL_LIBITTNOTIFY64</cite> environment variable.</p>
+<section id="building">
+<h2>Building<a class="headerlink" href="#building" title="Link to this heading"></a></h2>
+<p>There are two ways to build the ITT API reference collector shared library.</p>
+<p><strong>Standalone</strong> — run this single CMake build command from the
+<code class="docutils literal notranslate"><span class="pre">src/ittnotify_refcol</span></code> directory (the library is written into the <code class="docutils literal notranslate"><span class="pre">./build</span></code>
+directory):</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">cmake -B build &amp;&amp; cmake --build build --config Release</span>
+</pre></div>
+</div>
+<p><strong>From the ittapi repository</strong> — use the <code class="docutils literal notranslate"><span class="pre">buildall.py</span></code> script in the
+repository root (the library is written into the <code class="docutils literal notranslate"><span class="pre">build_linux/bin</span></code> or
+<code class="docutils literal notranslate"><span class="pre">build_win/bin</span></code> directory):</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">python buildall.py --refcol</span>
+</pre></div>
+</div>
+<p>Resulting library name:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Platform</p></th>
+<th class="head"><p>Library name</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Linux</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">libittnotify_refcol.so</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Windows</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">libittnotify_refcol.dll</span></code></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="usage">
+<h2>Usage<a class="headerlink" href="#usage" title="Link to this heading"></a></h2>
+<p>Point the <code class="docutils literal notranslate"><span class="pre">INTEL_LIBITTNOTIFY64</span></code> environment variable to the full path of the
+library you built above (adjust the path to your build directory).</p>
+<p><strong>On Linux</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span><span class="w"> </span><span class="nv">INTEL_LIBITTNOTIFY64</span><span class="o">=</span>&lt;build_dir&gt;/libittnotify_refcol.so
+</pre></div>
+</div>
+<p><strong>On Windows</strong></p>
+<div class="highlight-bat notranslate"><div class="highlight"><pre><span></span><span class="k">set</span> <span class="nv">INTEL_LIBITTNOTIFY64</span><span class="p">=&lt;</span>build_dir<span class="p">&gt;</span>\libittnotify_refcol.dll
+</pre></div>
+</div>
+</section>
+<section id="log-file-location">
+<h2>Log File Location<a class="headerlink" href="#log-file-location" title="Link to this heading"></a></h2>
+<p>By default, log files are saved in the current working directory. Each run
+creates a file named <code class="docutils literal notranslate"><span class="pre">libittnotify_refcol_&lt;timestamp&gt;.log</span></code>. To change the
+location, use the <code class="docutils literal notranslate"><span class="pre">INTEL_LIBITTNOTIFY_LOG_DIR</span></code> environment variable:</p>
+<p><strong>On Linux</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span><span class="w"> </span><span class="nv">INTEL_LIBITTNOTIFY_LOG_DIR</span><span class="o">=</span>&lt;log_dir&gt;
+</pre></div>
+</div>
+<p><strong>On Windows</strong></p>
+<div class="highlight-bat notranslate"><div class="highlight"><pre><span></span><span class="k">set</span> <span class="nv">INTEL_LIBITTNOTIFY_LOG_DIR</span><span class="p">=&lt;</span>log_dir&gt;
+</pre></div>
+</div>
+</section>
+<section id="extending">
+<h2>Extending<a class="headerlink" href="#extending" title="Link to this heading"></a></h2>
+<p>This implementation adds logging of some of the ITT API function calls. Adding
+logging of other ITT API function calls is welcome. The solution provides 4
+functions with different log levels that take <cite>printf</cite> format for logging:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">LOG_FUNC_CALL_INFO</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">msg_format</span><span class="p">,</span><span class="w"> </span><span class="p">...);</span>
+<span class="n">LOG_FUNC_CALL_WARN</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">msg_format</span><span class="p">,</span><span class="w"> </span><span class="p">...);</span>
+<span class="n">LOG_FUNC_CALL_ERROR</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">msg_format</span><span class="p">,</span><span class="w"> </span><span class="p">...);</span>
+<span class="n">LOG_FUNC_CALL_FATAL</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">msg_format</span><span class="p">,</span><span class="w"> </span><span class="p">...);</span>
+</pre></div>
+</div>
+</section>
+<section id="json-format-trace-generation">
+<h2>JSON format trace generation<a class="headerlink" href="#json-format-trace-generation" title="Link to this heading"></a></h2>
+<p>As an alternative to the default text log, the collector can produce a trace in
+JSON format (Perfetto). This mode is disabled by default.</p>
+<p>To enable it, set the <code class="docutils literal notranslate"><span class="pre">INTEL_LIBITTNOTIFY_GEN_JSON</span></code> environment variable to <code class="docutils literal notranslate"><span class="pre">1</span></code>:</p>
+<p><strong>On Linux</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span><span class="w"> </span><span class="nv">INTEL_LIBITTNOTIFY_GEN_JSON</span><span class="o">=</span><span class="m">1</span>
+</pre></div>
+</div>
+<p><strong>On Windows</strong></p>
+<div class="highlight-bat notranslate"><div class="highlight"><pre><span></span><span class="k">set</span> <span class="nv">INTEL_LIBITTNOTIFY_GEN_JSON</span><span class="p">=</span>1
+</pre></div>
+</div>
+<p>When enabled, the collector writes a <code class="docutils literal notranslate"><span class="pre">libittnotify_refcol_&lt;timestamp&gt;.json</span></code>
+file into the log directory. The file can be opened directly in the
+<a class="reference external" href="https://ui.perfetto.dev">Perfetto UI</a>.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="itt-api-cpp-wrapper.html" class="btn btn-neutral float-left" title="ITT API C++ Wrapper" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026 Intel Corporation.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
