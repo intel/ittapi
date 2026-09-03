@@ -118,6 +118,8 @@ typedef HMODULE lib_t;
 #define __itt_load_lib(name)      LoadLibraryA(name)
 #define __itt_unload_lib(handle)  FreeLibrary(handle)
 #define __itt_system_error()      (int)GetLastError()
+
+#define __annotate_is_secure_execution_context() (0)
 #endif /* ANNOTATE_DECLARE */
 
 #else /* defined(WIN32) || defined(_WIN32) */
@@ -129,6 +131,7 @@ typedef HMODULE lib_t;
 #include <pthread.h>
 #include <dlfcn.h>
 #include <errno.h>
+#include <unistd.h>
 
 typedef void* lib_t;
 
@@ -136,6 +139,36 @@ typedef void* lib_t;
 #define __itt_load_lib(name)      dlopen(name, RTLD_LAZY)
 #define __itt_unload_lib(handle)  dlclose(handle)
 #define __itt_system_error()      errno
+
+#if defined(__APPLE__) || defined(__FreeBSD__) || defined(__OpenBSD__)
+#define __ANNOTATE_ISSETUGID_AVAILABLE 1
+#elif defined(__has_include)
+#if __has_include(<sys/auxv.h>)
+#include <sys/auxv.h>
+#define __ANNOTATE_GETAUXVAL_AVAILABLE 1
+#endif
+#elif defined(__GLIBC__) && (__GLIBC__ > 2 || (__GLIBC__ == 2 && __GLIBC_MINOR__ >= 16))
+#include <sys/auxv.h>
+#define __ANNOTATE_GETAUXVAL_AVAILABLE 1
+#endif
+
+#if defined(__ANNOTATE_GETAUXVAL_AVAILABLE) && !defined(AT_SECURE)
+#define AT_SECURE 23 /* as defined by <elf.h> */
+#endif
+
+/* A process which gained privileges on exec() keeps the environment of the less
+ * privileged user who started it, so it must not take the library from there. */
+static __inline int __annotate_is_secure_execution_context(void)
+{
+#if defined(__ANNOTATE_ISSETUGID_AVAILABLE)
+    if (issetugid() != 0)
+        return 1;
+#elif defined(__ANNOTATE_GETAUXVAL_AVAILABLE)
+    if (getauxval(AT_SECURE) != 0)
+        return 1;
+#endif
+    return (getuid() != geteuid() || getgid() != getegid()) ? 1 : 0;
+}
 #endif /* ANNOTATE_DECLARE */
 
 #endif /* defined(WIN32) || defined(_WIN32) */
@@ -301,7 +334,9 @@ __annotate_routines_init(struct __annotate_routines* itt) {
         char* lib_name = NULL;
         lib_t itt_notify = 0;
 
-        lib_name = getenv("INTEL_LIBITTNOTIFY64");
+        if (!__annotate_is_secure_execution_context()) {
+            lib_name = getenv("INTEL_LIBITTNOTIFY64");
+        }
 
         if (lib_name) {
             itt_notify = __itt_load_lib(lib_name);
