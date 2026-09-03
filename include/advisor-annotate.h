@@ -118,7 +118,6 @@ typedef HMODULE lib_t;
 #define __itt_load_lib(name)      LoadLibraryA(name)
 #define __itt_unload_lib(handle)  FreeLibrary(handle)
 #define __itt_system_error()      (int)GetLastError()
-
 #define __annotate_is_secure_execution_context() (0)
 #endif /* ANNOTATE_DECLARE */
 

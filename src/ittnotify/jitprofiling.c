@@ -173,8 +173,6 @@ static int loadiJIT_Funcs()
         m_libHandle = NULL;
     }
 
-    /* The agent is named by an environment variable, see
-     * __itt_is_secure_execution_context(). */
     if (__itt_is_secure_execution_context())
     {
         return 0;
