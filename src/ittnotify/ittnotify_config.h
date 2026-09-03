@@ -198,10 +198,10 @@
 #define ITT_MAGIC { 0xED, 0xAB, 0xAB, 0xEC, 0x0D, 0xEE, 0xDA, 0x30 }
 
 /* Replace with snapshot date YYYYMMDD for promotion build. */
-#define API_VERSION_BUILD    20260603
+#define API_VERSION_BUILD    20260903
 
 #ifndef API_VERSION_NUM
-#define API_VERSION_NUM 3.28.2
+#define API_VERSION_NUM 3.28.3
 #endif /* API_VERSION_NUM */
 
 #define API_VERSION "ITT-API-Version " ITT_TO_STR(API_VERSION_NUM) \
