@@ -380,6 +380,49 @@ pthread_t pthread_self(void) __attribute__((weak));
 
 #endif /* ITT_PLATFORM==ITT_PLATFORM_WIN */
 
+/* A process which gained privileges on exec() - setuid/setgid, file
+ * capabilities, MAC transition - keeps the environment of the less privileged
+ * user who started it, so it must not take the library to load from there.
+ */
+#if ITT_PLATFORM==ITT_PLATFORM_WIN
+
+#define __itt_is_secure_execution_context() (0)
+
+#else /* ITT_PLATFORM!=ITT_PLATFORM_WIN */
+
+#include <unistd.h>
+
+#if ITT_PLATFORM==ITT_PLATFORM_MAC || ITT_PLATFORM==ITT_PLATFORM_FREEBSD || ITT_PLATFORM==ITT_PLATFORM_OPENBSD
+#define ITT_ISSETUGID_AVAILABLE 1
+#elif defined(__has_include)
+#if __has_include(<sys/auxv.h>)
+#include <sys/auxv.h>
+#define ITT_GETAUXVAL_AVAILABLE 1
+#endif
+#elif defined(__GLIBC__) && (__GLIBC__ > 2 || (__GLIBC__ == 2 && __GLIBC_MINOR__ >= 16))
+#include <sys/auxv.h>
+#define ITT_GETAUXVAL_AVAILABLE 1
+#endif
+
+#if defined(ITT_GETAUXVAL_AVAILABLE) && !defined(AT_SECURE)
+#define AT_SECURE 23 /* as defined by <elf.h> */
+#endif
+
+ITT_INLINE int __itt_is_secure_execution_context(void) ITT_INLINE_ATTRIBUTE;
+ITT_INLINE int __itt_is_secure_execution_context(void)
+{
+#if defined(ITT_ISSETUGID_AVAILABLE)
+    if (issetugid() != 0)
+        return 1;
+#elif defined(ITT_GETAUXVAL_AVAILABLE)
+    if (getauxval(AT_SECURE) != 0)
+        return 1;
+#endif
+    return (getuid() != geteuid() || getgid() != getegid()) ? 1 : 0;
+}
+
+#endif /* ITT_PLATFORM==ITT_PLATFORM_WIN */
+
 /* strdup() is not included into C99 which results in a compiler warning about
  * implicitly declared symbol. To avoid the issue strdup is implemented
  * manually.

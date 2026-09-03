@@ -173,6 +173,13 @@ static int loadiJIT_Funcs()
         m_libHandle = NULL;
     }
 
+    /* The agent is named by an environment variable, see
+     * __itt_is_secure_execution_context(). */
+    if (__itt_is_secure_execution_context())
+    {
+        return 0;
+    }
+
     /* Try to get the dll name from the environment */
 #if ITT_PLATFORM==ITT_PLATFORM_WIN
     dNameLength = GetEnvironmentVariableA(NEW_DLL_ENVIRONMENT_VAR, NULL, 0);
