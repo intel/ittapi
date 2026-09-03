@@ -97,10 +97,11 @@ static void ref_collector_init(void)
     if (!g_ref_collector_logger.init_state)
     {
         static char file_name_buffer[LOG_BUFFER_MAX_SIZE*2];
-        char* gen_json = getenv(env_gen_json);
+        int env_trusted = !__itt_is_secure_execution_context();
+        char* gen_json = env_trusted ? getenv(env_gen_json) : NULL;
         g_ref_collector_logger.gen_json = (gen_json != NULL && atoi(gen_json) != 0);
 
-        char* log_dir = getenv(env_log_dir);
+        char* log_dir = env_trusted ? getenv(env_log_dir) : NULL;
         char* log_file = generate_output_file_name();
         if (log_file == NULL)
         {
