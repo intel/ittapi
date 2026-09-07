@@ -1200,8 +1200,13 @@ static const char* __itt_get_env_var(const char* name)
     static char  env_buff[MAX_ENV_VALUE_SIZE];
     static char* env_value = (char*)env_buff;
 
-    if (name != NULL && !__itt_is_secure_execution_context())
+    if (name != NULL)
     {
+        if (__itt_is_secure_execution_context())
+        {
+            __itt_report_error(__itt_error_env_ignored, name);
+            return NULL;
+        }
 #if ITT_PLATFORM==ITT_PLATFORM_WIN
         size_t max_len = MAX_ENV_VALUE_SIZE - (size_t)(env_value - env_buff);
         DWORD rc = GetEnvironmentVariableA(name, env_value, (DWORD)max_len);
