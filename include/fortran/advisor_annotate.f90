@@ -209,6 +209,28 @@ module advisor_annotate
             character(kind=C_CHAR), dimension(*), intent(in) :: proc_name
         end function get_library_entry
 
+        ! Process credentials, used to detect a privilege elevated process.
+
+        function get_real_uid() bind(C, name="getuid")
+            import
+            integer(kind=C_INT) :: get_real_uid
+        end function get_real_uid
+
+        function get_effective_uid() bind(C, name="geteuid")
+            import
+            integer(kind=C_INT) :: get_effective_uid
+        end function get_effective_uid
+
+        function get_real_gid() bind(C, name="getgid")
+            import
+            integer(kind=C_INT) :: get_real_gid
+        end function get_real_gid
+
+        function get_effective_gid() bind(C, name="getegid")
+            import
+            integer(kind=C_INT) :: get_effective_gid
+        end function get_effective_gid
+
     !dec$ endif
 
     end interface
@@ -637,7 +659,17 @@ contains
         type(C_PTR) :: library
         character*1024 ittnotify_path
 
+        ittnotify_path = ''
+!dec$ if defined(WIN32) .or. defined(_WIN32)
         call getenv('INTEL_LIBITTNOTIFY64',ittnotify_path)
+!dec$ else
+        ! A process which gained privileges on exec() keeps the environment of
+        ! the less privileged user who started it.
+        if (get_real_uid() == get_effective_uid() .and. &
+            get_real_gid() == get_effective_gid()) then
+          call getenv('INTEL_LIBITTNOTIFY64',ittnotify_path)
+        endif
+!dec$ endif
         if ( ittnotify_path /= '' ) then
           !  print *,' libpath: "'//trim(ittnotify_path)//'"'
 !dec$ if defined(WIN32) .or. defined(_WIN32)

@@ -4670,8 +4670,10 @@ typedef enum __itt_error_code
     /* %1$s -- env var name, %2$d -- system error. */
     __itt_error_env_too_long  = 5, /*!< variable value too long */
     /* %1$s -- env var name, %2$d -- actual length of the var, %3$d -- max allowed length. */
-    __itt_error_system        = 6  /*!< pthread_mutexattr_init or pthread_mutex_init failed */
+    __itt_error_system        = 6, /*!< pthread_mutexattr_init or pthread_mutex_init failed */
     /* %1$s -- function name, %2$d -- errno. */
+    __itt_error_env_ignored   = 7  /*!< env var ignored in a privilege elevated process */
+    /* %1$s -- env var name. */
 } __itt_error_code;
 
 typedef void (__itt_error_handler_t)(__itt_error_code code, va_list);
