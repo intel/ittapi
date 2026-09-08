@@ -359,7 +359,7 @@ __itt_interlocked_compare_exchange(volatile long* ptr, long exchange, long compe
 ITT_INLINE long
 __itt_interlocked_compare_exchange(volatile long* ptr, long exchange, long comperand)
 {
-    return __sync_val_compare_and_swap(ptr, exchange, comperand);
+    return __sync_val_compare_and_swap(ptr, comperand, exchange);
 }
 #endif /* ITT_SIMPLE_INIT */
 
