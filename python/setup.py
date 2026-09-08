@@ -129,7 +129,7 @@ class NativeBuildExtension(build_ext):  # pylint: disable=R0903
 
 
 setup(name='ittapi',
-      version='1.2.1',
+      version='1.2.2',
       description='ITT API bindings for Python',
       packages=['ittapi', 'ittapi/compat'],
       ext_modules=[ittapi_native],
