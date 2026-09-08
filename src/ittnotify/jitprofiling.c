@@ -128,7 +128,7 @@ static int isValidAbsolutePath(char *path, size_t maxPathLength)
 
     if (pathLength > 2)
     {
-        if (isalpha(path[0]) && path[1] == ':' && path[2] == '\\')
+        if (isalpha((unsigned char)path[0]) && path[1] == ':' && path[2] == '\\')
         {
             return 1;
         }
@@ -171,6 +171,11 @@ static int loadiJIT_Funcs()
         dlclose(m_libHandle);
 #endif /* ITT_PLATFORM==ITT_PLATFORM_WIN */
         m_libHandle = NULL;
+    }
+
+    if (__itt_is_secure_execution_context())
+    {
+        return 0;
     }
 
     /* Try to get the dll name from the environment */

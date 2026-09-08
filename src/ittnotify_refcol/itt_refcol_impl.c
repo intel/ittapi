@@ -25,7 +25,7 @@
 #define LOG_BUFFER_MAX_SIZE 256
 
 static const char* env_log_dir = "INTEL_LIBITTNOTIFY_LOG_DIR";
-static const char* env_gen_json = "EXP_LIBITTNOTIFY_GEN_JSON";
+static const char* env_gen_json = "INTEL_LIBITTNOTIFY_GEN_JSON";
 static const char* log_level_str[] = {"INFO", "WARN", "ERROR", "FATAL_ERROR"};
 
 enum {
@@ -40,7 +40,8 @@ static struct ref_collector_logger {
     uint8_t init_state;
     uint8_t first_event;
     uint8_t gen_json;
-} g_ref_collector_logger = {NULL, 0, 1, 0};
+    uint8_t paused;
+} g_ref_collector_logger = {NULL, 0, 1, 0, 0};
 
 // Collector maintains its own object lists instead of relying on __itt_global*,
 // because traced apps may contain multiple static ITT parts, each with its own __itt_global*.
@@ -96,10 +97,11 @@ static void ref_collector_init(void)
     if (!g_ref_collector_logger.init_state)
     {
         static char file_name_buffer[LOG_BUFFER_MAX_SIZE*2];
-        char* gen_json = getenv(env_gen_json);
+        int env_trusted = !__itt_is_secure_execution_context();
+        char* gen_json = env_trusted ? getenv(env_gen_json) : NULL;
         g_ref_collector_logger.gen_json = (gen_json != NULL && atoi(gen_json) != 0);
 
-        char* log_dir = getenv(env_log_dir);
+        char* log_dir = env_trusted ? getenv(env_log_dir) : NULL;
         char* log_file = generate_output_file_name();
         if (log_file == NULL)
         {
@@ -334,6 +336,12 @@ static unsigned long long get_thread_id(void)
 #endif
 }
 
+static unsigned long long get_flow_id(const __itt_id *id)
+{
+    if (!id->d2) return id->d1;
+    return id->d1 + ((id->d2 << 19) | (id->d2 >> 45));
+}
+
 // Escape a string so it can be safely embedded inside a JSON string literal.
 static void json_escape(const char* src, char* dst, size_t dst_size)
 {
@@ -372,6 +380,8 @@ static void json_write(const char* phase, const char* cat, const char* name,
                        uint64_t ts, const char* extra)
 {
     if (!g_ref_collector_logger.init_state || !g_ref_collector_logger.log_fp)
+        return;
+    if (g_ref_collector_logger.paused)
         return;
     if (!g_ref_collector_global.mutex_initialized)
         return;
@@ -604,26 +614,33 @@ static void log_api_call(
 // The ITT API functions are bound to static parts via fill_func_ptr_per_lib()
 // and trace all ITT API calls to a file for reference/debugging purposes.
 // 
-// This reference collector implementation supports two output modes:
+// The reference collector implementation supports two output modes:
 //
 // - Mode 1 (default): plain-text call logger
 //   Writes one human-readable line per instrumented ITT API call to a .log file.
-//   This is the original reference-collector behavior and is used by default.
+//   This reference collector mode provides 4 functions with different log levels
+//   that take printf format string for logging:
+//     LOG_FUNC_CALL_INFO(const char *msg_format, ...);
+//     LOG_FUNC_CALL_WARN(const char *msg_format, ...);
+//     LOG_FUNC_CALL_ERROR(const char *msg_format, ...);
+//     LOG_FUNC_CALL_FATAL(const char *msg_format, ...);
 //
-// - Mode 2 (experimental): trace event writer in JSON format (Perfetto)
-//   (enabled by setting EXP_LIBITTNOTIFY_GEN_JSON to a non-zero value)
+// - Mode 2 : trace event writer in JSON format (Perfetto)
+//   Enabled by setting INTEL_LIBITTNOTIFY_GEN_JSON to a non-zero value.
 //   Every instrumented ITT API call is translated into one or more trace events
 //   and appended to the JSON array opened in ref_collector_init(). The resulting
-//   file could be loaded in https://ui.perfetto.dev.
+//   file could be loaded in Perfetto UI.
 //
 //   Event phase mapping:
-//     task begin / end     -> "B" / "E"  (synchronous, per-thread, nestable)
-//     region begin / end   -> "b" / "e"  (asynchronous, matched by id)
-//     frame begin / end    -> "b" / "e"  (asynchronous, matched by id)
-//     frame submit         -> "X"        (complete event with explicit duration)
-//     counter set value    -> "C"        (counter series)
-//     formatted metadata   -> task args  (pinned to the enclosing task_end)
-//     everything else      -> "i"        (thread-scoped instant marker)
+//     task(region) begin / end -> "B" / "E"  (sync, per-thread, nestable)
+//     overlapped task          -> "b" / "e"  (async, global, matched by id)
+//     frame begin / end        -> "b" / "e"  (async, global, matched by id)
+//     frame submit             -> "X"        (complete event with duration)
+//     counter set value        -> "C"        (counter series)
+//     formatted metadata       -> task args  (pinned to the enclosing task end)
+//     flow start               -> "s"        (connection keyed by the task id)
+//     flow finish              -> "f"        (connection keyed by the parent id)
+//     everything else          -> "i"        (thread-scoped instant marker)
 // ----------------------------------------------------------------------------
 
 #ifdef _WIN32
@@ -876,8 +893,9 @@ static REFCOL_THREAD_LOCAL char g_pending_metadata[LOG_BUFFER_MAX_SIZE * 2] = {0
 
 static void json_pause(void)
 {
-    json_write("i", "itt", "__itt_pause", get_timestamp_us(),
+    json_write("i", "ittapi", "pause", get_timestamp_us(),
                ",\"s\":\"t\",\"args\":{\"api\":\"pause\"}");
+    g_ref_collector_logger.paused = 1;
 }
 
 static void json_pause_scoped(__itt_collection_scope scope)
@@ -885,27 +903,32 @@ static void json_pause_scoped(__itt_collection_scope scope)
     char extra[LOG_BUFFER_MAX_SIZE];
     snprintf(extra, sizeof(extra),
              ",\"s\":\"t\",\"args\":{\"api\":\"pause\",\"scope\":%d}", (int)scope);
-    json_write("i", "itt", "__itt_pause_scoped", get_timestamp_us(), extra);
+    json_write("i", "ittapi", "pause_scoped", get_timestamp_us(), extra);
+    g_ref_collector_logger.paused = 1;
 }
 
 static void json_resume(void)
 {
-    json_write("i", "itt", "__itt_resume", get_timestamp_us(),
+    g_ref_collector_logger.paused = 0;
+    json_write("i", "ittapi", "resume", get_timestamp_us(),
                ",\"s\":\"t\",\"args\":{\"api\":\"resume\"}");
 }
 
 static void json_resume_scoped(__itt_collection_scope scope)
 {
+    g_ref_collector_logger.paused = 0;
     char extra[LOG_BUFFER_MAX_SIZE];
     snprintf(extra, sizeof(extra),
              ",\"s\":\"t\",\"args\":{\"api\":\"resume\",\"scope\":%d}", (int)scope);
-    json_write("i", "itt", "__itt_resume_scoped", get_timestamp_us(), extra);
+    json_write("i", "ittapi", "resume_scoped", get_timestamp_us(), extra);
 }
 
 static void json_detach(void)
 {
-    json_write("i", "itt", "__itt_detach", get_timestamp_us(),
+    json_write("i", "ittapi", "detach", get_timestamp_us(),
                ",\"s\":\"t\",\"args\":{\"api\":\"detach\"}");
+    g_ref_collector_logger.paused = 1;
+    ref_collector_release();
 }
 
 static void json_thread_set_name(const char* name)
@@ -917,28 +940,31 @@ static void json_thread_set_name(const char* name)
 
     char extra[LOG_BUFFER_MAX_SIZE * 2];
     snprintf(extra, sizeof(extra), ",\"args\":{\"name\":\"%s\"}", name_esc);
-    json_write("M", "__metadata", "thread_name", get_timestamp_us(), extra);
+    json_write("M", "ittapi", "set_thread_name", get_timestamp_us(), extra);
 }
 
-static void json_frame_begin_v3(const __itt_domain *domain, __itt_id *id)
+static void json_frame_begin_v3(const __itt_domain *domain, const __itt_id *id)
 {
     if (domain == NULL) return;
+    if (id == NULL) id = &__itt_null;
 
-    unsigned long long fid = (id != NULL) ? id->d1 : 0;
     char extra[LOG_BUFFER_MAX_SIZE];
     snprintf(extra, sizeof(extra),
-             ",\"id\":\"0x%llx\",\"args\":{\"api\":\"frame\"}", fid);
+             ",\"id\":\"%llu,%llu,%llu\",\"args\":{\"api\":\"frame\","
+             "\"id\":\"%llu,%llu,%llu\"}",
+             id->d1, id->d2, id->d3, id->d1, id->d2, id->d3);
     json_write("b", domain->nameA, domain->nameA, get_timestamp_us(), extra);
 }
 
-static void json_frame_end_v3(const __itt_domain *domain, __itt_id *id)
+static void json_frame_end_v3(const __itt_domain *domain, const __itt_id *id)
 {
     if (domain == NULL) return;
+    if (id == NULL) id = &__itt_null;
 
-    unsigned long long fid = (id != NULL) ? id->d1 : 0;
     char extra[LOG_BUFFER_MAX_SIZE];
     snprintf(extra, sizeof(extra),
-             ",\"id\":\"0x%llx\",\"args\":{\"api\":\"frame\"}", fid);
+             ",\"id\":\"%llu,%llu,%llu\",\"args\":{\"api\":\"frame\"}",
+             id->d1, id->d2, id->d3);
     json_write("e", domain->nameA, domain->nameA, get_timestamp_us(), extra);
 }
 
@@ -961,13 +987,30 @@ static void json_task_begin(
 {
     if (domain == NULL || name == NULL) return;
 
+    uint64_t ts = get_timestamp_us();
+
     char extra[LOG_BUFFER_MAX_SIZE];
     snprintf(extra, sizeof(extra),
              ",\"args\":{\"api\":\"task\","
              "\"taskid\":\"%llu,%llu,%llu\",\"parentid\":\"%llu,%llu,%llu\"}",
              taskid.d1, taskid.d2, taskid.d3,
              parentid.d1, parentid.d2, parentid.d3);
-    json_write("B", domain->nameA, name->strA, get_timestamp_us(), extra);
+    json_write("B", domain->nameA, name->strA, ts, extra);
+
+    if (parentid.d1)
+    {
+        snprintf(extra, sizeof(extra),
+                 ",\"id\":%llu,\"bp\":\"e\",\"args\":{\"api\":\"flow\"}",
+                 get_flow_id(&parentid));
+        json_write("f", domain->nameA, "", ts, extra);
+    }
+    if (taskid.d1)
+    {
+        snprintf(extra, sizeof(extra),
+                 ",\"id\":%llu,\"args\":{\"api\":\"flow\"}",
+                 get_flow_id(&taskid));
+        json_write("s", domain->nameA, "", ts, extra);
+    }
 }
 
 static void json_task_end(const __itt_domain *domain)
@@ -989,24 +1032,29 @@ static void json_task_end(const __itt_domain *domain)
     }
 }
 
-static void json_region_begin(
-    const __itt_domain *domain, __itt_id id, __itt_string_handle *name)
+static void json_task_begin_overlapped(
+    const __itt_domain *domain, __itt_id taskid, __itt_id parentid, __itt_string_handle *name)
 {
-    if (domain == NULL || name == NULL) return;
+    if (domain == NULL || name == NULL || taskid.d1 == 0) return;
 
     char extra[LOG_BUFFER_MAX_SIZE];
     snprintf(extra, sizeof(extra),
-             ",\"id\":\"0x%llx\",\"args\":{\"api\":\"region\"}", id.d1);
+             ",\"id\":\"%llu,%llu,%llu\",\"args\":{\"api\":\"task\","
+             "\"taskid\":\"%llu,%llu,%llu\",\"parentid\":\"%llu,%llu,%llu\"}",
+             taskid.d1, taskid.d2, taskid.d3,
+             taskid.d1, taskid.d2, taskid.d3,
+             parentid.d1, parentid.d2, parentid.d3);
     json_write("b", domain->nameA, name->strA, get_timestamp_us(), extra);
 }
 
-static void json_region_end(const __itt_domain *domain, __itt_id id)
+static void json_task_end_overlapped(const __itt_domain *domain, __itt_id taskid)
 {
-    if (domain == NULL) return;
+    if (domain == NULL || taskid.d1 == 0) return;
 
     char extra[LOG_BUFFER_MAX_SIZE];
     snprintf(extra, sizeof(extra),
-             ",\"id\":\"0x%llx\",\"args\":{\"api\":\"region\"}", id.d1);
+             ",\"id\":\"%llu,%llu,%llu\",\"args\":{\"api\":\"task\"}",
+             taskid.d1, taskid.d2, taskid.d3);
     json_write("e", domain->nameA, "", get_timestamp_us(), extra);
 }
 
@@ -1270,12 +1318,47 @@ ITT_EXTERN_C void ITTAPI __itt_task_end(const __itt_domain *domain)
     LOG_FUNC_CALL_INFO("domain=%s", domain->nameA);
 }
 
+ITT_EXTERN_C void ITTAPI __itt_task_begin_overlapped(
+    const __itt_domain *domain, __itt_id taskid, __itt_id parentid, __itt_string_handle *name)
+{
+    if (g_ref_collector_logger.gen_json)
+    {
+        json_task_begin_overlapped(domain, taskid, parentid, name);
+        return;
+    }
+    if (domain == NULL || name == NULL || taskid.d1 == 0)
+    {
+        LOG_FUNC_CALL_WARN("Incorrect function call");
+        return;
+    }
+    LOG_FUNC_CALL_INFO("domain=%s name=%s taskid=%llu,%llu,%llu parentid=%llu,%llu,%llu",
+                  domain->nameA, name->strA,
+                  taskid.d1, taskid.d2, taskid.d3,
+                  parentid.d1, parentid.d2, parentid.d3);
+}
+
+ITT_EXTERN_C void ITTAPI __itt_task_end_overlapped(const __itt_domain *domain, __itt_id taskid)
+{
+    if (g_ref_collector_logger.gen_json)
+    {
+        json_task_end_overlapped(domain, taskid);
+        return;
+    }
+    if (domain == NULL || taskid.d1 == 0)
+    {
+        LOG_FUNC_CALL_WARN("Incorrect function call");
+        return;
+    }
+    LOG_FUNC_CALL_INFO("domain=%s taskid=%llu,%llu,%llu",
+                  domain->nameA, taskid.d1, taskid.d2, taskid.d3);
+}
+
 ITT_EXTERN_C void ITTAPI __itt_region_begin(
     const __itt_domain *domain, __itt_id id, __itt_id parentid, __itt_string_handle *name)
 {
     if (g_ref_collector_logger.gen_json)
     {
-        json_region_begin(domain, id, name);
+        json_task_begin(domain, id, parentid, name);
         return;
     }
     if (domain == NULL || name == NULL)
@@ -1293,7 +1376,7 @@ ITT_EXTERN_C void ITTAPI __itt_region_end(const __itt_domain *domain, __itt_id i
 {
     if (g_ref_collector_logger.gen_json)
     {
-        json_region_end(domain, id);
+        json_task_end(domain);
         return;
     }
     if (domain == NULL)
