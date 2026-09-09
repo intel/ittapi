@@ -42,7 +42,7 @@ static int exec_ittapi_module(PyObject* module)
     PyModule_AddFunctions(module, ittapi_functions);
 
     PyModule_AddStringConstant(module, "__author__", "Egor Suldin");
-    PyModule_AddStringConstant(module, "__version__", "1.2.1");
+    PyModule_AddStringConstant(module, "__version__", "1.2.2");
     PyModule_AddIntConstant(module, "year", 2026);
 
     return 0;
