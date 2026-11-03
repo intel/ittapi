@@ -6,7 +6,6 @@
 #![warn(clippy::pedantic)]
 #![warn(clippy::cargo)]
 #![allow(clippy::unreadable_literal)]
-// Doc comments in the generated bindings come verbatim from the C headers.
 #![allow(clippy::doc_markdown)]
 
 // The ITT bindings are OS-specific: they contain OS-specific constants (e.g. `ITT_OS` and
