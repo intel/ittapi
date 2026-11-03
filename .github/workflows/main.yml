@@ -33,7 +33,7 @@ jobs:
     - name: Checkout sources
       uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
     - name: Setup Fortran compiler
-      uses: fortran-lang/setup-fortran@be037f0a45b1160f139d4ccd0b96f9e9bfd6a682 # v1.10.0
+      uses: fortran-lang/setup-fortran@1f630c95fa9e0c941248f52e4674260139020365 # v1.11.0
       with:
           compiler: intel
     - name: Setup MSVC environment
