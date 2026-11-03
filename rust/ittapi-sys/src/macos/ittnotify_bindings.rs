@@ -30,25 +30,25 @@ pub const __itt_collection_scope___itt_collection_scope_all: __itt_collection_sc
 #[doc = " @enum __itt_collection_scope\n @brief Enumerator for collection scopes"]
 pub type __itt_collection_scope = ::std::os::raw::c_uint;
 pub type __itt_pause_ptr__3_0_t = ::std::option::Option<unsafe extern "C" fn()>;
-unsafe extern "C" {
+extern "C" {
     pub static mut __itt_pause_ptr__3_0: __itt_pause_ptr__3_0_t;
 }
 pub type __itt_pause_scoped_ptr__3_0_t =
     ::std::option::Option<unsafe extern "C" fn(arg1: __itt_collection_scope)>;
-unsafe extern "C" {
+extern "C" {
     pub static mut __itt_pause_scoped_ptr__3_0: __itt_pause_scoped_ptr__3_0_t;
 }
 pub type __itt_resume_ptr__3_0_t = ::std::option::Option<unsafe extern "C" fn()>;
-unsafe extern "C" {
+extern "C" {
     pub static mut __itt_resume_ptr__3_0: __itt_resume_ptr__3_0_t;
 }
 pub type __itt_resume_scoped_ptr__3_0_t =
     ::std::option::Option<unsafe extern "C" fn(arg1: __itt_collection_scope)>;
-unsafe extern "C" {
+extern "C" {
     pub static mut __itt_resume_scoped_ptr__3_0: __itt_resume_scoped_ptr__3_0_t;
 }
 pub type __itt_detach_ptr__3_0_t = ::std::option::Option<unsafe extern "C" fn()>;
-unsafe extern "C" {
+extern "C" {
     pub static mut __itt_detach_ptr__3_0: __itt_detach_ptr__3_0_t;
 }
 #[doc = " @defgroup Intel Processor Trace control\n API from this group provides control over collection and analysis of Intel Processor Trace (Intel PT) data\n Information about Intel Processor Trace technology can be found here (Volume 3 chapter 35):\n https://software.intel.com/sites/default/files/managed/39/c5/325462-sdm-vol-1-2abcd-3abcd.pdf\n Use this API to mark particular code regions for loading detailed performance statistics.\n This mode makes your analysis faster and more accurate.\n @{"]
@@ -56,33 +56,33 @@ pub type __itt_pt_region = ::std::os::raw::c_uchar;
 pub type __itt_pt_region_create_ptr__3_0_t = ::std::option::Option<
     unsafe extern "C" fn(name: *const ::std::os::raw::c_char) -> __itt_pt_region,
 >;
-unsafe extern "C" {
+extern "C" {
     pub static mut __itt_pt_region_create_ptr__3_0: __itt_pt_region_create_ptr__3_0_t;
 }
-unsafe extern "C" {
+extern "C" {
     #[doc = " @brief function contains a special code pattern identified on the post-processing stage and\n marks the beginning of a code region targeted for Intel PT analysis\n @param[in] region - region id, 0 <= region < 8"]
     pub fn __itt_mark_pt_region_begin(region: __itt_pt_region);
 }
-unsafe extern "C" {
+extern "C" {
     #[doc = " @brief function contains a special code pattern identified on the post-processing stage and\n marks the end of a code region targeted for Intel PT analysis\n @param[in] region - region id, 0 <= region < 8"]
     pub fn __itt_mark_pt_region_end(region: __itt_pt_region);
 }
 pub type __itt_thread_set_name_ptr__3_0_t =
     ::std::option::Option<unsafe extern "C" fn(name: *const ::std::os::raw::c_char)>;
-unsafe extern "C" {
+extern "C" {
     pub static mut __itt_thread_set_name_ptr__3_0: __itt_thread_set_name_ptr__3_0_t;
 }
 pub type __itt_thread_ignore_ptr__3_0_t = ::std::option::Option<unsafe extern "C" fn()>;
-unsafe extern "C" {
+extern "C" {
     pub static mut __itt_thread_ignore_ptr__3_0: __itt_thread_ignore_ptr__3_0_t;
 }
 pub type __itt_suppress_push_ptr__3_0_t =
     ::std::option::Option<unsafe extern "C" fn(mask: ::std::os::raw::c_uint)>;
-unsafe extern "C" {
+extern "C" {
     pub static mut __itt_suppress_push_ptr__3_0: __itt_suppress_push_ptr__3_0_t;
 }
 pub type __itt_suppress_pop_ptr__3_0_t = ::std::option::Option<unsafe extern "C" fn()>;
-unsafe extern "C" {
+extern "C" {
     pub static mut __itt_suppress_pop_ptr__3_0: __itt_suppress_pop_ptr__3_0_t;
 }
 pub const __itt_suppress_mode___itt_unsuppress_range: __itt_suppress_mode = 0;
@@ -99,7 +99,7 @@ pub type __itt_suppress_mark_range_ptr__3_0_t = ::std::option::Option<
         size: usize,
     ),
 >;
-unsafe extern "C" {
+extern "C" {
     pub static mut __itt_suppress_mark_range_ptr__3_0: __itt_suppress_mark_range_ptr__3_0_t;
 }
 pub type __itt_suppress_clear_range_ptr__3_0_t = ::std::option::Option<
@@ -110,7 +110,7 @@ pub type __itt_suppress_clear_range_ptr__3_0_t = ::std::option::Option<
         size: usize,
     ),
 >;
-unsafe extern "C" {
+extern "C" {
     pub static mut __itt_suppress_clear_range_ptr__3_0: __itt_suppress_clear_range_ptr__3_0_t;
 }
 pub type __itt_sync_create_ptr__3_0_t = ::std::option::Option<
@@ -121,58 +121,58 @@ pub type __itt_sync_create_ptr__3_0_t = ::std::option::Option<
         attribute: ::std::os::raw::c_int,
     ),
 >;
-unsafe extern "C" {
+extern "C" {
     pub static mut __itt_sync_create_ptr__3_0: __itt_sync_create_ptr__3_0_t;
 }
 pub type __itt_sync_rename_ptr__3_0_t = ::std::option::Option<
     unsafe extern "C" fn(addr: *mut ::std::os::raw::c_void, name: *const ::std::os::raw::c_char),
 >;
-unsafe extern "C" {
+extern "C" {
     pub static mut __itt_sync_rename_ptr__3_0: __itt_sync_rename_ptr__3_0_t;
 }
 pub type __itt_sync_destroy_ptr__3_0_t =
     ::std::option::Option<unsafe extern "C" fn(addr: *mut ::std::os::raw::c_void)>;
-unsafe extern "C" {
+extern "C" {
     pub static mut __itt_sync_destroy_ptr__3_0: __itt_sync_destroy_ptr__3_0_t;
 }
 pub type __itt_sync_prepare_ptr__3_0_t =
     ::std::option::Option<unsafe extern "C" fn(addr: *mut ::std::os::raw::c_void)>;
-unsafe extern "C" {
+extern "C" {
     pub static mut __itt_sync_prepare_ptr__3_0: __itt_sync_prepare_ptr__3_0_t;
 }
 pub type __itt_sync_cancel_ptr__3_0_t =
     ::std::option::Option<unsafe extern "C" fn(addr: *mut ::std::os::raw::c_void)>;
-unsafe extern "C" {
+extern "C" {
     pub static mut __itt_sync_cancel_ptr__3_0: __itt_sync_cancel_ptr__3_0_t;
 }
 pub type __itt_sync_acquired_ptr__3_0_t =
     ::std::option::Option<unsafe extern "C" fn(addr: *mut ::std::os::raw::c_void)>;
-unsafe extern "C" {
+extern "C" {
     pub static mut __itt_sync_acquired_ptr__3_0: __itt_sync_acquired_ptr__3_0_t;
 }
 pub type __itt_sync_releasing_ptr__3_0_t =
     ::std::option::Option<unsafe extern "C" fn(addr: *mut ::std::os::raw::c_void)>;
-unsafe extern "C" {
+extern "C" {
     pub static mut __itt_sync_releasing_ptr__3_0: __itt_sync_releasing_ptr__3_0_t;
 }
 pub type __itt_fsync_prepare_ptr__3_0_t =
     ::std::option::Option<unsafe extern "C" fn(addr: *mut ::std::os::raw::c_void)>;
-unsafe extern "C" {
+extern "C" {
     pub static mut __itt_fsync_prepare_ptr__3_0: __itt_fsync_prepare_ptr__3_0_t;
 }
 pub type __itt_fsync_cancel_ptr__3_0_t =
     ::std::option::Option<unsafe extern "C" fn(addr: *mut ::std::os::raw::c_void)>;
-unsafe extern "C" {
+extern "C" {
     pub static mut __itt_fsync_cancel_ptr__3_0: __itt_fsync_cancel_ptr__3_0_t;
 }
 pub type __itt_fsync_acquired_ptr__3_0_t =
     ::std::option::Option<unsafe extern "C" fn(addr: *mut ::std::os::raw::c_void)>;
-unsafe extern "C" {
+extern "C" {
     pub static mut __itt_fsync_acquired_ptr__3_0: __itt_fsync_acquired_ptr__3_0_t;
 }
 pub type __itt_fsync_releasing_ptr__3_0_t =
     ::std::option::Option<unsafe extern "C" fn(addr: *mut ::std::os::raw::c_void)>;
-unsafe extern "C" {
+extern "C" {
     pub static mut __itt_fsync_releasing_ptr__3_0: __itt_fsync_releasing_ptr__3_0_t;
 }
 pub type __itt_model_site = *mut ::std::os::raw::c_void;
@@ -190,28 +190,28 @@ pub type __itt_model_site_begin_ptr__3_0_t = ::std::option::Option<
         name: *const ::std::os::raw::c_char,
     ),
 >;
-unsafe extern "C" {
+extern "C" {
     pub static mut __itt_model_site_begin_ptr__3_0: __itt_model_site_begin_ptr__3_0_t;
 }
 pub type __itt_model_site_beginA_ptr__3_0_t =
     ::std::option::Option<unsafe extern "C" fn(name: *const ::std::os::raw::c_char)>;
-unsafe extern "C" {
+extern "C" {
     pub static mut __itt_model_site_beginA_ptr__3_0: __itt_model_site_beginA_ptr__3_0_t;
 }
 pub type __itt_model_site_beginAL_ptr__3_0_t = ::std::option::Option<
     unsafe extern "C" fn(name: *const ::std::os::raw::c_char, siteNameLen: usize),
 >;
-unsafe extern "C" {
+extern "C" {
     pub static mut __itt_model_site_beginAL_ptr__3_0: __itt_model_site_beginAL_ptr__3_0_t;
 }
 pub type __itt_model_site_end_ptr__3_0_t = ::std::option::Option<
     unsafe extern "C" fn(site: *mut __itt_model_site, instance: *mut __itt_model_site_instance),
 >;
-unsafe extern "C" {
+extern "C" {
     pub static mut __itt_model_site_end_ptr__3_0: __itt_model_site_end_ptr__3_0_t;
 }
 pub type __itt_model_site_end_2_ptr__3_0_t = ::std::option::Option<unsafe extern "C" fn()>;
-unsafe extern "C" {
+extern "C" {
     pub static mut __itt_model_site_end_2_ptr__3_0: __itt_model_site_end_2_ptr__3_0_t;
 }
 pub type __itt_model_task_begin_ptr__3_0_t = ::std::option::Option<
@@ -221,104 +221,104 @@ pub type __itt_model_task_begin_ptr__3_0_t = ::std::option::Option<
         name: *const ::std::os::raw::c_char,
     ),
 >;
-unsafe extern "C" {
+extern "C" {
     pub static mut __itt_model_task_begin_ptr__3_0: __itt_model_task_begin_ptr__3_0_t;
 }
 pub type __itt_model_task_beginA_ptr__3_0_t =
     ::std::option::Option<unsafe extern "C" fn(name: *const ::std::os::raw::c_char)>;
-unsafe extern "C" {
+extern "C" {
     pub static mut __itt_model_task_beginA_ptr__3_0: __itt_model_task_beginA_ptr__3_0_t;
 }
 pub type __itt_model_task_beginAL_ptr__3_0_t = ::std::option::Option<
     unsafe extern "C" fn(name: *const ::std::os::raw::c_char, taskNameLen: usize),
 >;
-unsafe extern "C" {
+extern "C" {
     pub static mut __itt_model_task_beginAL_ptr__3_0: __itt_model_task_beginAL_ptr__3_0_t;
 }
 pub type __itt_model_iteration_taskA_ptr__3_0_t =
     ::std::option::Option<unsafe extern "C" fn(name: *const ::std::os::raw::c_char)>;
-unsafe extern "C" {
+extern "C" {
     pub static mut __itt_model_iteration_taskA_ptr__3_0: __itt_model_iteration_taskA_ptr__3_0_t;
 }
 pub type __itt_model_iteration_taskAL_ptr__3_0_t = ::std::option::Option<
     unsafe extern "C" fn(name: *const ::std::os::raw::c_char, taskNameLen: usize),
 >;
-unsafe extern "C" {
+extern "C" {
     pub static mut __itt_model_iteration_taskAL_ptr__3_0: __itt_model_iteration_taskAL_ptr__3_0_t;
 }
 pub type __itt_model_task_end_ptr__3_0_t = ::std::option::Option<
     unsafe extern "C" fn(task: *mut __itt_model_task, instance: *mut __itt_model_task_instance),
 >;
-unsafe extern "C" {
+extern "C" {
     pub static mut __itt_model_task_end_ptr__3_0: __itt_model_task_end_ptr__3_0_t;
 }
 pub type __itt_model_task_end_2_ptr__3_0_t = ::std::option::Option<unsafe extern "C" fn()>;
-unsafe extern "C" {
+extern "C" {
     pub static mut __itt_model_task_end_2_ptr__3_0: __itt_model_task_end_2_ptr__3_0_t;
 }
 pub type __itt_model_lock_acquire_ptr__3_0_t =
     ::std::option::Option<unsafe extern "C" fn(lock: *mut ::std::os::raw::c_void)>;
-unsafe extern "C" {
+extern "C" {
     pub static mut __itt_model_lock_acquire_ptr__3_0: __itt_model_lock_acquire_ptr__3_0_t;
 }
 pub type __itt_model_lock_acquire_2_ptr__3_0_t =
     ::std::option::Option<unsafe extern "C" fn(lock: *mut ::std::os::raw::c_void)>;
-unsafe extern "C" {
+extern "C" {
     pub static mut __itt_model_lock_acquire_2_ptr__3_0: __itt_model_lock_acquire_2_ptr__3_0_t;
 }
 pub type __itt_model_lock_release_ptr__3_0_t =
     ::std::option::Option<unsafe extern "C" fn(lock: *mut ::std::os::raw::c_void)>;
-unsafe extern "C" {
+extern "C" {
     pub static mut __itt_model_lock_release_ptr__3_0: __itt_model_lock_release_ptr__3_0_t;
 }
 pub type __itt_model_lock_release_2_ptr__3_0_t =
     ::std::option::Option<unsafe extern "C" fn(lock: *mut ::std::os::raw::c_void)>;
-unsafe extern "C" {
+extern "C" {
     pub static mut __itt_model_lock_release_2_ptr__3_0: __itt_model_lock_release_2_ptr__3_0_t;
 }
 pub type __itt_model_record_allocation_ptr__3_0_t =
     ::std::option::Option<unsafe extern "C" fn(addr: *mut ::std::os::raw::c_void, size: usize)>;
-unsafe extern "C" {
+extern "C" {
     pub static mut __itt_model_record_allocation_ptr__3_0: __itt_model_record_allocation_ptr__3_0_t;
 }
 pub type __itt_model_record_deallocation_ptr__3_0_t =
     ::std::option::Option<unsafe extern "C" fn(addr: *mut ::std::os::raw::c_void)>;
-unsafe extern "C" {
+extern "C" {
     pub static mut __itt_model_record_deallocation_ptr__3_0:
         __itt_model_record_deallocation_ptr__3_0_t;
 }
 pub type __itt_model_induction_uses_ptr__3_0_t =
     ::std::option::Option<unsafe extern "C" fn(addr: *mut ::std::os::raw::c_void, size: usize)>;
-unsafe extern "C" {
+extern "C" {
     pub static mut __itt_model_induction_uses_ptr__3_0: __itt_model_induction_uses_ptr__3_0_t;
 }
 pub type __itt_model_reduction_uses_ptr__3_0_t =
     ::std::option::Option<unsafe extern "C" fn(addr: *mut ::std::os::raw::c_void, size: usize)>;
-unsafe extern "C" {
+extern "C" {
     pub static mut __itt_model_reduction_uses_ptr__3_0: __itt_model_reduction_uses_ptr__3_0_t;
 }
 pub type __itt_model_observe_uses_ptr__3_0_t =
     ::std::option::Option<unsafe extern "C" fn(addr: *mut ::std::os::raw::c_void, size: usize)>;
-unsafe extern "C" {
+extern "C" {
     pub static mut __itt_model_observe_uses_ptr__3_0: __itt_model_observe_uses_ptr__3_0_t;
 }
 pub type __itt_model_clear_uses_ptr__3_0_t =
     ::std::option::Option<unsafe extern "C" fn(addr: *mut ::std::os::raw::c_void)>;
-unsafe extern "C" {
+extern "C" {
     pub static mut __itt_model_clear_uses_ptr__3_0: __itt_model_clear_uses_ptr__3_0_t;
 }
 pub type __itt_model_disable_push_ptr__3_0_t =
     ::std::option::Option<unsafe extern "C" fn(x: __itt_model_disable)>;
-unsafe extern "C" {
+extern "C" {
     pub static mut __itt_model_disable_push_ptr__3_0: __itt_model_disable_push_ptr__3_0_t;
 }
 pub type __itt_model_disable_pop_ptr__3_0_t = ::std::option::Option<unsafe extern "C" fn()>;
-unsafe extern "C" {
+extern "C" {
     pub static mut __itt_model_disable_pop_ptr__3_0: __itt_model_disable_pop_ptr__3_0_t;
 }
 pub type __itt_model_aggregate_task_ptr__3_0_t =
     ::std::option::Option<unsafe extern "C" fn(x: usize)>;
-unsafe extern "C" {
+extern "C" {
     pub static mut __itt_model_aggregate_task_ptr__3_0: __itt_model_aggregate_task_ptr__3_0_t;
 }
 #[doc = " @defgroup heap Heap\n @ingroup public\n Heap group\n @{"]
@@ -329,13 +329,13 @@ pub type __itt_heap_function_create_ptr__3_0_t = ::std::option::Option<
         domain: *const ::std::os::raw::c_char,
     ) -> __itt_heap_function,
 >;
-unsafe extern "C" {
+extern "C" {
     pub static mut __itt_heap_function_create_ptr__3_0: __itt_heap_function_create_ptr__3_0_t;
 }
 pub type __itt_heap_allocate_begin_ptr__3_0_t = ::std::option::Option<
     unsafe extern "C" fn(h: __itt_heap_function, size: usize, initialized: ::std::os::raw::c_int),
 >;
-unsafe extern "C" {
+extern "C" {
     pub static mut __itt_heap_allocate_begin_ptr__3_0: __itt_heap_allocate_begin_ptr__3_0_t;
 }
 pub type __itt_heap_allocate_end_ptr__3_0_t = ::std::option::Option<
@@ -346,19 +346,19 @@ pub type __itt_heap_allocate_end_ptr__3_0_t = ::std::option::Option<
         initialized: ::std::os::raw::c_int,
     ),
 >;
-unsafe extern "C" {
+extern "C" {
     pub static mut __itt_heap_allocate_end_ptr__3_0: __itt_heap_allocate_end_ptr__3_0_t;
 }
 pub type __itt_heap_free_begin_ptr__3_0_t = ::std::option::Option<
     unsafe extern "C" fn(h: __itt_heap_function, addr: *mut ::std::os::raw::c_void),
 >;
-unsafe extern "C" {
+extern "C" {
     pub static mut __itt_heap_free_begin_ptr__3_0: __itt_heap_free_begin_ptr__3_0_t;
 }
 pub type __itt_heap_free_end_ptr__3_0_t = ::std::option::Option<
     unsafe extern "C" fn(h: __itt_heap_function, addr: *mut ::std::os::raw::c_void),
 >;
-unsafe extern "C" {
+extern "C" {
     pub static mut __itt_heap_free_end_ptr__3_0: __itt_heap_free_end_ptr__3_0_t;
 }
 pub type __itt_heap_reallocate_begin_ptr__3_0_t = ::std::option::Option<
@@ -369,7 +369,7 @@ pub type __itt_heap_reallocate_begin_ptr__3_0_t = ::std::option::Option<
         initialized: ::std::os::raw::c_int,
     ),
 >;
-unsafe extern "C" {
+extern "C" {
     pub static mut __itt_heap_reallocate_begin_ptr__3_0: __itt_heap_reallocate_begin_ptr__3_0_t;
 }
 pub type __itt_heap_reallocate_end_ptr__3_0_t = ::std::option::Option<
@@ -381,40 +381,40 @@ pub type __itt_heap_reallocate_end_ptr__3_0_t = ::std::option::Option<
         initialized: ::std::os::raw::c_int,
     ),
 >;
-unsafe extern "C" {
+extern "C" {
     pub static mut __itt_heap_reallocate_end_ptr__3_0: __itt_heap_reallocate_end_ptr__3_0_t;
 }
 pub type __itt_heap_internal_access_begin_ptr__3_0_t =
     ::std::option::Option<unsafe extern "C" fn()>;
-unsafe extern "C" {
+extern "C" {
     pub static mut __itt_heap_internal_access_begin_ptr__3_0:
         __itt_heap_internal_access_begin_ptr__3_0_t;
 }
 pub type __itt_heap_internal_access_end_ptr__3_0_t = ::std::option::Option<unsafe extern "C" fn()>;
-unsafe extern "C" {
+extern "C" {
     pub static mut __itt_heap_internal_access_end_ptr__3_0:
         __itt_heap_internal_access_end_ptr__3_0_t;
 }
 pub type __itt_heap_record_memory_growth_begin_ptr__3_0_t =
     ::std::option::Option<unsafe extern "C" fn()>;
-unsafe extern "C" {
+extern "C" {
     pub static mut __itt_heap_record_memory_growth_begin_ptr__3_0:
         __itt_heap_record_memory_growth_begin_ptr__3_0_t;
 }
 pub type __itt_heap_record_memory_growth_end_ptr__3_0_t =
     ::std::option::Option<unsafe extern "C" fn()>;
-unsafe extern "C" {
+extern "C" {
     pub static mut __itt_heap_record_memory_growth_end_ptr__3_0:
         __itt_heap_record_memory_growth_end_ptr__3_0_t;
 }
 pub type __itt_heap_reset_detection_ptr__3_0_t =
     ::std::option::Option<unsafe extern "C" fn(reset_mask: ::std::os::raw::c_uint)>;
-unsafe extern "C" {
+extern "C" {
     pub static mut __itt_heap_reset_detection_ptr__3_0: __itt_heap_reset_detection_ptr__3_0_t;
 }
 pub type __itt_heap_record_ptr__3_0_t =
     ::std::option::Option<unsafe extern "C" fn(record_mask: ::std::os::raw::c_uint)>;
-unsafe extern "C" {
+extern "C" {
     pub static mut __itt_heap_record_ptr__3_0: __itt_heap_record_ptr__3_0_t;
 }
 #[repr(C)]
@@ -431,27 +431,56 @@ pub struct ___itt_domain {
     pub extra2: *mut ::std::os::raw::c_void,
     pub next: *mut ___itt_domain,
 }
-#[allow(clippy::unnecessary_operation, clippy::identity_op)]
-const _: () = {
-    ["Size of ___itt_domain"][::std::mem::size_of::<___itt_domain>() - 48usize];
-    ["Alignment of ___itt_domain"][::std::mem::align_of::<___itt_domain>() - 8usize];
-    ["Offset of field: ___itt_domain::flags"]
-        [::std::mem::offset_of!(___itt_domain, flags) - 0usize];
-    ["Offset of field: ___itt_domain::nameA"]
-        [::std::mem::offset_of!(___itt_domain, nameA) - 8usize];
-    ["Offset of field: ___itt_domain::nameW"]
-        [::std::mem::offset_of!(___itt_domain, nameW) - 16usize];
-    ["Offset of field: ___itt_domain::extra1"]
-        [::std::mem::offset_of!(___itt_domain, extra1) - 24usize];
-    ["Offset of field: ___itt_domain::extra2"]
-        [::std::mem::offset_of!(___itt_domain, extra2) - 32usize];
-    ["Offset of field: ___itt_domain::next"][::std::mem::offset_of!(___itt_domain, next) - 40usize];
-};
+#[test]
+fn bindgen_test_layout____itt_domain() {
+    const UNINIT: ::std::mem::MaybeUninit<___itt_domain> = ::std::mem::MaybeUninit::uninit();
+    let ptr = UNINIT.as_ptr();
+    assert_eq!(
+        ::std::mem::size_of::<___itt_domain>(),
+        48usize,
+        "Size of ___itt_domain"
+    );
+    assert_eq!(
+        ::std::mem::align_of::<___itt_domain>(),
+        8usize,
+        "Alignment of ___itt_domain"
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).flags) as usize - ptr as usize },
+        0usize,
+        "Offset of field: ___itt_domain::flags"
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).nameA) as usize - ptr as usize },
+        8usize,
+        "Offset of field: ___itt_domain::nameA"
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).nameW) as usize - ptr as usize },
+        16usize,
+        "Offset of field: ___itt_domain::nameW"
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).extra1) as usize - ptr as usize },
+        24usize,
+        "Offset of field: ___itt_domain::extra1"
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).extra2) as usize - ptr as usize },
+        32usize,
+        "Offset of field: ___itt_domain::extra2"
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).next) as usize - ptr as usize },
+        40usize,
+        "Offset of field: ___itt_domain::next"
+    );
+}
 pub type __itt_domain = ___itt_domain;
 pub type __itt_domain_create_ptr__3_0_t = ::std::option::Option<
     unsafe extern "C" fn(name: *const ::std::os::raw::c_char) -> *mut __itt_domain,
 >;
-unsafe extern "C" {
+extern "C" {
     pub static mut __itt_domain_create_ptr__3_0: __itt_domain_create_ptr__3_0_t;
 }
 #[repr(C)]
@@ -461,27 +490,49 @@ pub struct ___itt_id {
     pub d2: ::std::os::raw::c_ulonglong,
     pub d3: ::std::os::raw::c_ulonglong,
 }
-#[allow(clippy::unnecessary_operation, clippy::identity_op)]
-const _: () = {
-    ["Size of ___itt_id"][::std::mem::size_of::<___itt_id>() - 24usize];
-    ["Alignment of ___itt_id"][::std::mem::align_of::<___itt_id>() - 8usize];
-    ["Offset of field: ___itt_id::d1"][::std::mem::offset_of!(___itt_id, d1) - 0usize];
-    ["Offset of field: ___itt_id::d2"][::std::mem::offset_of!(___itt_id, d2) - 8usize];
-    ["Offset of field: ___itt_id::d3"][::std::mem::offset_of!(___itt_id, d3) - 16usize];
-};
+#[test]
+fn bindgen_test_layout____itt_id() {
+    const UNINIT: ::std::mem::MaybeUninit<___itt_id> = ::std::mem::MaybeUninit::uninit();
+    let ptr = UNINIT.as_ptr();
+    assert_eq!(
+        ::std::mem::size_of::<___itt_id>(),
+        24usize,
+        "Size of ___itt_id"
+    );
+    assert_eq!(
+        ::std::mem::align_of::<___itt_id>(),
+        8usize,
+        "Alignment of ___itt_id"
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).d1) as usize - ptr as usize },
+        0usize,
+        "Offset of field: ___itt_id::d1"
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).d2) as usize - ptr as usize },
+        8usize,
+        "Offset of field: ___itt_id::d2"
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).d3) as usize - ptr as usize },
+        16usize,
+        "Offset of field: ___itt_id::d3"
+    );
+}
 pub type __itt_id = ___itt_id;
-unsafe extern "C" {
+extern "C" {
     #[doc = " @endcond"]
     pub static __itt_null: __itt_id;
 }
 pub type __itt_id_create_ptr__3_0_t =
     ::std::option::Option<unsafe extern "C" fn(domain: *const __itt_domain, id: __itt_id)>;
-unsafe extern "C" {
+extern "C" {
     pub static mut __itt_id_create_ptr__3_0: __itt_id_create_ptr__3_0_t;
 }
 pub type __itt_id_destroy_ptr__3_0_t =
     ::std::option::Option<unsafe extern "C" fn(domain: *const __itt_domain, id: __itt_id)>;
-unsafe extern "C" {
+extern "C" {
     pub static mut __itt_id_destroy_ptr__3_0: __itt_id_destroy_ptr__3_0_t;
 }
 #[repr(C)]
@@ -496,33 +547,58 @@ pub struct ___itt_string_handle {
     pub extra2: *mut ::std::os::raw::c_void,
     pub next: *mut ___itt_string_handle,
 }
-#[allow(clippy::unnecessary_operation, clippy::identity_op)]
-const _: () = {
-    ["Size of ___itt_string_handle"][::std::mem::size_of::<___itt_string_handle>() - 40usize];
-    ["Alignment of ___itt_string_handle"][::std::mem::align_of::<___itt_string_handle>() - 8usize];
-    ["Offset of field: ___itt_string_handle::strA"]
-        [::std::mem::offset_of!(___itt_string_handle, strA) - 0usize];
-    ["Offset of field: ___itt_string_handle::strW"]
-        [::std::mem::offset_of!(___itt_string_handle, strW) - 8usize];
-    ["Offset of field: ___itt_string_handle::extra1"]
-        [::std::mem::offset_of!(___itt_string_handle, extra1) - 16usize];
-    ["Offset of field: ___itt_string_handle::extra2"]
-        [::std::mem::offset_of!(___itt_string_handle, extra2) - 24usize];
-    ["Offset of field: ___itt_string_handle::next"]
-        [::std::mem::offset_of!(___itt_string_handle, next) - 32usize];
-};
+#[test]
+fn bindgen_test_layout____itt_string_handle() {
+    const UNINIT: ::std::mem::MaybeUninit<___itt_string_handle> = ::std::mem::MaybeUninit::uninit();
+    let ptr = UNINIT.as_ptr();
+    assert_eq!(
+        ::std::mem::size_of::<___itt_string_handle>(),
+        40usize,
+        "Size of ___itt_string_handle"
+    );
+    assert_eq!(
+        ::std::mem::align_of::<___itt_string_handle>(),
+        8usize,
+        "Alignment of ___itt_string_handle"
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).strA) as usize - ptr as usize },
+        0usize,
+        "Offset of field: ___itt_string_handle::strA"
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).strW) as usize - ptr as usize },
+        8usize,
+        "Offset of field: ___itt_string_handle::strW"
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).extra1) as usize - ptr as usize },
+        16usize,
+        "Offset of field: ___itt_string_handle::extra1"
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).extra2) as usize - ptr as usize },
+        24usize,
+        "Offset of field: ___itt_string_handle::extra2"
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).next) as usize - ptr as usize },
+        32usize,
+        "Offset of field: ___itt_string_handle::next"
+    );
+}
 pub type __itt_string_handle = ___itt_string_handle;
 pub type __itt_string_handle_create_ptr__3_0_t = ::std::option::Option<
     unsafe extern "C" fn(name: *const ::std::os::raw::c_char) -> *mut __itt_string_handle,
 >;
-unsafe extern "C" {
+extern "C" {
     pub static mut __itt_string_handle_create_ptr__3_0: __itt_string_handle_create_ptr__3_0_t;
 }
 #[doc = " @cond exclude_from_documentation"]
 pub type __itt_timestamp = ::std::os::raw::c_ulonglong;
 pub type __itt_get_timestamp_ptr__3_0_t =
     ::std::option::Option<unsafe extern "C" fn() -> __itt_timestamp>;
-unsafe extern "C" {
+extern "C" {
     pub static mut __itt_get_timestamp_ptr__3_0: __itt_get_timestamp_ptr__3_0_t;
 }
 pub type __itt_region_begin_ptr__3_0_t = ::std::option::Option<
@@ -533,22 +609,22 @@ pub type __itt_region_begin_ptr__3_0_t = ::std::option::Option<
         name: *mut __itt_string_handle,
     ),
 >;
-unsafe extern "C" {
+extern "C" {
     pub static mut __itt_region_begin_ptr__3_0: __itt_region_begin_ptr__3_0_t;
 }
 pub type __itt_region_end_ptr__3_0_t =
     ::std::option::Option<unsafe extern "C" fn(domain: *const __itt_domain, id: __itt_id)>;
-unsafe extern "C" {
+extern "C" {
     pub static mut __itt_region_end_ptr__3_0: __itt_region_end_ptr__3_0_t;
 }
 pub type __itt_frame_begin_v3_ptr__3_0_t =
     ::std::option::Option<unsafe extern "C" fn(domain: *const __itt_domain, id: *mut __itt_id)>;
-unsafe extern "C" {
+extern "C" {
     pub static mut __itt_frame_begin_v3_ptr__3_0: __itt_frame_begin_v3_ptr__3_0_t;
 }
 pub type __itt_frame_end_v3_ptr__3_0_t =
     ::std::option::Option<unsafe extern "C" fn(domain: *const __itt_domain, id: *mut __itt_id)>;
-unsafe extern "C" {
+extern "C" {
     pub static mut __itt_frame_end_v3_ptr__3_0: __itt_frame_end_v3_ptr__3_0_t;
 }
 pub type __itt_frame_submit_v3_ptr__3_0_t = ::std::option::Option<
@@ -559,7 +635,7 @@ pub type __itt_frame_submit_v3_ptr__3_0_t = ::std::option::Option<
         end: __itt_timestamp,
     ),
 >;
-unsafe extern "C" {
+extern "C" {
     pub static mut __itt_frame_submit_v3_ptr__3_0: __itt_frame_submit_v3_ptr__3_0_t;
 }
 pub type __itt_task_group_ptr__3_0_t = ::std::option::Option<
@@ -570,7 +646,7 @@ pub type __itt_task_group_ptr__3_0_t = ::std::option::Option<
         name: *mut __itt_string_handle,
     ),
 >;
-unsafe extern "C" {
+extern "C" {
     pub static mut __itt_task_group_ptr__3_0: __itt_task_group_ptr__3_0_t;
 }
 pub type __itt_task_begin_ptr__3_0_t = ::std::option::Option<
@@ -581,7 +657,7 @@ pub type __itt_task_begin_ptr__3_0_t = ::std::option::Option<
         name: *mut __itt_string_handle,
     ),
 >;
-unsafe extern "C" {
+extern "C" {
     pub static mut __itt_task_begin_ptr__3_0: __itt_task_begin_ptr__3_0_t;
 }
 pub type __itt_task_begin_fn_ptr__3_0_t = ::std::option::Option<
@@ -592,12 +668,12 @@ pub type __itt_task_begin_fn_ptr__3_0_t = ::std::option::Option<
         fn_: *mut ::std::os::raw::c_void,
     ),
 >;
-unsafe extern "C" {
+extern "C" {
     pub static mut __itt_task_begin_fn_ptr__3_0: __itt_task_begin_fn_ptr__3_0_t;
 }
 pub type __itt_task_end_ptr__3_0_t =
     ::std::option::Option<unsafe extern "C" fn(domain: *const __itt_domain)>;
-unsafe extern "C" {
+extern "C" {
     pub static mut __itt_task_end_ptr__3_0: __itt_task_end_ptr__3_0_t;
 }
 pub type __itt_task_begin_overlapped_ptr__3_0_t = ::std::option::Option<
@@ -608,12 +684,12 @@ pub type __itt_task_begin_overlapped_ptr__3_0_t = ::std::option::Option<
         name: *mut __itt_string_handle,
     ),
 >;
-unsafe extern "C" {
+extern "C" {
     pub static mut __itt_task_begin_overlapped_ptr__3_0: __itt_task_begin_overlapped_ptr__3_0_t;
 }
 pub type __itt_task_end_overlapped_ptr__3_0_t =
     ::std::option::Option<unsafe extern "C" fn(domain: *const __itt_domain, taskid: __itt_id)>;
-unsafe extern "C" {
+extern "C" {
     pub static mut __itt_task_end_overlapped_ptr__3_0: __itt_task_end_overlapped_ptr__3_0_t;
 }
 pub const __itt_scope___itt_scope_unknown: __itt_scope = 0;
@@ -632,7 +708,7 @@ pub type __itt_marker_ptr__3_0_t = ::std::option::Option<
         scope: __itt_scope,
     ),
 >;
-unsafe extern "C" {
+extern "C" {
     pub static mut __itt_marker_ptr__3_0: __itt_marker_ptr__3_0_t;
 }
 pub const __itt_metadata_type___itt_metadata_unknown: __itt_metadata_type = 0;
@@ -657,7 +733,7 @@ pub type __itt_metadata_type = ::std::os::raw::c_uint;
 pub type __itt_formatted_metadata_add_ptr__3_0_t = ::std::option::Option<
     unsafe extern "C" fn(domain: *const __itt_domain, format: *mut __itt_string_handle, ...),
 >;
-unsafe extern "C" {
+extern "C" {
     pub static mut __itt_formatted_metadata_add_ptr__3_0: __itt_formatted_metadata_add_ptr__3_0_t;
 }
 pub type __itt_formatted_metadata_add_overlapped_ptr__3_0_t = ::std::option::Option<
@@ -668,7 +744,7 @@ pub type __itt_formatted_metadata_add_overlapped_ptr__3_0_t = ::std::option::Opt
         ...
     ),
 >;
-unsafe extern "C" {
+extern "C" {
     pub static mut __itt_formatted_metadata_add_overlapped_ptr__3_0:
         __itt_formatted_metadata_add_overlapped_ptr__3_0_t;
 }
@@ -682,7 +758,7 @@ pub type __itt_metadata_add_ptr__3_0_t = ::std::option::Option<
         data: *mut ::std::os::raw::c_void,
     ),
 >;
-unsafe extern "C" {
+extern "C" {
     pub static mut __itt_metadata_add_ptr__3_0: __itt_metadata_add_ptr__3_0_t;
 }
 pub type __itt_metadata_str_add_ptr__3_0_t = ::std::option::Option<
@@ -694,7 +770,7 @@ pub type __itt_metadata_str_add_ptr__3_0_t = ::std::option::Option<
         length: usize,
     ),
 >;
-unsafe extern "C" {
+extern "C" {
     pub static mut __itt_metadata_str_add_ptr__3_0: __itt_metadata_str_add_ptr__3_0_t;
 }
 pub type __itt_metadata_add_with_scope_ptr__3_0_t = ::std::option::Option<
@@ -707,7 +783,7 @@ pub type __itt_metadata_add_with_scope_ptr__3_0_t = ::std::option::Option<
         data: *mut ::std::os::raw::c_void,
     ),
 >;
-unsafe extern "C" {
+extern "C" {
     pub static mut __itt_metadata_add_with_scope_ptr__3_0: __itt_metadata_add_with_scope_ptr__3_0_t;
 }
 pub type __itt_metadata_str_add_with_scope_ptr__3_0_t = ::std::option::Option<
@@ -719,7 +795,7 @@ pub type __itt_metadata_str_add_with_scope_ptr__3_0_t = ::std::option::Option<
         length: usize,
     ),
 >;
-unsafe extern "C" {
+extern "C" {
     pub static mut __itt_metadata_str_add_with_scope_ptr__3_0:
         __itt_metadata_str_add_with_scope_ptr__3_0_t;
 }
@@ -743,7 +819,7 @@ pub type __itt_relation = ::std::os::raw::c_uint;
 pub type __itt_relation_add_to_current_ptr__3_0_t = ::std::option::Option<
     unsafe extern "C" fn(domain: *const __itt_domain, relation: __itt_relation, tail: __itt_id),
 >;
-unsafe extern "C" {
+extern "C" {
     pub static mut __itt_relation_add_to_current_ptr__3_0: __itt_relation_add_to_current_ptr__3_0_t;
 }
 pub type __itt_relation_add_ptr__3_0_t = ::std::option::Option<
@@ -754,7 +830,7 @@ pub type __itt_relation_add_ptr__3_0_t = ::std::option::Option<
         tail: __itt_id,
     ),
 >;
-unsafe extern "C" {
+extern "C" {
     pub static mut __itt_relation_add_ptr__3_0: __itt_relation_add_ptr__3_0_t;
 }
 #[repr(C)]
@@ -765,15 +841,31 @@ pub struct ___itt_clock_info {
     #[doc = "< Clock domain base timestamp"]
     pub clock_base: ::std::os::raw::c_ulonglong,
 }
-#[allow(clippy::unnecessary_operation, clippy::identity_op)]
-const _: () = {
-    ["Size of ___itt_clock_info"][::std::mem::size_of::<___itt_clock_info>() - 16usize];
-    ["Alignment of ___itt_clock_info"][::std::mem::align_of::<___itt_clock_info>() - 8usize];
-    ["Offset of field: ___itt_clock_info::clock_freq"]
-        [::std::mem::offset_of!(___itt_clock_info, clock_freq) - 0usize];
-    ["Offset of field: ___itt_clock_info::clock_base"]
-        [::std::mem::offset_of!(___itt_clock_info, clock_base) - 8usize];
-};
+#[test]
+fn bindgen_test_layout____itt_clock_info() {
+    const UNINIT: ::std::mem::MaybeUninit<___itt_clock_info> = ::std::mem::MaybeUninit::uninit();
+    let ptr = UNINIT.as_ptr();
+    assert_eq!(
+        ::std::mem::size_of::<___itt_clock_info>(),
+        16usize,
+        "Size of ___itt_clock_info"
+    );
+    assert_eq!(
+        ::std::mem::align_of::<___itt_clock_info>(),
+        8usize,
+        "Alignment of ___itt_clock_info"
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).clock_freq) as usize - ptr as usize },
+        0usize,
+        "Offset of field: ___itt_clock_info::clock_freq"
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).clock_base) as usize - ptr as usize },
+        8usize,
+        "Offset of field: ___itt_clock_info::clock_base"
+    );
+}
 pub type __itt_clock_info = ___itt_clock_info;
 #[doc = " @cond exclude_from_documentation"]
 pub type __itt_get_clock_info_fn = ::std::option::Option<
@@ -794,23 +886,51 @@ pub struct ___itt_clock_domain {
     pub extra2: *mut ::std::os::raw::c_void,
     pub next: *mut ___itt_clock_domain,
 }
-#[allow(clippy::unnecessary_operation, clippy::identity_op)]
-const _: () = {
-    ["Size of ___itt_clock_domain"][::std::mem::size_of::<___itt_clock_domain>() - 56usize];
-    ["Alignment of ___itt_clock_domain"][::std::mem::align_of::<___itt_clock_domain>() - 8usize];
-    ["Offset of field: ___itt_clock_domain::info"]
-        [::std::mem::offset_of!(___itt_clock_domain, info) - 0usize];
-    ["Offset of field: ___itt_clock_domain::fn_"]
-        [::std::mem::offset_of!(___itt_clock_domain, fn_) - 16usize];
-    ["Offset of field: ___itt_clock_domain::fn_data"]
-        [::std::mem::offset_of!(___itt_clock_domain, fn_data) - 24usize];
-    ["Offset of field: ___itt_clock_domain::extra1"]
-        [::std::mem::offset_of!(___itt_clock_domain, extra1) - 32usize];
-    ["Offset of field: ___itt_clock_domain::extra2"]
-        [::std::mem::offset_of!(___itt_clock_domain, extra2) - 40usize];
-    ["Offset of field: ___itt_clock_domain::next"]
-        [::std::mem::offset_of!(___itt_clock_domain, next) - 48usize];
-};
+#[test]
+fn bindgen_test_layout____itt_clock_domain() {
+    const UNINIT: ::std::mem::MaybeUninit<___itt_clock_domain> = ::std::mem::MaybeUninit::uninit();
+    let ptr = UNINIT.as_ptr();
+    assert_eq!(
+        ::std::mem::size_of::<___itt_clock_domain>(),
+        56usize,
+        "Size of ___itt_clock_domain"
+    );
+    assert_eq!(
+        ::std::mem::align_of::<___itt_clock_domain>(),
+        8usize,
+        "Alignment of ___itt_clock_domain"
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).info) as usize - ptr as usize },
+        0usize,
+        "Offset of field: ___itt_clock_domain::info"
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).fn_) as usize - ptr as usize },
+        16usize,
+        "Offset of field: ___itt_clock_domain::fn_"
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).fn_data) as usize - ptr as usize },
+        24usize,
+        "Offset of field: ___itt_clock_domain::fn_data"
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).extra1) as usize - ptr as usize },
+        32usize,
+        "Offset of field: ___itt_clock_domain::extra1"
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).extra2) as usize - ptr as usize },
+        40usize,
+        "Offset of field: ___itt_clock_domain::extra2"
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).next) as usize - ptr as usize },
+        48usize,
+        "Offset of field: ___itt_clock_domain::next"
+    );
+}
 pub type __itt_clock_domain = ___itt_clock_domain;
 pub type __itt_clock_domain_create_ptr__3_0_t = ::std::option::Option<
     unsafe extern "C" fn(
@@ -818,11 +938,11 @@ pub type __itt_clock_domain_create_ptr__3_0_t = ::std::option::Option<
         fn_data: *mut ::std::os::raw::c_void,
     ) -> *mut __itt_clock_domain,
 >;
-unsafe extern "C" {
+extern "C" {
     pub static mut __itt_clock_domain_create_ptr__3_0: __itt_clock_domain_create_ptr__3_0_t;
 }
 pub type __itt_clock_domain_reset_ptr__3_0_t = ::std::option::Option<unsafe extern "C" fn()>;
-unsafe extern "C" {
+extern "C" {
     pub static mut __itt_clock_domain_reset_ptr__3_0: __itt_clock_domain_reset_ptr__3_0_t;
 }
 pub type __itt_id_create_ex_ptr__3_0_t = ::std::option::Option<
@@ -833,7 +953,7 @@ pub type __itt_id_create_ex_ptr__3_0_t = ::std::option::Option<
         id: __itt_id,
     ),
 >;
-unsafe extern "C" {
+extern "C" {
     pub static mut __itt_id_create_ex_ptr__3_0: __itt_id_create_ex_ptr__3_0_t;
 }
 pub type __itt_id_destroy_ex_ptr__3_0_t = ::std::option::Option<
@@ -844,7 +964,7 @@ pub type __itt_id_destroy_ex_ptr__3_0_t = ::std::option::Option<
         id: __itt_id,
     ),
 >;
-unsafe extern "C" {
+extern "C" {
     pub static mut __itt_id_destroy_ex_ptr__3_0: __itt_id_destroy_ex_ptr__3_0_t;
 }
 pub type __itt_task_begin_ex_ptr__3_0_t = ::std::option::Option<
@@ -857,7 +977,7 @@ pub type __itt_task_begin_ex_ptr__3_0_t = ::std::option::Option<
         name: *mut __itt_string_handle,
     ),
 >;
-unsafe extern "C" {
+extern "C" {
     pub static mut __itt_task_begin_ex_ptr__3_0: __itt_task_begin_ex_ptr__3_0_t;
 }
 pub type __itt_task_begin_fn_ex_ptr__3_0_t = ::std::option::Option<
@@ -870,7 +990,7 @@ pub type __itt_task_begin_fn_ex_ptr__3_0_t = ::std::option::Option<
         fn_: *mut ::std::os::raw::c_void,
     ),
 >;
-unsafe extern "C" {
+extern "C" {
     pub static mut __itt_task_begin_fn_ex_ptr__3_0: __itt_task_begin_fn_ex_ptr__3_0_t;
 }
 pub type __itt_task_end_ex_ptr__3_0_t = ::std::option::Option<
@@ -880,7 +1000,7 @@ pub type __itt_task_end_ex_ptr__3_0_t = ::std::option::Option<
         timestamp: ::std::os::raw::c_ulonglong,
     ),
 >;
-unsafe extern "C" {
+extern "C" {
     pub static mut __itt_task_end_ex_ptr__3_0: __itt_task_end_ex_ptr__3_0_t;
 }
 #[repr(C)]
@@ -896,35 +1016,35 @@ pub type __itt_counter_create_ptr__3_0_t = ::std::option::Option<
         domain: *const ::std::os::raw::c_char,
     ) -> __itt_counter,
 >;
-unsafe extern "C" {
+extern "C" {
     pub static mut __itt_counter_create_ptr__3_0: __itt_counter_create_ptr__3_0_t;
 }
 pub type __itt_counter_inc_ptr__3_0_t =
     ::std::option::Option<unsafe extern "C" fn(id: __itt_counter)>;
-unsafe extern "C" {
+extern "C" {
     pub static mut __itt_counter_inc_ptr__3_0: __itt_counter_inc_ptr__3_0_t;
 }
 pub type __itt_counter_inc_delta_ptr__3_0_t = ::std::option::Option<
     unsafe extern "C" fn(id: __itt_counter, value: ::std::os::raw::c_ulonglong),
 >;
-unsafe extern "C" {
+extern "C" {
     pub static mut __itt_counter_inc_delta_ptr__3_0: __itt_counter_inc_delta_ptr__3_0_t;
 }
 pub type __itt_counter_dec_ptr__3_0_t =
     ::std::option::Option<unsafe extern "C" fn(id: __itt_counter)>;
-unsafe extern "C" {
+extern "C" {
     pub static mut __itt_counter_dec_ptr__3_0: __itt_counter_dec_ptr__3_0_t;
 }
 pub type __itt_counter_dec_delta_ptr__3_0_t = ::std::option::Option<
     unsafe extern "C" fn(id: __itt_counter, value: ::std::os::raw::c_ulonglong),
 >;
-unsafe extern "C" {
+extern "C" {
     pub static mut __itt_counter_dec_delta_ptr__3_0: __itt_counter_dec_delta_ptr__3_0_t;
 }
 pub type __itt_counter_inc_v3_ptr__3_0_t = ::std::option::Option<
     unsafe extern "C" fn(domain: *const __itt_domain, name: *mut __itt_string_handle),
 >;
-unsafe extern "C" {
+extern "C" {
     pub static mut __itt_counter_inc_v3_ptr__3_0: __itt_counter_inc_v3_ptr__3_0_t;
 }
 pub type __itt_counter_inc_delta_v3_ptr__3_0_t = ::std::option::Option<
@@ -934,13 +1054,13 @@ pub type __itt_counter_inc_delta_v3_ptr__3_0_t = ::std::option::Option<
         delta: ::std::os::raw::c_ulonglong,
     ),
 >;
-unsafe extern "C" {
+extern "C" {
     pub static mut __itt_counter_inc_delta_v3_ptr__3_0: __itt_counter_inc_delta_v3_ptr__3_0_t;
 }
 pub type __itt_counter_dec_v3_ptr__3_0_t = ::std::option::Option<
     unsafe extern "C" fn(domain: *const __itt_domain, name: *mut __itt_string_handle),
 >;
-unsafe extern "C" {
+extern "C" {
     pub static mut __itt_counter_dec_v3_ptr__3_0: __itt_counter_dec_v3_ptr__3_0_t;
 }
 pub type __itt_counter_dec_delta_v3_ptr__3_0_t = ::std::option::Option<
@@ -950,13 +1070,13 @@ pub type __itt_counter_dec_delta_v3_ptr__3_0_t = ::std::option::Option<
         delta: ::std::os::raw::c_ulonglong,
     ),
 >;
-unsafe extern "C" {
+extern "C" {
     pub static mut __itt_counter_dec_delta_v3_ptr__3_0: __itt_counter_dec_delta_v3_ptr__3_0_t;
 }
 pub type __itt_counter_set_value_ptr__3_0_t = ::std::option::Option<
     unsafe extern "C" fn(id: __itt_counter, value_ptr: *mut ::std::os::raw::c_void),
 >;
-unsafe extern "C" {
+extern "C" {
     pub static mut __itt_counter_set_value_ptr__3_0: __itt_counter_set_value_ptr__3_0_t;
 }
 pub type __itt_counter_set_value_ex_ptr__3_0_t = ::std::option::Option<
@@ -967,7 +1087,7 @@ pub type __itt_counter_set_value_ex_ptr__3_0_t = ::std::option::Option<
         value_ptr: *mut ::std::os::raw::c_void,
     ),
 >;
-unsafe extern "C" {
+extern "C" {
     pub static mut __itt_counter_set_value_ex_ptr__3_0: __itt_counter_set_value_ex_ptr__3_0_t;
 }
 pub type __itt_counter_create_typed_ptr__3_0_t = ::std::option::Option<
@@ -977,12 +1097,12 @@ pub type __itt_counter_create_typed_ptr__3_0_t = ::std::option::Option<
         type_: __itt_metadata_type,
     ) -> __itt_counter,
 >;
-unsafe extern "C" {
+extern "C" {
     pub static mut __itt_counter_create_typed_ptr__3_0: __itt_counter_create_typed_ptr__3_0_t;
 }
 pub type __itt_counter_destroy_ptr__3_0_t =
     ::std::option::Option<unsafe extern "C" fn(id: __itt_counter)>;
-unsafe extern "C" {
+extern "C" {
     pub static mut __itt_counter_destroy_ptr__3_0: __itt_counter_destroy_ptr__3_0_t;
 }
 pub type __itt_marker_ex_ptr__3_0_t = ::std::option::Option<
@@ -995,7 +1115,7 @@ pub type __itt_marker_ex_ptr__3_0_t = ::std::option::Option<
         scope: __itt_scope,
     ),
 >;
-unsafe extern "C" {
+extern "C" {
     pub static mut __itt_marker_ex_ptr__3_0: __itt_marker_ex_ptr__3_0_t;
 }
 pub type __itt_relation_add_to_current_ex_ptr__3_0_t = ::std::option::Option<
@@ -1007,7 +1127,7 @@ pub type __itt_relation_add_to_current_ex_ptr__3_0_t = ::std::option::Option<
         tail: __itt_id,
     ),
 >;
-unsafe extern "C" {
+extern "C" {
     pub static mut __itt_relation_add_to_current_ex_ptr__3_0:
         __itt_relation_add_to_current_ex_ptr__3_0_t;
 }
@@ -1021,7 +1141,7 @@ pub type __itt_relation_add_ex_ptr__3_0_t = ::std::option::Option<
         tail: __itt_id,
     ),
 >;
-unsafe extern "C" {
+extern "C" {
     pub static mut __itt_relation_add_ex_ptr__3_0: __itt_relation_add_ex_ptr__3_0_t;
 }
 pub const ___itt_track_group_type___itt_track_group_type_normal: ___itt_track_group_type = 0;
@@ -1044,23 +1164,51 @@ pub struct ___itt_track_group {
     pub extra2: *mut ::std::os::raw::c_void,
     pub next: *mut ___itt_track_group,
 }
-#[allow(clippy::unnecessary_operation, clippy::identity_op)]
-const _: () = {
-    ["Size of ___itt_track_group"][::std::mem::size_of::<___itt_track_group>() - 40usize];
-    ["Alignment of ___itt_track_group"][::std::mem::align_of::<___itt_track_group>() - 8usize];
-    ["Offset of field: ___itt_track_group::name"]
-        [::std::mem::offset_of!(___itt_track_group, name) - 0usize];
-    ["Offset of field: ___itt_track_group::track"]
-        [::std::mem::offset_of!(___itt_track_group, track) - 8usize];
-    ["Offset of field: ___itt_track_group::tgtype"]
-        [::std::mem::offset_of!(___itt_track_group, tgtype) - 16usize];
-    ["Offset of field: ___itt_track_group::extra1"]
-        [::std::mem::offset_of!(___itt_track_group, extra1) - 20usize];
-    ["Offset of field: ___itt_track_group::extra2"]
-        [::std::mem::offset_of!(___itt_track_group, extra2) - 24usize];
-    ["Offset of field: ___itt_track_group::next"]
-        [::std::mem::offset_of!(___itt_track_group, next) - 32usize];
-};
+#[test]
+fn bindgen_test_layout____itt_track_group() {
+    const UNINIT: ::std::mem::MaybeUninit<___itt_track_group> = ::std::mem::MaybeUninit::uninit();
+    let ptr = UNINIT.as_ptr();
+    assert_eq!(
+        ::std::mem::size_of::<___itt_track_group>(),
+        40usize,
+        "Size of ___itt_track_group"
+    );
+    assert_eq!(
+        ::std::mem::align_of::<___itt_track_group>(),
+        8usize,
+        "Alignment of ___itt_track_group"
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).name) as usize - ptr as usize },
+        0usize,
+        "Offset of field: ___itt_track_group::name"
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).track) as usize - ptr as usize },
+        8usize,
+        "Offset of field: ___itt_track_group::track"
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).tgtype) as usize - ptr as usize },
+        16usize,
+        "Offset of field: ___itt_track_group::tgtype"
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).extra1) as usize - ptr as usize },
+        20usize,
+        "Offset of field: ___itt_track_group::extra1"
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).extra2) as usize - ptr as usize },
+        24usize,
+        "Offset of field: ___itt_track_group::extra2"
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).next) as usize - ptr as usize },
+        32usize,
+        "Offset of field: ___itt_track_group::next"
+    );
+}
 pub type __itt_track_group = ___itt_track_group;
 pub const ___itt_track_type___itt_track_type_normal: ___itt_track_type = 0;
 #[doc = " @brief Placeholder for custom track types. Currently, \"normal\" custom track\n is the only available track type."]
@@ -1082,19 +1230,51 @@ pub struct ___itt_track {
     pub extra2: *mut ::std::os::raw::c_void,
     pub next: *mut ___itt_track,
 }
-#[allow(clippy::unnecessary_operation, clippy::identity_op)]
-const _: () = {
-    ["Size of ___itt_track"][::std::mem::size_of::<___itt_track>() - 40usize];
-    ["Alignment of ___itt_track"][::std::mem::align_of::<___itt_track>() - 8usize];
-    ["Offset of field: ___itt_track::name"][::std::mem::offset_of!(___itt_track, name) - 0usize];
-    ["Offset of field: ___itt_track::group"][::std::mem::offset_of!(___itt_track, group) - 8usize];
-    ["Offset of field: ___itt_track::ttype"][::std::mem::offset_of!(___itt_track, ttype) - 16usize];
-    ["Offset of field: ___itt_track::extra1"]
-        [::std::mem::offset_of!(___itt_track, extra1) - 20usize];
-    ["Offset of field: ___itt_track::extra2"]
-        [::std::mem::offset_of!(___itt_track, extra2) - 24usize];
-    ["Offset of field: ___itt_track::next"][::std::mem::offset_of!(___itt_track, next) - 32usize];
-};
+#[test]
+fn bindgen_test_layout____itt_track() {
+    const UNINIT: ::std::mem::MaybeUninit<___itt_track> = ::std::mem::MaybeUninit::uninit();
+    let ptr = UNINIT.as_ptr();
+    assert_eq!(
+        ::std::mem::size_of::<___itt_track>(),
+        40usize,
+        "Size of ___itt_track"
+    );
+    assert_eq!(
+        ::std::mem::align_of::<___itt_track>(),
+        8usize,
+        "Alignment of ___itt_track"
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).name) as usize - ptr as usize },
+        0usize,
+        "Offset of field: ___itt_track::name"
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).group) as usize - ptr as usize },
+        8usize,
+        "Offset of field: ___itt_track::group"
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).ttype) as usize - ptr as usize },
+        16usize,
+        "Offset of field: ___itt_track::ttype"
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).extra1) as usize - ptr as usize },
+        20usize,
+        "Offset of field: ___itt_track::extra1"
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).extra2) as usize - ptr as usize },
+        24usize,
+        "Offset of field: ___itt_track::extra2"
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).next) as usize - ptr as usize },
+        32usize,
+        "Offset of field: ___itt_track::next"
+    );
+}
 pub type __itt_track = ___itt_track;
 pub type __itt_track_group_create_ptr__3_0_t = ::std::option::Option<
     unsafe extern "C" fn(
@@ -1102,7 +1282,7 @@ pub type __itt_track_group_create_ptr__3_0_t = ::std::option::Option<
         track_group_type: __itt_track_group_type,
     ) -> *mut __itt_track_group,
 >;
-unsafe extern "C" {
+extern "C" {
     pub static mut __itt_track_group_create_ptr__3_0: __itt_track_group_create_ptr__3_0_t;
 }
 pub type __itt_track_create_ptr__3_0_t = ::std::option::Option<
@@ -1112,12 +1292,12 @@ pub type __itt_track_create_ptr__3_0_t = ::std::option::Option<
         track_type: __itt_track_type,
     ) -> *mut __itt_track,
 >;
-unsafe extern "C" {
+extern "C" {
     pub static mut __itt_track_create_ptr__3_0: __itt_track_create_ptr__3_0_t;
 }
 pub type __itt_set_track_ptr__3_0_t =
     ::std::option::Option<unsafe extern "C" fn(track: *mut __itt_track)>;
-unsafe extern "C" {
+extern "C" {
     pub static mut __itt_set_track_ptr__3_0: __itt_set_track_ptr__3_0_t;
 }
 #[doc = " @cond exclude_from_gpa_documentation */\n/**\n @defgroup events Events\n @ingroup public\n Events group\n @{\n/\n/** @brief user event type"]
@@ -1128,17 +1308,17 @@ pub type __itt_event_create_ptr__3_0_t = ::std::option::Option<
         namelen: ::std::os::raw::c_int,
     ) -> __itt_event,
 >;
-unsafe extern "C" {
+extern "C" {
     pub static mut __itt_event_create_ptr__3_0: __itt_event_create_ptr__3_0_t;
 }
 pub type __itt_event_start_ptr__3_0_t =
     ::std::option::Option<unsafe extern "C" fn(event: __itt_event) -> ::std::os::raw::c_int>;
-unsafe extern "C" {
+extern "C" {
     pub static mut __itt_event_start_ptr__3_0: __itt_event_start_ptr__3_0_t;
 }
 pub type __itt_event_end_ptr__3_0_t =
     ::std::option::Option<unsafe extern "C" fn(event: __itt_event) -> ::std::os::raw::c_int>;
-unsafe extern "C" {
+extern "C" {
     pub static mut __itt_event_end_ptr__3_0: __itt_event_end_ptr__3_0_t;
 }
 pub type __itt_av_save_ptr__3_0_t = ::std::option::Option<
@@ -1151,11 +1331,11 @@ pub type __itt_av_save_ptr__3_0_t = ::std::option::Option<
         columnOrder: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int,
 >;
-unsafe extern "C" {
+extern "C" {
     pub static mut __itt_av_save_ptr__3_0: __itt_av_save_ptr__3_0_t;
 }
 pub type __itt_enable_attach_ptr__3_0_t = ::std::option::Option<unsafe extern "C" fn()>;
-unsafe extern "C" {
+extern "C" {
     pub static mut __itt_enable_attach_ptr__3_0: __itt_enable_attach_ptr__3_0_t;
 }
 pub type __itt_module_load_ptr__3_0_t = ::std::option::Option<
@@ -1165,12 +1345,12 @@ pub type __itt_module_load_ptr__3_0_t = ::std::option::Option<
         path: *const ::std::os::raw::c_char,
     ),
 >;
-unsafe extern "C" {
+extern "C" {
     pub static mut __itt_module_load_ptr__3_0: __itt_module_load_ptr__3_0_t;
 }
 pub type __itt_module_unload_ptr__3_0_t =
     ::std::option::Option<unsafe extern "C" fn(addr: *mut ::std::os::raw::c_void)>;
-unsafe extern "C" {
+extern "C" {
     pub static mut __itt_module_unload_ptr__3_0: __itt_module_unload_ptr__3_0_t;
 }
 pub const __itt_module_type___itt_module_type_unknown: __itt_module_type = 0;
@@ -1200,23 +1380,51 @@ pub struct ___itt_section_info {
     #[doc = "< Section size"]
     pub file_offset: usize,
 }
-#[allow(clippy::unnecessary_operation, clippy::identity_op)]
-const _: () = {
-    ["Size of ___itt_section_info"][::std::mem::size_of::<___itt_section_info>() - 48usize];
-    ["Alignment of ___itt_section_info"][::std::mem::align_of::<___itt_section_info>() - 8usize];
-    ["Offset of field: ___itt_section_info::name"]
-        [::std::mem::offset_of!(___itt_section_info, name) - 0usize];
-    ["Offset of field: ___itt_section_info::type_"]
-        [::std::mem::offset_of!(___itt_section_info, type_) - 8usize];
-    ["Offset of field: ___itt_section_info::flags"]
-        [::std::mem::offset_of!(___itt_section_info, flags) - 16usize];
-    ["Offset of field: ___itt_section_info::start_addr"]
-        [::std::mem::offset_of!(___itt_section_info, start_addr) - 24usize];
-    ["Offset of field: ___itt_section_info::size"]
-        [::std::mem::offset_of!(___itt_section_info, size) - 32usize];
-    ["Offset of field: ___itt_section_info::file_offset"]
-        [::std::mem::offset_of!(___itt_section_info, file_offset) - 40usize];
-};
+#[test]
+fn bindgen_test_layout____itt_section_info() {
+    const UNINIT: ::std::mem::MaybeUninit<___itt_section_info> = ::std::mem::MaybeUninit::uninit();
+    let ptr = UNINIT.as_ptr();
+    assert_eq!(
+        ::std::mem::size_of::<___itt_section_info>(),
+        48usize,
+        "Size of ___itt_section_info"
+    );
+    assert_eq!(
+        ::std::mem::align_of::<___itt_section_info>(),
+        8usize,
+        "Alignment of ___itt_section_info"
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).name) as usize - ptr as usize },
+        0usize,
+        "Offset of field: ___itt_section_info::name"
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).type_) as usize - ptr as usize },
+        8usize,
+        "Offset of field: ___itt_section_info::type_"
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).flags) as usize - ptr as usize },
+        16usize,
+        "Offset of field: ___itt_section_info::flags"
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).start_addr) as usize - ptr as usize },
+        24usize,
+        "Offset of field: ___itt_section_info::start_addr"
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).size) as usize - ptr as usize },
+        32usize,
+        "Offset of field: ___itt_section_info::size"
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).file_offset) as usize - ptr as usize },
+        40usize,
+        "Offset of field: ___itt_section_info::file_offset"
+    );
+}
 pub type __itt_section_info = ___itt_section_info;
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
@@ -1237,37 +1445,71 @@ pub struct ___itt_module_object {
     pub section_array: *mut __itt_section_info,
     pub section_number: usize,
 }
-#[allow(clippy::unnecessary_operation, clippy::identity_op)]
-const _: () = {
-    ["Size of ___itt_module_object"][::std::mem::size_of::<___itt_module_object>() - 80usize];
-    ["Alignment of ___itt_module_object"][::std::mem::align_of::<___itt_module_object>() - 8usize];
-    ["Offset of field: ___itt_module_object::version"]
-        [::std::mem::offset_of!(___itt_module_object, version) - 0usize];
-    ["Offset of field: ___itt_module_object::module_id"]
-        [::std::mem::offset_of!(___itt_module_object, module_id) - 8usize];
-    ["Offset of field: ___itt_module_object::module_type"]
-        [::std::mem::offset_of!(___itt_module_object, module_type) - 32usize];
-    ["Offset of field: ___itt_module_object::module_name"]
-        [::std::mem::offset_of!(___itt_module_object, module_name) - 40usize];
-    ["Offset of field: ___itt_module_object::module_buffer"]
-        [::std::mem::offset_of!(___itt_module_object, module_buffer) - 48usize];
-    ["Offset of field: ___itt_module_object::module_size"]
-        [::std::mem::offset_of!(___itt_module_object, module_size) - 56usize];
-    ["Offset of field: ___itt_module_object::section_array"]
-        [::std::mem::offset_of!(___itt_module_object, section_array) - 64usize];
-    ["Offset of field: ___itt_module_object::section_number"]
-        [::std::mem::offset_of!(___itt_module_object, section_number) - 72usize];
-};
+#[test]
+fn bindgen_test_layout____itt_module_object() {
+    const UNINIT: ::std::mem::MaybeUninit<___itt_module_object> = ::std::mem::MaybeUninit::uninit();
+    let ptr = UNINIT.as_ptr();
+    assert_eq!(
+        ::std::mem::size_of::<___itt_module_object>(),
+        80usize,
+        "Size of ___itt_module_object"
+    );
+    assert_eq!(
+        ::std::mem::align_of::<___itt_module_object>(),
+        8usize,
+        "Alignment of ___itt_module_object"
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).version) as usize - ptr as usize },
+        0usize,
+        "Offset of field: ___itt_module_object::version"
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).module_id) as usize - ptr as usize },
+        8usize,
+        "Offset of field: ___itt_module_object::module_id"
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).module_type) as usize - ptr as usize },
+        32usize,
+        "Offset of field: ___itt_module_object::module_type"
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).module_name) as usize - ptr as usize },
+        40usize,
+        "Offset of field: ___itt_module_object::module_name"
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).module_buffer) as usize - ptr as usize },
+        48usize,
+        "Offset of field: ___itt_module_object::module_buffer"
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).module_size) as usize - ptr as usize },
+        56usize,
+        "Offset of field: ___itt_module_object::module_size"
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).section_array) as usize - ptr as usize },
+        64usize,
+        "Offset of field: ___itt_module_object::section_array"
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).section_number) as usize - ptr as usize },
+        72usize,
+        "Offset of field: ___itt_module_object::section_number"
+    );
+}
 pub type __itt_module_object = ___itt_module_object;
 pub type __itt_module_load_with_sections_ptr__3_0_t =
     ::std::option::Option<unsafe extern "C" fn(module_obj: *mut __itt_module_object)>;
-unsafe extern "C" {
+extern "C" {
     pub static mut __itt_module_load_with_sections_ptr__3_0:
         __itt_module_load_with_sections_ptr__3_0_t;
 }
 pub type __itt_module_unload_with_sections_ptr__3_0_t =
     ::std::option::Option<unsafe extern "C" fn(module_obj: *mut __itt_module_object)>;
-unsafe extern "C" {
+extern "C" {
     pub static mut __itt_module_unload_with_sections_ptr__3_0:
         __itt_module_unload_with_sections_ptr__3_0_t;
 }
@@ -1289,27 +1531,61 @@ pub struct ___itt_histogram {
     pub extra2: *mut ::std::os::raw::c_void,
     pub next: *mut ___itt_histogram,
 }
-#[allow(clippy::unnecessary_operation, clippy::identity_op)]
-const _: () = {
-    ["Size of ___itt_histogram"][::std::mem::size_of::<___itt_histogram>() - 56usize];
-    ["Alignment of ___itt_histogram"][::std::mem::align_of::<___itt_histogram>() - 8usize];
-    ["Offset of field: ___itt_histogram::domain"]
-        [::std::mem::offset_of!(___itt_histogram, domain) - 0usize];
-    ["Offset of field: ___itt_histogram::nameA"]
-        [::std::mem::offset_of!(___itt_histogram, nameA) - 8usize];
-    ["Offset of field: ___itt_histogram::nameW"]
-        [::std::mem::offset_of!(___itt_histogram, nameW) - 16usize];
-    ["Offset of field: ___itt_histogram::x_type"]
-        [::std::mem::offset_of!(___itt_histogram, x_type) - 24usize];
-    ["Offset of field: ___itt_histogram::y_type"]
-        [::std::mem::offset_of!(___itt_histogram, y_type) - 28usize];
-    ["Offset of field: ___itt_histogram::extra1"]
-        [::std::mem::offset_of!(___itt_histogram, extra1) - 32usize];
-    ["Offset of field: ___itt_histogram::extra2"]
-        [::std::mem::offset_of!(___itt_histogram, extra2) - 40usize];
-    ["Offset of field: ___itt_histogram::next"]
-        [::std::mem::offset_of!(___itt_histogram, next) - 48usize];
-};
+#[test]
+fn bindgen_test_layout____itt_histogram() {
+    const UNINIT: ::std::mem::MaybeUninit<___itt_histogram> = ::std::mem::MaybeUninit::uninit();
+    let ptr = UNINIT.as_ptr();
+    assert_eq!(
+        ::std::mem::size_of::<___itt_histogram>(),
+        56usize,
+        "Size of ___itt_histogram"
+    );
+    assert_eq!(
+        ::std::mem::align_of::<___itt_histogram>(),
+        8usize,
+        "Alignment of ___itt_histogram"
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).domain) as usize - ptr as usize },
+        0usize,
+        "Offset of field: ___itt_histogram::domain"
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).nameA) as usize - ptr as usize },
+        8usize,
+        "Offset of field: ___itt_histogram::nameA"
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).nameW) as usize - ptr as usize },
+        16usize,
+        "Offset of field: ___itt_histogram::nameW"
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).x_type) as usize - ptr as usize },
+        24usize,
+        "Offset of field: ___itt_histogram::x_type"
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).y_type) as usize - ptr as usize },
+        28usize,
+        "Offset of field: ___itt_histogram::y_type"
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).extra1) as usize - ptr as usize },
+        32usize,
+        "Offset of field: ___itt_histogram::extra1"
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).extra2) as usize - ptr as usize },
+        40usize,
+        "Offset of field: ___itt_histogram::extra2"
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).next) as usize - ptr as usize },
+        48usize,
+        "Offset of field: ___itt_histogram::next"
+    );
+}
 pub type __itt_histogram = ___itt_histogram;
 pub type __itt_histogram_create_ptr__3_0_t = ::std::option::Option<
     unsafe extern "C" fn(
@@ -1319,7 +1595,7 @@ pub type __itt_histogram_create_ptr__3_0_t = ::std::option::Option<
         y_type: __itt_metadata_type,
     ) -> *mut __itt_histogram,
 >;
-unsafe extern "C" {
+extern "C" {
     pub static mut __itt_histogram_create_ptr__3_0: __itt_histogram_create_ptr__3_0_t;
 }
 pub type __itt_histogram_submit_ptr__3_0_t = ::std::option::Option<
@@ -1330,7 +1606,7 @@ pub type __itt_histogram_submit_ptr__3_0_t = ::std::option::Option<
         y_data: *mut ::std::os::raw::c_void,
     ),
 >;
-unsafe extern "C" {
+extern "C" {
     pub static mut __itt_histogram_submit_ptr__3_0: __itt_histogram_submit_ptr__3_0_t;
 }
 pub type __itt_counter_create_v3_ptr__3_0_t = ::std::option::Option<
@@ -1340,13 +1616,13 @@ pub type __itt_counter_create_v3_ptr__3_0_t = ::std::option::Option<
         type_: __itt_metadata_type,
     ) -> __itt_counter,
 >;
-unsafe extern "C" {
+extern "C" {
     pub static mut __itt_counter_create_v3_ptr__3_0: __itt_counter_create_v3_ptr__3_0_t;
 }
 pub type __itt_counter_set_value_v3_ptr__3_0_t = ::std::option::Option<
     unsafe extern "C" fn(counter: __itt_counter, value_ptr: *mut ::std::os::raw::c_void),
 >;
-unsafe extern "C" {
+extern "C" {
     pub static mut __itt_counter_set_value_v3_ptr__3_0: __itt_counter_set_value_v3_ptr__3_0_t;
 }
 #[doc = "< Undefined type"]
@@ -1395,16 +1671,32 @@ pub struct ___itt_context_metadata {
     #[doc = "< Pointer to context metadata value itself"]
     pub value: *mut ::std::os::raw::c_void,
 }
-#[allow(clippy::unnecessary_operation, clippy::identity_op)]
-const _: () = {
-    ["Size of ___itt_context_metadata"][::std::mem::size_of::<___itt_context_metadata>() - 16usize];
-    ["Alignment of ___itt_context_metadata"]
-        [::std::mem::align_of::<___itt_context_metadata>() - 8usize];
-    ["Offset of field: ___itt_context_metadata::type_"]
-        [::std::mem::offset_of!(___itt_context_metadata, type_) - 0usize];
-    ["Offset of field: ___itt_context_metadata::value"]
-        [::std::mem::offset_of!(___itt_context_metadata, value) - 8usize];
-};
+#[test]
+fn bindgen_test_layout____itt_context_metadata() {
+    const UNINIT: ::std::mem::MaybeUninit<___itt_context_metadata> =
+        ::std::mem::MaybeUninit::uninit();
+    let ptr = UNINIT.as_ptr();
+    assert_eq!(
+        ::std::mem::size_of::<___itt_context_metadata>(),
+        16usize,
+        "Size of ___itt_context_metadata"
+    );
+    assert_eq!(
+        ::std::mem::align_of::<___itt_context_metadata>(),
+        8usize,
+        "Alignment of ___itt_context_metadata"
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).type_) as usize - ptr as usize },
+        0usize,
+        "Offset of field: ___itt_context_metadata::type_"
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).value) as usize - ptr as usize },
+        8usize,
+        "Offset of field: ___itt_context_metadata::value"
+    );
+}
 pub type __itt_context_metadata = ___itt_context_metadata;
 pub type __itt_bind_context_metadata_to_counter_ptr__3_0_t = ::std::option::Option<
     unsafe extern "C" fn(
@@ -1413,7 +1705,7 @@ pub type __itt_bind_context_metadata_to_counter_ptr__3_0_t = ::std::option::Opti
         metadata: *mut __itt_context_metadata,
     ),
 >;
-unsafe extern "C" {
+extern "C" {
     pub static mut __itt_bind_context_metadata_to_counter_ptr__3_0:
         __itt_bind_context_metadata_to_counter_ptr__3_0_t;
 }
