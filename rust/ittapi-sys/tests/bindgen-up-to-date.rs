@@ -13,6 +13,11 @@
 
 const INCLUDE_PATH: &'static str = "./c-library/include";
 
+// Pinned so the output doesn't depend on the local rustc and stays usable by older compilers.
+fn rust_target() -> bindgen::RustTarget {
+    bindgen::RustTarget::stable(70, 0).unwrap()
+}
+
 #[cfg(target_os = "linux")]
 const BINDINGS_PATH: &'static str = "src/linux";
 #[cfg(target_os = "macos")]
@@ -30,6 +35,7 @@ fn test_ittnotify_bindings_up_to_date() {
     // `libc` differences.
     let mut expected = bindgen::Builder::default()
         .formatter(bindgen::Formatter::Rustfmt)
+        .rust_target(rust_target())
         .allowlist_var("ITT.*")
         .allowlist_var("__itt.*")
         // Also, note how few functions we allow: if we generate bindings for all the declared
@@ -68,6 +74,7 @@ fn test_ittnotify_bindings_up_to_date() {
 fn test_jitprofiling_bindings_up_to_date() {
     let mut expected = bindgen::Builder::default()
         .formatter(bindgen::Formatter::Rustfmt)
+        .rust_target(rust_target())
         .header(concat(INCLUDE_PATH, "/jitprofiling.h"))
         .generate()
         .expect("Unable to generate jitprofiling bindings")

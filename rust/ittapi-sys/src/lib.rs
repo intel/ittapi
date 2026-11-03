@@ -6,6 +6,7 @@
 #![warn(clippy::pedantic)]
 #![warn(clippy::cargo)]
 #![allow(clippy::unreadable_literal)]
+#![allow(clippy::doc_markdown)]
 
 // The ITT bindings are OS-specific: they contain OS-specific constants (e.g. `ITT_OS` and
 // `ITT_PLATFORM`) and some of the Windows structure sizes are different. Because of this, we
