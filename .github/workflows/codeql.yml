@@ -44,7 +44,7 @@ jobs:
           category: "/language:${{matrix.language}}"
 
       - name: Generate CodeQL Security Report
-        uses: rsdmike/github-security-report-action@a149b24539044c92786ec39af8ba38c93496495d # v3.0.4
+        uses: rsdmike/github-security-report-action@a3d8cc051bc89f1b622d396adab901aa73857a29 # v4.1.0
         with:
           template: report
           token: ${{ secrets.GITHUB_TOKEN }}
