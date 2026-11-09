@@ -27,6 +27,7 @@ option(ITT_API_FORTRAN_SUPPORT "fortran support" OFF)
 option(ITT_API_CPP_SUPPORT "C++ wrapper support" OFF)
 option(ITT_API_REFERENCE_COLLECTOR "Build reference collector shared library" OFF)
 option(ITT_API_INSTALL "Enable ITT API installation rules" ON)
+option(ITT_API_INSTALL_COLLECTOR_HEADERS "Install internal headers for collector implementations" OFF)
 
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "^(Apple)?Clang$")
     # override default -O3
@@ -44,6 +45,8 @@ foreach(OUTPUTCONFIG ${CMAKE_CONFIGURATION_TYPES})
     string(TOUPPER ${OUTPUTCONFIG} OUTPUTCONFIG)
     set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_${OUTPUTCONFIG} ${LIBRARY_OUTPUT_PATH})
 endforeach()
+
+include(GNUInstallDirs)
 
 set(ITT_PUBLIC_HDRS
     include/ittnotify.h
@@ -115,6 +118,39 @@ add_library(ittapi::ittnotify ALIAS ittnotify)
 set(JITPROFILING_SRC "src/ittnotify/jitprofiling.c")
 add_library(jitprofiling STATIC ${JITPROFILING_SRC})
 
+# Public headers only.
+add_library(ittapi_headers INTERFACE)
+set_target_properties(ittapi_headers PROPERTIES EXPORT_NAME headers)
+target_include_directories(ittapi_headers INTERFACE
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+)
+add_library(ittapi::headers ALIAS ittapi_headers)
+
+# Internal headers for collector implementations. Including them changes the
+# build of the including code, so they are kept apart from ittapi::headers.
+# They are copied so that src/ittnotify, which holds other internal headers,
+# is not exposed; the copies are laid out the same way as in the install tree.
+set(ITT_COLLECTOR_HDRS
+    src/ittnotify/ittnotify_config.h
+    src/ittnotify/ittnotify_types.h
+)
+foreach(ITT_COLLECTOR_HDR ${ITT_COLLECTOR_HDRS})
+    get_filename_component(ITT_COLLECTOR_HDR_NAME ${ITT_COLLECTOR_HDR} NAME)
+    configure_file(${ITT_COLLECTOR_HDR}
+                   ${CMAKE_CURRENT_BINARY_DIR}/include/ittnotify/${ITT_COLLECTOR_HDR_NAME}
+                   COPYONLY)
+endforeach()
+
+add_library(ittapi_collector_headers INTERFACE)
+set_target_properties(ittapi_collector_headers PROPERTIES EXPORT_NAME collector_headers)
+target_include_directories(ittapi_collector_headers INTERFACE
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include/ittnotify>
+    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/ittnotify>
+)
+target_link_libraries(ittapi_collector_headers INTERFACE ittapi_headers)
+add_library(ittapi::collector_headers ALIAS ittapi_collector_headers)
+
 if(ITT_API_REFERENCE_COLLECTOR)
     add_subdirectory(src/ittnotify_refcol)
 endif()
@@ -158,10 +194,14 @@ endif()
 # install
 
 include(CMakePackageConfigHelpers)
-include(GNUInstallDirs)
 
 if(ITT_API_INSTALL)
     install(TARGETS ittnotify EXPORT ittapi-targets INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+    install(TARGETS ittapi_headers EXPORT ittapi-targets)
+    if(ITT_API_INSTALL_COLLECTOR_HEADERS)
+        install(TARGETS ittapi_collector_headers EXPORT ittapi-targets)
+        install(FILES ${ITT_COLLECTOR_HDRS} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/ittnotify)
+    endif()
     if(ITT_API_CPP_SUPPORT)
         install(TARGETS ittapi-cpp EXPORT ittapi-targets)
         install(DIRECTORY cpp/include/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
